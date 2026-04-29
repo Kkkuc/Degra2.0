@@ -7,7 +7,7 @@ var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<TimetableDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SuperHeroesDB")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
 
 var app = builder.Build();
 
