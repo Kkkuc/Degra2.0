@@ -9,7 +9,7 @@ public class Group
     public int SemesterId { get; set; }
     [ForeignKey("SemesterId")] public virtual Semester Semester { get; set; }
     public int SpecializationId { get; set; }
-    [ForeignKey("SpecializationId")] public virtual Specialization Specialization { get; set; }
+    [ForeignKey("SpecializationId")] public virtual Specialization Specialization { get; set; } // It needs to be changed
     public int ClassTypeId { get; set; }
     [ForeignKey("ClassTypeId")] public virtual ClassType ClassType { get; set; }
     [Required, MaxLength(50)] public string Name { get; set; } // e.g., "Group L5"

@@ -8,5 +8,5 @@ public class AcademicYear
     [Required, MaxLength(20)] public string Name { get; set; } // e.g., "2025/2026"
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public virtual ICollection<Semester> Semesters { get; set; }
+    public virtual ICollection<Semester> Semesters { get; set; } 
 }
