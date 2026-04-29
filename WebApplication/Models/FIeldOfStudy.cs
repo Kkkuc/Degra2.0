@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication.Models;
 
-public class FieldOfStudy
+public class FieldOfStudy // ?????
 {
     [Key] public int Id { get; set; }
     public int DepartmentId { get; set; }
