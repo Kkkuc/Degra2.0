@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using TimetableApp.Models;
+using WebApplication.Models;
 
 namespace TimetableApp.Data
 {
