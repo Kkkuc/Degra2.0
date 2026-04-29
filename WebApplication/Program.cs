@@ -1,7 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using TimetableApp.Data;
+
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<TimetableDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SuperHeroesDB")));
 
 var app = builder.Build();
 
