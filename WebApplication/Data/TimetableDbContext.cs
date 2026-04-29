@@ -1,15 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using TimetableApp.Models;
+using WebApplication.Models;
 
 namespace TimetableApp.Data
 {
-    public class TimetableDbContext : DbContext
+    public class TimetableDbContext(DbContextOptions<TimetableDbContext> options) : DbContext(options)
     {
-        public TimetableDbContext(DbContextOptions<TimetableDbContext> options)
-            : base(options)
-        {
-        }
-
         // Organizational Structure
         public DbSet<AcademicYear> AcademicYears { get; set; }
         public DbSet<Semester> Semesters { get; set; }
