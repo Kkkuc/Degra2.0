@@ -55,7 +55,7 @@ namespace WebApplication.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Departments",
+                name: "Faculties",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
@@ -202,7 +202,7 @@ namespace WebApplication.Migrations
                     table.ForeignKey(
                         name: "FK_FieldsOfStudy_Departments_DepartmentId",
                         column: x => x.DepartmentId,
-                        principalTable: "Departments",
+                        principalTable: "Faculties",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -590,7 +590,7 @@ namespace WebApplication.Migrations
                 name: "FieldsOfStudy");
 
             migrationBuilder.DropTable(
-                name: "Departments");
+                name: "Faculties");
         }
     }
 }

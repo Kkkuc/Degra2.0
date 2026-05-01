@@ -7,7 +7,7 @@ namespace WebApplication.Data
     {
         public DbSet<AcademicYear> AcademicYears { get; set; }
         public DbSet<Semester> Semesters { get; set; }
-        public DbSet<Department> Departments { get; set; }
+        public DbSet<Faculty> Faculties { get; set; }
         public DbSet<FieldOfStudy> FieldsOfStudy { get; set; }
         public DbSet<Specialization> Specializations { get; set; }
         public DbSet<Building> Buildings { get; set; }

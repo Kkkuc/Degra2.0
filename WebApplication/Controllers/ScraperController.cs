@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using WebApplication.Data;
@@ -41,4 +41,4 @@ namespace WebApplication.Controllers
             return RedirectToAction("Index");
         }
     }
-}
+}*/

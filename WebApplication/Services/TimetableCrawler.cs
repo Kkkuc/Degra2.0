@@ -36,11 +36,11 @@ namespace WebApplication.Services
 
             var teacherIds = optionNodes.Select(n => n.GetAttributeValue("value", "")).Where(id => !string.IsNullOrEmpty(id)).ToList();
 
-            var defaultDepartment = await _context.Departments.FirstOrDefaultAsync(d => d.Name == "Wydział Informatyki PB");
+            var defaultDepartment = await _context.Faculties.FirstOrDefaultAsync(d => d.Name == "Wydział Informatyki PB");
             if (defaultDepartment == null)
             {
-                defaultDepartment = new Department { Name = "Wydział Informatyki PB", Abbreviation = "WI" };
-                _context.Departments.Add(defaultDepartment);
+                defaultDepartment = new Faculty { Name = "Wydział Informatyki PB", Abbreviation = "WI" };
+                _context.Faculties.Add(defaultDepartment);
                 await _context.SaveChangesAsync();
             }
 
@@ -78,7 +78,7 @@ namespace WebApplication.Services
             }
         }
 
-        private async Task SaveToDatabaseAsync(List<ScrapedTimetableDto> scrapedData, Department dept, AcademicYear year, Building building)
+        private async Task SaveToDatabaseAsync(List<ScrapedTimetableDto> scrapedData, Faculty dept, AcademicYear year, Building building)
         {
             foreach (var entry in scrapedData)
             {

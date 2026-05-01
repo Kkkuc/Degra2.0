@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using WebApplication.Services;
 
@@ -22,4 +22,4 @@ namespace WebApplication.Controllers
             return Ok("Crawling finished successfully.");
         }
     }
-}
+}*/
