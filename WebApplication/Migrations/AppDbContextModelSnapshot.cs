@@ -329,17 +329,12 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FieldOfStudyId")
-                        .HasColumnType("NUMBER(10)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("NVARCHAR2(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FieldOfStudyId");
 
                     b.ToTable("Specializations");
                 });
@@ -656,17 +651,6 @@ namespace WebApplication.Migrations
                     b.Navigation("AcademicYear");
                 });
 
-            modelBuilder.Entity("WebApplication.Models.Specialization", b =>
-                {
-                    b.HasOne("WebApplication.Models.FieldOfStudy", "FieldOfStudy")
-                        .WithMany("Specializations")
-                        .HasForeignKey("FieldOfStudyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FieldOfStudy");
-                });
-
             modelBuilder.Entity("WebApplication.Models.StudentGroup", b =>
                 {
                     b.HasOne("WebApplication.Models.Group", "Group")
@@ -764,8 +748,6 @@ namespace WebApplication.Migrations
             modelBuilder.Entity("WebApplication.Models.FieldOfStudy", b =>
                 {
                     b.Navigation("Groups");
-
-                    b.Navigation("Specializations");
                 });
 
             modelBuilder.Entity("WebApplication.Models.Group", b =>
