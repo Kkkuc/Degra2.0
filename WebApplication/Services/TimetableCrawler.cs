@@ -98,10 +98,10 @@ namespace WebApplication.Services
                     await _context.SaveChangesAsync();
                 }
 
-                var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Number == entry.RoomNumber && r.BuildingId == building.Id);
+                var room = await _context.Rooms.FirstOrDefaultAsync(r => r.RoomNumber == entry.RoomNumber && r.BuildingId == building.Id);
                 if (room == null)
                 {
-                    room = new Room { Number = entry.RoomNumber, BuildingId = building.Id, Type = "Sala", Capacity = 30 };
+                    room = new Room { RoomNumber = entry.RoomNumber, BuildingId = building.Id, RoomType = "Sala", Capacity = 30 };
                     _context.Rooms.Add(room);
                     await _context.SaveChangesAsync();
                 }
