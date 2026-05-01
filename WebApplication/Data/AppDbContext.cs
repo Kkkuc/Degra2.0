@@ -14,7 +14,7 @@ namespace WebApplication.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Student> Students { get; set; }
-        public DbSet<ClassType> ClassTypes { get; set; }
+        //public DbSet<ClassType> ClassTypes { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<StudentGroup> StudentGroups { get; set; }
