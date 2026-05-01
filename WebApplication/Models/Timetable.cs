@@ -15,8 +15,7 @@ public class Timetable
     [ForeignKey("RoomId")] public virtual Room Room { get; set; }
     public int GroupId { get; set; }
     [ForeignKey("GroupId")] public virtual Group Group { get; set; }
-    //public int ClassTypeId { get; set; }
-    //[ForeignKey("ClassTypeId")] public virtual ClassType ClassType { get; set; }
+    [Required] public ClassType ClassType { get; set; } // Zmienione z int na Enum
     [Range(1, 7)] public int DayOfWeek { get; set; }
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
