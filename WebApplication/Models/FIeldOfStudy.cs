@@ -12,4 +12,5 @@ public class FieldOfStudy // ?????
     [MaxLength(50)] public string Degree { get; set; } // e.g., Bachelor, Master
     [MaxLength(50)] public string Mode { get; set; } // e.g., Full-time, Part-time
     public virtual ICollection<Specialization> Specializations { get; set; }
+    public ICollection<Group> Groups { get; set; }
 }

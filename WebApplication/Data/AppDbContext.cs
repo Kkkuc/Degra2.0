@@ -27,6 +27,19 @@ namespace WebApplication.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            
+            modelBuilder.Entity<Group>()
+                .HasOne(g => g.FieldOfStudy)
+                .WithMany(f => f.Groups)
+                .HasForeignKey(g => g.FieldOfStudyId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<Group>()
+                .HasOne(g => g.Specialization)
+                .WithMany(s => s.Groups)
+                .HasForeignKey(g => g.SpecializationId)
+                .IsRequired(false) 
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<StudentGroup>()
                 .HasKey(sg => new { sg.StudentId, sg.GroupId });
