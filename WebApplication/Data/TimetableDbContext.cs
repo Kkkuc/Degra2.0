@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+/*using Microsoft.EntityFrameworkCore;
 using WebApplication.Models;
 
 namespace TimetableApp.Data
@@ -63,4 +63,4 @@ namespace TimetableApp.Data
                 .IsUnique();
         }
     }
-}
+}*/
