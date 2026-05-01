@@ -141,6 +141,9 @@ namespace WebApplication.Migrations
                     b.Property<int>("ClassType")
                         .HasColumnType("NUMBER(10)");
 
+                    b.Property<int>("FieldOfStudyId")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -149,10 +152,12 @@ namespace WebApplication.Migrations
                     b.Property<int>("SemesterId")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<int>("SpecializationId")
+                    b.Property<int?>("SpecializationId")
                         .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FieldOfStudyId");
 
                     b.HasIndex("SemesterId");
 
@@ -563,6 +568,12 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.Group", b =>
                 {
+                    b.HasOne("WebApplication.Models.FieldOfStudy", "FieldOfStudy")
+                        .WithMany("Groups")
+                        .HasForeignKey("FieldOfStudyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WebApplication.Models.Semester", "Semester")
                         .WithMany("Groups")
                         .HasForeignKey("SemesterId")
@@ -572,8 +583,9 @@ namespace WebApplication.Migrations
                     b.HasOne("WebApplication.Models.Specialization", "Specialization")
                         .WithMany("Groups")
                         .HasForeignKey("SpecializationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("FieldOfStudy");
 
                     b.Navigation("Semester");
 
@@ -751,6 +763,8 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.FieldOfStudy", b =>
                 {
+                    b.Navigation("Groups");
+
                     b.Navigation("Specializations");
                 });
 
