@@ -74,29 +74,6 @@ namespace WebApplication.Migrations
                     b.ToTable("Buildings");
                 });
 
-            modelBuilder.Entity("WebApplication.Models.ClassType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Abbreviation")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("NVARCHAR2(10)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ClassTypes");
-                });
-
             modelBuilder.Entity("WebApplication.Models.Faculty", b =>
                 {
                     b.Property<int>("Id")
@@ -161,9 +138,6 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClassTypeId")
-                        .HasColumnType("NUMBER(10)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -176,8 +150,6 @@ namespace WebApplication.Migrations
                         .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ClassTypeId");
 
                     b.HasIndex("SemesterId");
 
@@ -475,9 +447,6 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClassTypeId")
-                        .HasColumnType("NUMBER(10)");
-
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("NUMBER(10)");
 
@@ -503,8 +472,6 @@ namespace WebApplication.Migrations
                         .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ClassTypeId");
 
                     b.HasIndex("GroupId");
 
@@ -590,12 +557,6 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.Group", b =>
                 {
-                    b.HasOne("WebApplication.Models.ClassType", "ClassType")
-                        .WithMany()
-                        .HasForeignKey("ClassTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebApplication.Models.Semester", "Semester")
                         .WithMany("Groups")
                         .HasForeignKey("SemesterId")
@@ -607,8 +568,6 @@ namespace WebApplication.Migrations
                         .HasForeignKey("SpecializationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ClassType");
 
                     b.Navigation("Semester");
 
@@ -711,12 +670,6 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.Timetable", b =>
                 {
-                    b.HasOne("WebApplication.Models.ClassType", "ClassType")
-                        .WithMany()
-                        .HasForeignKey("ClassTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebApplication.Models.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
@@ -740,8 +693,6 @@ namespace WebApplication.Migrations
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ClassType");
 
                     b.Navigation("Group");
 
