@@ -138,6 +138,9 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ClassType")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -446,6 +449,9 @@ namespace WebApplication.Migrations
                         .HasColumnType("NUMBER(10)");
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClassType")
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("NUMBER(10)");
