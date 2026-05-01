@@ -59,12 +59,17 @@ namespace WebApplication.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("NVARCHAR2(200)");
 
+                    b.Property<int>("FacultyId")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("NVARCHAR2(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FacultyId");
 
                     b.ToTable("Buildings");
                 });
@@ -128,7 +133,7 @@ namespace WebApplication.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("NVARCHAR2(50)");
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int>("FacultyId")
                         .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Mode")
@@ -143,7 +148,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentId");
+                    b.HasIndex("FacultyId");
 
                     b.ToTable("FieldsOfStudy");
                 });
@@ -563,11 +568,22 @@ namespace WebApplication.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("WebApplication.Models.Building", b =>
+                {
+                    b.HasOne("WebApplication.Models.Faculty", "Faculty")
+                        .WithMany("Buildings")
+                        .HasForeignKey("FacultyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Faculty");
+                });
+
             modelBuilder.Entity("WebApplication.Models.FieldOfStudy", b =>
                 {
                     b.HasOne("WebApplication.Models.Faculty", "Faculty")
                         .WithMany("FieldsOfStudy")
-                        .HasForeignKey("DepartmentId")
+                        .HasForeignKey("FacultyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -773,6 +789,8 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.Faculty", b =>
                 {
+                    b.Navigation("Buildings");
+
                     b.Navigation("FieldsOfStudy");
                 });
 

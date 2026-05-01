@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<TimetableCrawler>();
+//builder.Services.AddScoped<TimetableCrawler>();
 
 var app = builder.Build();
 
