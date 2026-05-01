@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApplication.Models.enums;
 
 namespace WebApplication.Models;
 
@@ -19,5 +20,5 @@ public class Timetable
     [Range(1, 7)] public int DayOfWeek { get; set; }
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
-    [MaxLength(20)] public string WeekCycle { get; set; } // e.g., Weekly, Even, Odd
+    [Required] public WeekCycle WeekCycle { get; set; }
 }

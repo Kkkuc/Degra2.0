@@ -104,7 +104,7 @@ namespace WebApplication.Services
                         {
                             var restParts = classMatch.Groups[7].Value.Split(new[] { ", " }, StringSplitOptions.None);
                             
-                            string weekCycle = "Weekly";
+                            string weekCycle = "Co tydzień";
                             string modeDegree = "Brak";
                             string fieldOfStudy = "Brak";
                             string semesterStr = "1";
@@ -148,7 +148,7 @@ namespace WebApplication.Services
                                 ClassTypeAbbr = classMatch.Groups[4].Value.Trim(),
                                 GroupName = classMatch.Groups[5].Value.Trim(),
                                 RoomNumber = classMatch.Groups[6].Value.Trim(),
-                                WeekCycle = Enum.Parse<WeekCycle>(weekCycle),
+                                WeekCycle = weekCycle,
                                 ModeDegree = modeDegree,
                                 FieldOfStudyName = fieldOfStudy,
                                 SemesterNumber = semesterStr,
