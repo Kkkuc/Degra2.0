@@ -1,5 +1,5 @@
 CREATE OR REPLACE TRIGGER trg_Student_Audit
-AFTER INSERT OR UPDATE OR DELETE ON "Students" -- lub "Students"
+AFTER INSERT OR UPDATE OR DELETE ON "Students" 
 FOR EACH ROW
 DECLARE
     v_operation NVARCHAR2(20);
@@ -60,5 +60,7 @@ WHERE "LastName" = 'Testowy';
 
 DELETE FROM "Students" 
 WHERE "LastName" = 'Testowy';
+
+DROP TRIGGER trg_Student_Audit
 
 COMMIT;
