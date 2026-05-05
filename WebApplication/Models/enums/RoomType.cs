@@ -1,6 +1,6 @@
 namespace WebApplication.Models.enums;
 
-public enum RoomType
+public enum RoomType //do zastanowienia się
 {
     LectureHall,    // Sala wykładowa
     Laboratory,     // Laboratorium

@@ -5,6 +5,8 @@ namespace WebApplication.Data
 {
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
+        public DbSet<Log> Logs { get; set; }
+        
         public DbSet<AcademicYear> AcademicYears { get; set; }
         public DbSet<Semester> Semesters { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
