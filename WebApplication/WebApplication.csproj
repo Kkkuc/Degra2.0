@@ -23,4 +23,10 @@
       <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26200" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Migrations\20260505195941_RoomChanges.Designer.cs">
+        <DependentUpon>20260501160153_RoomChanges.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>
