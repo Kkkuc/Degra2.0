@@ -61,6 +61,7 @@ WHERE "LastName" = 'Testowy';
 DELETE FROM "Students" 
 WHERE "LastName" = 'Testowy';
 
-DROP TRIGGER trg_Student_Audit
 
-COMMIT;
+
+COMMIT
+DROP TRIGGER trg_Student_Audit;
