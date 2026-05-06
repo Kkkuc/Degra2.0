@@ -11,5 +11,5 @@ public class Semester
     [Required, MaxLength(20)] public string Name { get; set; } // e.g., "Winter", "Summer"
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public virtual ICollection<Group> Groups { get; set; }
+    public virtual ICollection<Group>? Groups { get; set; }
 }
