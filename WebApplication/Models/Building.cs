@@ -19,7 +19,7 @@ public class Building
 
     [Required] public int FacultyId { get; set; }
 
-    [ForeignKey(nameof(FacultyId))] public virtual Faculty Faculty { get; set; } = null!;
+    [ForeignKey(nameof(FacultyId))] public virtual Faculty? Faculty { get; set; }
 
-    public virtual ICollection<Room> Rooms { get; set; }
+    public virtual ICollection<Room>? Rooms { get; set; }
 }
