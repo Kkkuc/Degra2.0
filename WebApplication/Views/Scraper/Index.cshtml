@@ -1,38 +1,56 @@
 @{
-    ViewData["Title"] = "Scraper Dashboard";
+    ViewData["Title"] = "System Scraper";
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-4">Scraper Dashboard</h1>
-    <p class="lead">Use this panel to pull the latest timetable data from the university website.</p>
+@section HeaderLeft {
+    <h2 class="font-bold text-2xl tracking-tight">Data Synchronization</h2>
+}
 
-    <!-- Display the success message if it exists -->
+<div class="p-8 max-w-4xl mx-auto">
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-r-xl flex items-center gap-3">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
+            <span>@TempData["SuccessMessage"]</span>
         </div>
     }
 
-    <div class="card mt-4 mx-auto" style="max-width: 500px;">
-        <div class="card-body">
-            <h5 class="card-title">Database Status</h5>
-            <ul class="list-group list-group-flush mb-4 text-start">
-                <li class="list-group-item">Teachers in Database: <strong>@ViewBag.TeacherCount</strong></li>
-                <li class="list-group-item">Timetable Entries: <strong>@ViewBag.TimetableCount</strong></li>
-            </ul>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-card p-6 rounded-2xl border border-border shadow-sm">
+            <div class="text-gray-500 text-xs uppercase font-bold mb-1">Teachers</div>
+            <div class="text-3xl font-black">@ViewBag.TeacherCount</div>
+        </div>
+        <div class="bg-card p-6 rounded-2xl border border-border shadow-sm">
+            <div class="text-gray-500 text-xs uppercase font-bold mb-1">Subjects</div>
+            <div class="text-3xl font-black">@ViewBag.SubjectCount</div>
+        </div>
+        <div class="bg-card p-6 rounded-2xl border border-border shadow-sm">
+            <div class="text-gray-500 text-xs uppercase font-bold mb-1">Schedule Entries</div>
+            <div class="text-3xl font-black">@ViewBag.TimetableCount</div>
+        </div>
+    </div>
 
-            <!-- The Form that triggers the scraper -->
-            <form asp-controller="Scraper" asp-action="RunScraper" method="post">
-                <button type="submit" class="btn btn-primary btn-lg" onclick="this.innerHTML='Scraping... Please wait.'; this.classList.add('disabled');">
-                    Start Scraping Now
+    <div class="bg-card rounded-3xl border border-border overflow-hidden shadow-sm">
+        <div class="p-8 text-center">
+            <div class="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
+                <i data-lucide="refresh-cw" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Sync with University Portal</h3>
+            <p class="text-gray-500 mb-8 max-w-md mx-auto">This will fetch the latest teacher schedules, rooms, and subject mappings directly from the Degra portal.</p>
+            
+            <form asp-action="RunScraper" method="post">
+                <button type="submit" class="inline-flex items-center gap-3 px-8 py-4 bg-primary-custom rounded-2xl font-bold hover:opacity-90 transition-all shadow-lg">
+                    <i data-lucide="play" class="w-5 h-5"></i>
+                    <span>Start Synchronization</span>
                 </button>
             </form>
-            
-            <div class="mt-3 text-muted small">
-                <i class="bi bi-info-circle"></i> Note: Scraping 150+ teachers takes about 1-2 minutes. Do not close the page while it is loading.
-            </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-800/50 p-4 border-t border-border text-center">
+            <span class="text-xs text-gray-400">Last synced: Never</span>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>lucide.createIcons();</script>
+}

@@ -21,4 +21,11 @@
       <PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26200" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Home\Privacy.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Scraper\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Teachers\Index.cshtml" />
+    </ItemGroup>
+
 </Project>

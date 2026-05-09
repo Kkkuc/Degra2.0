@@ -4,18 +4,20 @@ using WebApplication.Data;
 
 namespace WebApplication.Controllers;
 
-public class TeachersController : Controller
+public class RoomsController : Controller
 {
     private readonly AppDbContext _context;
 
-    public TeachersController(AppDbContext context)
+    public RoomsController(AppDbContext context)
     {
         _context = context;
     }
 
     public async Task<IActionResult> Index()
     {
-        var teachers = await _context.Teachers.ToListAsync();
-        return View(teachers);
+        var rooms = await _context.Rooms
+            .Include(r => r.Building)
+            .ToListAsync();
+        return View(rooms);
     }
 }

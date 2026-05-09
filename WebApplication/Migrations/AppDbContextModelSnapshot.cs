@@ -138,8 +138,9 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClassType")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<string>("ClassType")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("FieldOfStudyId")
                         .HasColumnType("NUMBER(10)");
@@ -276,8 +277,9 @@ namespace WebApplication.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("NVARCHAR2(20)");
 
-                    b.Property<int>("RoomType")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<string>("RoomType")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 
@@ -486,8 +488,9 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClassType")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<string>("ClassType")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("NUMBER(10)");
@@ -510,8 +513,9 @@ namespace WebApplication.Migrations
                     b.Property<int>("TeacherId")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<int>("WeekCycle")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<string>("WeekCycle")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(2000)");
 
                     b.HasKey("Id");
 

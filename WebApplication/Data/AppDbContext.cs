@@ -49,7 +49,7 @@ namespace WebApplication.Data
             modelBuilder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
             
-            /*
+            
              modelBuilder.Entity<Timetable>()
                 .Property(t => t.WeekCycle)
                 .HasConversion<string>();
@@ -65,7 +65,7 @@ namespace WebApplication.Data
             modelBuilder.Entity<Room>()
                 .Property(r => r.RoomType)
                 .HasConversion<string>();
-             */
+             
         }
     }
 }
