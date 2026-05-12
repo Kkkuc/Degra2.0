@@ -8,7 +8,7 @@ public class Group
 {
     [Key] public int Id { get; set; }
     public int SemesterId { get; set; }
-    [ForeignKey("SemesterId")] public virtual Semester Semester { get; set; } = null!;
+    [ForeignKey("SemesterId")] public virtual Semester? Semester { get; set; } = null!;
 
     public int FieldOfStudyId { get; set; }
     public FieldOfStudy FieldOfStudy { get; set; } = null!;
