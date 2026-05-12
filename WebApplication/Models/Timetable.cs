@@ -16,9 +16,8 @@ public class Timetable
     public int GroupId { get; set; }
     [ForeignKey("GroupId")] public virtual Group? Group { get; set; }
     [Required] public ClassType ClassType { get; set; } // Zmienione z int na Enum
-    [Required]
-    public DayOfWeek DayOfWeek { get; set; }
-    public TimeSpan StartTime { get; set; }
-    public TimeSpan EndTime { get; set; }
+    [Required] public DayOfWeek DayOfWeek { get; set; }
+    [DataType(DataType.Time)] public TimeSpan StartTime { get; set; }
+    [DataType(DataType.Time)] public TimeSpan EndTime { get; set; }
     [Required] public WeekCycle WeekCycle { get; set; }
 }
