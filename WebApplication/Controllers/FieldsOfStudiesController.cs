@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,23 +6,16 @@ using WebApplication.Models;
 
 namespace WebApplication.Controllers
 {
-    public class FieldsOfStudyController : Controller
+    public class FieldsOfStudiesController(AppDbContext context) : Controller
     {
-        private readonly AppDbContext _context;
-
-        public FieldsOfStudyController(AppDbContext context)
-        {
-            _context = context;
-        }
-
-        // GET: FieldsOfStudy
+        // GET: FieldsOfStudies
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.FieldsOfStudy.Include(f => f.Faculty);
+            var appDbContext = context.FieldsOfStudy.Include(f => f.Faculty);
             return View(await appDbContext.ToListAsync());
         }
 
-        // GET: FieldsOfStudy/Details/5
+        // GET: FieldsOfStudies/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,7 +23,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var fieldOfStudy = await _context.FieldsOfStudy
+            var fieldOfStudy = await context.FieldsOfStudy
                 .Include(f => f.Faculty)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (fieldOfStudy == null)
@@ -45,14 +34,14 @@ namespace WebApplication.Controllers
             return View(fieldOfStudy);
         }
 
-        // GET: FieldsOfStudy/Create
+        // GET: FieldsOfStudies/Create
         public IActionResult Create()
         {
-            ViewData["FacultyId"] = new SelectList(_context.Faculties, "Id", "Name");
+            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name");
             return View();
         }
 
-        // POST: FieldsOfStudy/Create
+        // POST: FieldsOfStudies/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -61,15 +50,15 @@ namespace WebApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(fieldOfStudy);
-                await _context.SaveChangesAsync();
+                context.Add(fieldOfStudy);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacultyId"] = new SelectList(_context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
+            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
             return View(fieldOfStudy);
         }
 
-        // GET: FieldsOfStudy/Edit/5
+        // GET: FieldsOfStudies/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,16 +66,16 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var fieldOfStudy = await _context.FieldsOfStudy.FindAsync(id);
+            var fieldOfStudy = await context.FieldsOfStudy.FindAsync(id);
             if (fieldOfStudy == null)
             {
                 return NotFound();
             }
-            ViewData["FacultyId"] = new SelectList(_context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
+            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
             return View(fieldOfStudy);
         }
 
-        // POST: FieldsOfStudy/Edit/5
+        // POST: FieldsOfStudies/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -102,8 +91,8 @@ namespace WebApplication.Controllers
             {
                 try
                 {
-                    _context.Update(fieldOfStudy);
-                    await _context.SaveChangesAsync();
+                    context.Update(fieldOfStudy);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -118,11 +107,11 @@ namespace WebApplication.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacultyId"] = new SelectList(_context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
+            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
             return View(fieldOfStudy);
         }
 
-        // GET: FieldsOfStudy/Delete/5
+        // GET: FieldsOfStudies/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,7 +119,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var fieldOfStudy = await _context.FieldsOfStudy
+            var fieldOfStudy = await context.FieldsOfStudy
                 .Include(f => f.Faculty)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (fieldOfStudy == null)
@@ -141,24 +130,24 @@ namespace WebApplication.Controllers
             return View(fieldOfStudy);
         }
 
-        // POST: FieldsOfStudy/Delete/5
+        // POST: FieldsOfStudies/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var fieldOfStudy = await _context.FieldsOfStudy.FindAsync(id);
+            var fieldOfStudy = await context.FieldsOfStudy.FindAsync(id);
             if (fieldOfStudy != null)
             {
-                _context.FieldsOfStudy.Remove(fieldOfStudy);
+                context.FieldsOfStudy.Remove(fieldOfStudy);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool FieldOfStudyExists(int id)
         {
-            return _context.FieldsOfStudy.Any(e => e.Id == id);
+            return context.FieldsOfStudy.Any(e => e.Id == id);
         }
     }
 }
