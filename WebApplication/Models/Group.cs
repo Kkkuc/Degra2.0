@@ -18,5 +18,5 @@ public class Group
 
     [Required] public ClassType ClassType { get; set; } // Zmienione z int na Enum
     [Required, MaxLength(50)] public string Name { get; set; } = null!; // e.g., "Group L5"
-    public virtual ICollection<StudentGroup> StudentGroups { get; set; } = null!;
+    public virtual ICollection<StudentGroup>? StudentGroups { get; set; } = null!;
 }

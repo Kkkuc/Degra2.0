@@ -11,5 +11,5 @@ public class FieldOfStudy // ?????
     [Required, MaxLength(100)] public string Name { get; set; }
     [MaxLength(50)] public string Degree { get; set; } // e.g., Bachelor, Master
     [MaxLength(50)] public string Mode { get; set; } // e.g., Full-time, Part-time
-    public ICollection<Group> Groups { get; set; }
+    public ICollection<Group>? Groups { get; set; }
 }
