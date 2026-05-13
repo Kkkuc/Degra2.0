@@ -1,33 +1,86 @@
 @model WebApplication.Models.SchedulerViewModel
 
 @section HeaderLeft {
-    <div class="flex items-center gap-2">
-        <button onclick="navigateDate(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <i data-lucide="chevron-left" class="w-5 h-5"></i>
-        </button>
-        <h2 id="current-date-display" class="min-w-[220px] text-center font-semibold text-lg"></h2>
-        <button onclick="navigateDate(1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <i data-lucide="chevron-right" class="w-5 h-5"></i>
-        </button>
-    </div>
+<div class="flex items-center gap-2">
+    <button onclick="navigateDate(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+    </button>
+    <h2 id="current-date-display" class="min-w-[220px] text-center font-semibold text-lg"></h2>
+    <button onclick="navigateDate(1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+    </button>
+</div>
 }
 
 @section HeaderRight {
-    <div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
-        <button onclick="setMode('week')" id="mode-week" class="px-4 py-2 rounded-lg transition-all bg-white dark:bg-gray-700 shadow-sm">Week</button>
-        <button onclick="setMode('month')" id="mode-month" class="px-4 py-2 rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-gray-600">Month</button>
-    </div>
-    <button onclick="goToday()" class="px-5 py-2.5 bg-primary-custom rounded-xl hover:opacity-90 transition-opacity shadow-sm">Today</button>
+<div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+    <button onclick="setMode('week')" id="mode-week" class="px-4 py-2 rounded-lg transition-all bg-white dark:bg-gray-700 shadow-sm">Week</button>
+    <button onclick="setMode('month')" id="mode-month" class="px-4 py-2 rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-gray-600">Month</button>
+</div>
+<button onclick="goToday()" class="px-5 py-2.5 bg-primary-custom rounded-xl hover:opacity-90 transition-opacity shadow-sm">Today</button>
 }
 
 @section SidebarExtra {
-    <div class="flex-1 overflow-hidden flex flex-col">
-        <div class="flex items-center justify-between px-4 mb-4">
-            <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">My Subjects</h4>
-        </div>
-        <div id="subject-list" class="space-y-1 overflow-y-auto flex-1"></div>
+<div class="flex-1 overflow-hidden flex flex-col">
+    <div class="flex items-center justify-between px-4 mb-4">
+        <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">My Subjects</h4>
     </div>
+    <div id="subject-list" class="space-y-1 overflow-y-auto flex-1"></div>
+</div>
 }
+
+<div class="px-8 pt-8">
+    <div class="bg-card border border-border rounded-2xl p-6 shadow-sm">
+        <form method="get" asp-action="Index" class="space-y-6">
+            <div class="flex flex-wrap gap-6 border-b border-border pb-6">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="text-xs font-bold text-gray-400 uppercase">Field of Study</label>
+                    <select name="fieldId" class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-xl px-4 py-2 text-sm mt-1 focus:ring-2 focus:ring-blue-500/20">
+                        <option value="">Select Field</option>
+                        @foreach (var f in (List<FieldOfStudy>)ViewBag.Fields) {
+                        <option value="@f.Id" selected="@(Context.Request.Query["fieldId"] == f.Id.ToString())">@f.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="w-40">
+                    <label class="text-xs font-bold text-gray-400 uppercase">Semester</label>
+                    <select name="semId" class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-xl px-4 py-2 text-sm mt-1 focus:ring-2 focus:ring-blue-500/20">
+                        <option value="">Select Semester</option>
+                        @foreach (var s in (List<Semester>)ViewBag.Semesters) {
+                        <option value="@s.Id" selected="@(Context.Request.Query["semId"] == s.Id.ToString())">@s.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div class="flex flex-wrap gap-2">
+                    @{
+                    var fields = new[] {
+                    new { Key = "gW", Lbl = "Lecture" },
+                    new { Key = "gC", Lbl = "Exercise" },
+                    new { Key = "gL", Lbl = "Laboratory" },
+                    new { Key = "gPs", Lbl = "Spec. Lab" },
+                    new { Key = "gP", Lbl = "Project" },
+                    new { Key = "gS", Lbl = "Seminar" }
+                    };
+                    }
+                    @foreach (var f in fields) {
+                    <div class="w-24">
+                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">@f.Lbl</label>
+                        <input type="text" name="@f.Key" value="@Context.Request.Query[f.Key]"
+                               placeholder="No."
+                               class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20" />
+                    </div>
+                    }
+                </div>
+                <button type="submit" class="px-10 py-2 bg-primary-custom text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all">
+                    Apply Schedule
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <div id="timetable-container"></div>
 
@@ -40,90 +93,125 @@
             </button>
         </div>
         <div id="modal-content" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-            </div>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        const state = {
-            viewMode: 'week',
-            currentDate: new Date(),
-            lessons: @Html.Raw(Json.Serialize(Model.Lessons)),
-            subjects: @Html.Raw(Json.Serialize(Model.Subjects)),
-            timeSlots: @Html.Raw(Json.Serialize(Model.TimeSlots)),
-            enabledSubjectIds: []
-        };
+<script>
+    const state = {
+        viewMode: 'week',
+        currentDate: new Date(),
+        lessons: @Html.Raw(Json.Serialize(Model.Lessons)),
+        subjects: @Html.Raw(Json.Serialize(Model.Subjects)),
+        timeSlots: @Html.Raw(Json.Serialize(Model.TimeSlots)),
+        enabledSubjectIds: []
+    };
 
-        function initPersistence() {
-            const saved = localStorage.getItem('selectedSubjectIds');
-            if (saved) {
-                state.enabledSubjectIds = JSON.parse(saved);
-            } else {
-                state.enabledSubjectIds = state.subjects.map(s => parseInt(s.id));
+    function initPersistence() {
+        const filterFields = ['fieldId', 'semId', 'gW', 'gC', 'gL', 'gPs', 'gP', 'gS'];
+        const hasQuery = window.location.search.length > 1;
+
+        if (!hasQuery) {
+            const params = new URLSearchParams();
+            let hasSavedData = false;
+
+            filterFields.forEach(name => {
+                const val = localStorage.getItem(`filter_${name}`);
+                if (val !== null) {
+                    params.set(name, val);
+                    if (name === 'fieldId' && val !== '') hasSavedData = true;
+                }
+            });
+
+            if (hasSavedData) {
+                window.location.search = params.toString();
+                return true;
             }
+        } else {
+            filterFields.forEach(name => {
+                const element = document.querySelector(`[name="${name}"]`);
+                if (element) {
+                    localStorage.setItem(`filter_${name}`, element.value);
+                }
+            });
         }
 
-        function toggleSubject(id) {
-            const numericId = parseInt(id);
-            const index = state.enabledSubjectIds.indexOf(numericId);
-            if (index > -1) {
-                state.enabledSubjectIds.splice(index, 1);
-            } else {
-                state.enabledSubjectIds.push(numericId);
+        const savedSubjects = localStorage.getItem('selectedSubjectIds');
+        state.enabledSubjectIds = savedSubjects ? JSON.parse(savedSubjects) : state.subjects.map(s => parseInt(s.id));
+
+        filterFields.forEach(name => {
+            const element = document.querySelector(`[name="${name}"]`);
+            if (element) {
+                element.addEventListener('input', () => {
+                    localStorage.setItem(`filter_${name}`, element.value);
+                });
             }
-            localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
-            render();
-        }
+        });
 
-        function setMode(mode) {
-            state.viewMode = mode;
-            document.getElementById('mode-week').classList.toggle('bg-white', mode === 'week');
-            document.getElementById('mode-month').classList.toggle('bg-white', mode === 'month');
-            render();
-        }
+        return false;
+    }
 
-        function navigateDate(dir) {
-            if (state.viewMode === 'week') {
-                state.currentDate.setDate(state.currentDate.getDate() + (dir * 7));
-            } else {
-                state.currentDate.setMonth(state.currentDate.getMonth() + dir);
-            }
-            render();
+    function toggleSubject(id) {
+        const numericId = parseInt(id);
+        const index = state.enabledSubjectIds.indexOf(numericId);
+        if (index > -1) {
+            state.enabledSubjectIds.splice(index, 1);
+        } else {
+            state.enabledSubjectIds.push(numericId);
         }
+        localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
+        render();
+    }
 
-        function goToday() {
-            state.currentDate = new Date();
-            render();
+    function setMode(mode) {
+        state.viewMode = mode;
+        document.getElementById('mode-week').classList.toggle('bg-white', mode === 'week');
+        document.getElementById('mode-month').classList.toggle('bg-white', mode === 'month');
+        render();
+    }
+
+    function navigateDate(dir) {
+        if (state.viewMode === 'week') {
+            state.currentDate.setDate(state.currentDate.getDate() + (dir * 7));
+        } else {
+            state.currentDate.setMonth(state.currentDate.getMonth() + dir);
         }
+        render();
+    }
 
-        function renderHeader() {
-            const display = document.getElementById('current-date-display');
-            const options = state.viewMode === 'week' ? { month: 'short', day: 'numeric', year: 'numeric' } : { month: 'long', year: 'numeric' };
-            display.innerText = state.viewMode === 'week' ? `Week of ${state.currentDate.toLocaleDateString(undefined, options)}` : state.currentDate.toLocaleDateString(undefined, options);
-        }
+    function goToday() {
+        state.currentDate = new Date();
+        render();
+    }
 
-        function renderSidebar() {
-            const list = document.getElementById('subject-list');
-            list.innerHTML = state.subjects.map(s => {
-                const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
-                return `
+    function renderHeader() {
+        const display = document.getElementById('current-date-display');
+        const options = state.viewMode === 'week' ? { month: 'short', day: 'numeric', year: 'numeric' } : { month: 'long', year: 'numeric' };
+        display.innerText = state.viewMode === 'week' ? `Week of ${state.currentDate.toLocaleDateString(undefined, options)}` : state.currentDate.toLocaleDateString(undefined, options);
+    }
+
+    function renderSidebar() {
+        const list = document.getElementById('subject-list');
+        if (!list) return;
+        list.innerHTML = state.subjects.map(s => {
+            const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
+            return `
                 <div onclick="toggleSubject('${s.id}')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sidebar-accent/50 cursor-pointer transition-colors ${isActive ? '' : 'opacity-40 grayscale'}">
                     <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${s.color}"></div>
                     <span class="text-sm font-medium">${s.name}</span>
                 </div>`;
-            }).join('');
-        }
+        }).join('');
+    }
 
-        function showLessonDetails(dayIdx, slotIdx) {
-            const filteredLessons = state.lessons.filter(l => 
-                l.day === dayIdx && 
-                l.startSlot === slotIdx && 
-                state.enabledSubjectIds.includes(l.subjectId)
-            );
-            
-            const content = document.getElementById('modal-content');
-            content.innerHTML = filteredLessons.map(l => `
+    function showLessonDetails(dayIdx, slotIdx) {
+        const filteredLessons = state.lessons.filter(l =>
+            l.day === dayIdx &&
+            l.startSlot === slotIdx &&
+            state.enabledSubjectIds.includes(l.subjectId)
+        );
+        const content = document.getElementById('modal-content');
+        content.innerHTML = filteredLessons.map(l => `
                 <div class="p-4 rounded-xl border-l-4 shadow-sm bg-gray-50 dark:bg-gray-800/30" style="border-left-color: ${l.color}">
                     <div class="font-bold text-lg">${l.subject}</div>
                     <div class="grid grid-cols-1 gap-2 mt-3">
@@ -139,101 +227,97 @@
                     </div>
                 </div>
             `).join('');
-            
-            document.getElementById('lesson-modal').classList.remove('hidden');
-            lucide.createIcons();
-        }
+        document.getElementById('lesson-modal').classList.remove('hidden');
+        lucide.createIcons();
+    }
 
-        function closeModal() {
-            document.getElementById('lesson-modal').classList.add('hidden');
-        }
+    function closeModal() {
+        document.getElementById('lesson-modal').classList.add('hidden');
+    }
 
-        function handleOutsideClick(e) {
-            if (e.target.id === 'lesson-modal') closeModal();
-        }
+    function handleOutsideClick(e) {
+        if (e.target.id === 'lesson-modal') closeModal();
+    }
 
-        function renderTimetable(container) {
-            const weekStart = new Date(state.currentDate);
-            weekStart.setDate(weekStart.getDate() - (weekStart.getDay() === 0 ? 6 : weekStart.getDay() - 1));
-            
-            let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden">`;
-            html += `<div class="timetable-grid border-b border-border sticky top-0 bg-card z-20"><div class="p-5 border-r border-border"></div>`;
-            
-            for(let i=0; i<5; i++) {
-                const d = new Date(weekStart);
-                d.setDate(d.getDate() + i);
-                html += `<div class="p-5 text-center border-r border-border last:border-r-0">
+    function renderTimetable(container) {
+        const weekStart = new Date(state.currentDate);
+        weekStart.setDate(weekStart.getDate() - (weekStart.getDay() === 0 ? 6 : weekStart.getDay() - 1));
+        let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden">`;
+        html += `<div class="timetable-grid border-b border-border sticky top-0 bg-card z-20"><div class="p-5 border-r border-border"></div>`;
+        for(let i=0; i<5; i++) {
+            const d = new Date(weekStart);
+            d.setDate(d.getDate() + i);
+            html += `<div class="p-5 text-center border-r border-border last:border-r-0">
                     <div class="font-medium">${d.toLocaleDateString(undefined, {weekday: 'long'})}</div>
                     <div class="text-sm text-gray-500">${d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</div>
                 </div>`;
-            }
-            html += `</div>`;
-
-            state.timeSlots.forEach((time, slotIdx) => {
-                html += `<div class="timetable-grid">
+        }
+        html += `</div>`;
+        state.timeSlots.forEach((time, slotIdx) => {
+            html += `<div class="timetable-grid">
                     <div class="border-r border-border px-5 py-4 text-xs text-gray-500 flex items-center bg-card sticky left-0">${time.split(' – ')[0]}</div>`;
-                
-                for(let dayIdx=0; dayIdx<5; dayIdx++) {
-                    html += `<div class="border-r border-border last:border-r-0 relative time-slot">`;
-                    
-                    const filteredLessons = state.lessons.filter(l => 
-                        l.day === dayIdx && 
-                        l.startSlot === slotIdx && 
-                        state.enabledSubjectIds.includes(l.subjectId)
-                    );
-
-                    if (filteredLessons.length > 0) {
-                        const l = filteredLessons[0];
-                        const count = filteredLessons.length;
-                        html += `
+            for(let dayIdx=0; dayIdx<5; dayIdx++) {
+                html += `<div class="border-r border-border last:border-r-0 relative time-slot">`;
+                const filteredLessons = state.lessons.filter(l =>
+                    l.day === dayIdx &&
+                    l.startSlot === slotIdx &&
+                    state.enabledSubjectIds.includes(l.subjectId)
+                );
+                if (filteredLessons.length > 0) {
+                    const l = filteredLessons[0];
+                    const count = filteredLessons.length;
+                    html += `
                         <div onclick="showLessonDetails(${dayIdx}, ${slotIdx})" 
-                             class="absolute inset-x-2 top-2 z-10 p-3 rounded-xl border-l-4 shadow-sm bg-opacity-10 cursor-pointer hover:scale-[1.02] transition-transform" 
-                             style="background-color: ${l.color}20; border-color: ${l.color}40; border-left-color: ${l.color}; height: ${l.duration * 60 - 10}px">
+                        class="absolute inset-x-2 top-2 z-10 p-3 rounded-xl border-l-4 shadow-sm bg-opacity-10 cursor-pointer hover:scale-[1.02] transition-transform" 
+                             style="background-color: ${l.color}20;
+                             border-color: ${l.color}40; border-left-color: ${l.color}; height: ${l.duration * 60 - 10}px">
                             <div class="font-medium text-sm truncate">
                                 ${l.subject} ${count > 1 ? `<span class="ml-1 px-1.5 py-0.5 bg-black/10 dark:bg-white/10 rounded text-[10px] font-bold">+${count-1}</span>` : ''}
                             </div>
                             <div class="text-xs text-gray-500">${l.teacher} - ${l.room}</div>
                         </div>`;
-                    }
-                    html += `</div>`;
                 }
                 html += `</div>`;
-            });
-            html += `</div></div>`;
-            container.innerHTML = html;
-        }
+            }
+            html += `</div>`;
+        });
+        html += `</div></div>`;
+        container.innerHTML = html;
+    }
 
-        function renderMonth(container) {
-            const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-            let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden"><div class="grid grid-cols-7 border-b border-border">`;
-            weekDays.forEach(wd => html += `<div class="p-5 text-center font-medium text-gray-500 border-r border-border last:border-r-0">${wd}</div>`);
-            html += `</div><div class="grid grid-cols-7">`;
-            const start = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-            start.setDate(start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1));
-            for(let i=0; i<35; i++) {
-                const d = new Date(start);
-                d.setDate(d.getDate() + i);
-                const isCurrentMonth = d.getMonth() === state.currentDate.getMonth();
-                html += `<div class="min-h-[120px] p-4 border-r border-b border-border ${!isCurrentMonth ? 'bg-gray-50 opacity-50' : ''}">
+    function renderMonth(container) {
+        const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden"><div class="grid grid-cols-7 border-b border-border">`;
+        weekDays.forEach(wd => html += `<div class="p-5 text-center font-medium text-gray-500 border-r border-border last:border-r-0">${wd}</div>`);
+        html += `</div><div class="grid grid-cols-7">`;
+        const start = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+        start.setDate(start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1));
+        for(let i=0; i<35; i++) {
+            const d = new Date(start);
+            d.setDate(d.getDate() + i);
+            const isCurrentMonth = d.getMonth() === state.currentDate.getMonth();
+            html += `<div class="min-h-[120px] p-4 border-r border-b border-border ${!isCurrentMonth ? 'bg-gray-50 opacity-50' : ''}">
                     <div class="w-8 h-8 flex items-center justify-center font-medium mb-2">${d.getDate()}</div>
                 </div>`;
-            }
-            container.innerHTML = html + `</div></div></div>`;
         }
+        container.innerHTML = html + `</div></div></div>`;
+    }
 
-        function render() {
-            renderHeader();
-            renderSidebar();
-            const container = document.getElementById('timetable-container');
-            if (state.viewMode === 'month') {
-                renderMonth(container);
-            } else {
-                renderTimetable(container);
-            }
-            lucide.createIcons();
+    function render() {
+        renderHeader();
+        renderSidebar();
+        const container = document.getElementById('timetable-container');
+        if (!container) return;
+        if (state.viewMode === 'month') {
+            renderMonth(container);
+        } else {
+            renderTimetable(container);
         }
+        lucide.createIcons();
+    }
 
-        initPersistence();
+    if (!initPersistence()) {
         render();
-    </script>
+    }
+</script>
 }
