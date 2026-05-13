@@ -1,8 +1,35 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Strona Główna";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1>Poligon Testowy Autoryzacji</h1>
+
+<div style="background-color: #f8f9fa; padding: 15px; margin-bottom: 20px;">
+    <h3>Status Twojej Sesji:</h3>
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <p style="color: green;">
+            ✅ Jesteś zalogowany jako: <strong>@User.Identity.Name</strong>
+            <br />
+            ✅ Twoja rola (Claim): <strong>@User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value</strong>
+        </p>
+        <a asp-controller="Account" asp-action="Logout" style="color: red;">Wyloguj się</a>
+    }
+    else
+    {
+        <p style="color: red;">❌ Nie jesteś zalogowany.</p>
+        <a asp-controller="Account" asp-action="Login">Przejdź do logowania</a>
+    }
 </div>
+
+<h3>Spróbuj wejść na te podstrony:</h3>
+<ul>
+    <li>
+        <a asp-controller="Home" asp-action="TajnyPanel">Wejdź do Panelu Użytkownika</a>
+        <em>(Wymaga jakiegokolwiek logowania)</em>
+    </li>
+    <li>
+        <a asp-controller="Home" asp-action="PanelModeratora">Wejdź do Panelu Moderatora</a>
+        <em>(Wymaga logowania na konto z rolą "Moderator")</em>
+    </li>
+</ul>

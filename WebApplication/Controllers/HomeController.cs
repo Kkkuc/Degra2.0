@@ -1,8 +1,5 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication.Models;
-
-namespace WebApplication.Controllers;
 
 public class HomeController : Controller
 {
@@ -11,14 +8,16 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
+    [Authorize]
+    public IActionResult TajnyPanel()
     {
-        return View();
+        return View(); // Zmienione z Content na View
     }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    [Authorize(Roles = "Moderator")]
+    public IActionResult PanelModeratora()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View(); // Zmienione z Content na View
     }
+   
 }

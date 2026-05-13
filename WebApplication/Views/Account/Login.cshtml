@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Logowanie";
+}
+
+<h2>Logowanie do Systemu Planu Zajęć</h2>
+
+<div style="border: 1px solid #ccc; padding: 20px; max-width: 300px; margin-top: 20px;">
+    <form asp-controller="Account" asp-action="Login" method="post">
+        <div style="margin-bottom: 10px;">
+            <label>Nazwa użytkownika:</label><br />
+            <input type="text" name="username" required />
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label>Hasło:</label><br />
+            <input type="password" name="password" required />
+        </div>
+        
+        <!-- Tu wyświetlą się błędy, jeśli podasz złe hasło -->
+        <div style="color: red; margin-bottom: 10px;">
+            @Html.ValidationSummary(true)
+        </div>
+
+        <button type="submit">Zaloguj się</button>
+    </form>
+</div>
