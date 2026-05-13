@@ -11,7 +11,13 @@ namespace WebApplication.Controllers
         // GET: ScheduleChanges
         public async Task<IActionResult> Index()
         {
-            var appDbContext = context.ScheduleChanges.Include(s => s.NewRoom).Include(s => s.NewTeacher).Include(s => s.OriginalEntry);
+            var appDbContext = context.ScheduleChanges
+                .Include(s => s.NewRoom)
+                .Include(s => s.NewTeacher)
+                .Include(s => s.OriginalEntry)
+                    .ThenInclude(t => t.Subject)
+                .Include(s => s.OriginalEntry)
+                    .ThenInclude(t => t.Teacher);
             return View(await appDbContext.ToListAsync());
         }
 
@@ -40,8 +46,24 @@ namespace WebApplication.Controllers
         public IActionResult Create()
         {
             ViewData["NewRoomId"] = new SelectList(context.Rooms, "Id", "RoomNumber");
-            ViewData["NewTeacherId"] = new SelectList(context.Teachers, "Id", "FirstName");
-            ViewData["TimetableId"] = new SelectList(context.Timetables, "Id", "Id");
+    
+            // Zmiana: Wyświetlamy Imię i Nazwisko zamiast samego imienia
+            ViewData["NewTeacherId"] = context.Teachers
+                .Select(t => new { t.Id, FullName = t.FirstName + " " + t.LastName })
+                .ToList();
+            ViewData["NewTeacherId"] = new SelectList((System.Collections.IEnumerable)ViewData["NewTeacherId"], "Id", "FullName");
+
+            // Zmiana: Czytelny opis Timetable
+            var timetables = context.Timetables
+                .Include(t => t.Subject)
+                .Include(t => t.Teacher)
+                .Select(t => new {
+                    t.Id,
+                    Text = $"{t.Subject.Name} | {t.Teacher.LastName} | {t.DayOfWeek} {t.StartTime:hh\\:mm}"
+                }).ToList();
+    
+            ViewData["TimetableId"] = new SelectList(timetables, "Id", "Text");
+    
             return View();
         }
 
@@ -60,7 +82,7 @@ namespace WebApplication.Controllers
             }
             ViewData["NewRoomId"] = new SelectList(context.Rooms, "Id", "RoomNumber", scheduleChange.NewRoomId);
             ViewData["NewTeacherId"] = new SelectList(context.Teachers, "Id", "FirstName", scheduleChange.NewTeacherId);
-            ViewData["TimetableId"] = new SelectList(context.Timetables, "Id", "Id", scheduleChange.TimetableId);
+            ViewData["TimetableId"] = new SelectList(context.Timetables, "Id", "FullDisplayInfo", scheduleChange.TimetableId);
             return View(scheduleChange);
         }
 
@@ -79,7 +101,7 @@ namespace WebApplication.Controllers
             }
             ViewData["NewRoomId"] = new SelectList(context.Rooms, "Id", "RoomNumber", scheduleChange.NewRoomId);
             ViewData["NewTeacherId"] = new SelectList(context.Teachers, "Id", "FirstName", scheduleChange.NewTeacherId);
-            ViewData["TimetableId"] = new SelectList(context.Timetables, "Id", "Id", scheduleChange.TimetableId);
+            ViewData["TimetableId"] = new SelectList(context.Timetables, "Id", "FullDisplayInfo", scheduleChange.TimetableId);
             return View(scheduleChange);
         }
 
@@ -117,7 +139,7 @@ namespace WebApplication.Controllers
             }
             ViewData["NewRoomId"] = new SelectList(context.Rooms, "Id", "RoomNumber", scheduleChange.NewRoomId);
             ViewData["NewTeacherId"] = new SelectList(context.Teachers, "Id", "FirstName", scheduleChange.NewTeacherId);
-            ViewData["TimetableId"] = new SelectList(context.Timetables, "Id", "Id", scheduleChange.TimetableId);
+            ViewData["TimetableId"] = new SelectList(context.Timetables, "Id", "FullDisplayInfo", scheduleChange.TimetableId);
             return View(scheduleChange);
         }
 

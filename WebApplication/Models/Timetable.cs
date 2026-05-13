@@ -7,6 +7,11 @@ namespace WebApplication.Models;
 public class Timetable
 {
     [Key] public int Id { get; set; }
+
+    [NotMapped]
+    public string FullDisplayInfo =>
+        $"{Subject?.Name} ({Teacher?.LastName}) - {DayOfWeek}, {StartTime:hh\\:mm}";
+
     public int SubjectId { get; set; }
     [ForeignKey("SubjectId")] public virtual Subject? Subject { get; set; }
     public int TeacherId { get; set; }
