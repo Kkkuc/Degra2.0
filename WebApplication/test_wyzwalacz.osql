@@ -1,4 +1,4 @@
-CREATE OR REPLACE TRIGGER trg_Student_Audit
+CREATE OR REPLACE TRIGGER TRG_STUDENTLOG
 AFTER INSERT OR UPDATE OR DELETE ON "Students" 
 FOR EACH ROW
 DECLARE
@@ -14,7 +14,6 @@ BEGIN
 
     IF INSERTING THEN
         v_operation := 'INSERT';
-        -- Cudzysłowy wracają do nazw kolumn bazy z EF
         v_new_val := 'ID: ' || :NEW."StudentID" || ', Imie: ' || :NEW."FirstName" || 
                      ', Nazwisko: ' || :NEW."LastName";
                      
@@ -32,7 +31,6 @@ BEGIN
                      ', Nazwisko: ' || :NEW."LastName";
     END IF;
 
-    -- Nazwy tabeli logów i jej kolumn (te ze screena) też muszą mieć cudzysłowy
     INSERT INTO "Logs" ( 
         "TableName", 
         "Operation", 
@@ -51,17 +49,200 @@ BEGIN
 END;
 
 /
-INSERT INTO "Students" ("Id","StudentID","FirstName", "LastName") 
-VALUES (1,69,'Jan', 'Testowy');
+CREATE OR REPLACE TRIGGER TRG_TEACHERLOG
+AFTER INSERT OR UPDATE OR DELETE ON "Teachers"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+                    
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
 
-UPDATE "Students" 
-SET "FirstName" = 'Janusz' 
-WHERE "LastName" = 'Testowy';
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                        ', Tytul: ' || NVL(:NEW."AcademicTitle", 'Brak') || 
+                        ', Imie: ' || :NEW."FirstName" || 
+                        ', Nazwisko: ' || :NEW."LastName" || 
+                        ', Email: ' || NVL(:NEW."Email", 'Brak');
+                                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                        ', Tytul: ' || NVL(:OLD."AcademicTitle", 'Brak') || 
+                        ', Imie: ' || :OLD."FirstName" || 
+                        ', Nazwisko: ' || :OLD."LastName" || 
+                        ', Email: ' || NVL(:OLD."Email", 'Brak');
+                                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                        ', Tytul: ' || NVL(:NEW."AcademicTitle", 'Brak') || 
+                        ', Imie: ' || :NEW."FirstName" || 
+                        ', Nazwisko: ' || :NEW."LastName" || 
+                        ', Email: ' || NVL(:NEW."Email", 'Brak');
+                                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                        ', Tytul: ' || NVL(:OLD."AcademicTitle", 'Brak') || 
+                        ', Imie: ' || :OLD."FirstName" || 
+                        ', Nazwisko: ' || :OLD."LastName" || 
+                        ', Email: ' || NVL(:OLD."Email", 'Brak');
+    END IF;
 
-DELETE FROM "Students" 
-WHERE "LastName" = 'Testowy';
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Teacher', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
 
+CREATE OR REPLACE TRIGGER TRG_TIMETABLELOG
+AFTER INSERT OR UPDATE OR DELETE ON "Timetables"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
 
+    FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2 IS
+    BEGIN
 
-COMMIT
-DROP TRIGGER trg_Student_Audit;
+        RETURN CASE p_val
+            WHEN 0 THEN 'Lecture'
+            WHEN 1 THEN 'Laboratory'
+            WHEN 2 THEN 'SpecialisedLaboratory'
+            WHEN 3 THEN 'Exercise'
+            WHEN 3 THEN 'Seminar'
+            WHEN 3 THEN 'Project'
+            ELSE 'Nieznany typ (' || TO_CHAR(p_val) || ')'
+        END;
+    END;
+
+    FUNCTION ParseWeekCycle(p_val IN NUMBER) RETURN NVARCHAR2 IS
+    BEGIN
+        RETURN CASE p_val
+            WHEN 0 THEN 'Weekly'
+            WHEN 1 THEN 'Even'
+            WHEN 2 THEN 'Odd'
+            ELSE 'Nieznany cykl (' || TO_CHAR(p_val) || ')'
+        END;
+    END;
+
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', PrzedmiotID: ' || :NEW."SubjectId" || 
+                     ', NauczycielID: ' || :NEW."TeacherId" || 
+                     ', SalaID: ' || :NEW."RoomId" || 
+                     ', GrupaID: ' || :NEW."GroupId" || 
+                     ', TypZajec: ' || ParseClassType(:NEW."ClassType") || 
+                     ', Dzien: ' || :NEW."DayOfWeek" || 
+                     ', Start: ' || :NEW."StartTime" || 
+                     ', Koniec: ' || :NEW."EndTime" || 
+                     ', Cykl: ' || ParseWeekCycle(:NEW."WeekCycle");
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', PrzedmiotID: ' || :OLD."SubjectId" || 
+                     ', NauczycielID: ' || :OLD."TeacherId" || 
+                     ', SalaID: ' || :OLD."RoomId" || 
+                     ', GrupaID: ' || :OLD."GroupId" || 
+                     ', TypZajec: ' || ParseClassType(:OLD."ClassType") || 
+                     ', Dzien: ' || :OLD."DayOfWeek" || 
+                     ', Start: ' || :OLD."StartTime" || 
+                     ', Koniec: ' || :OLD."EndTime" || 
+                     ', Cykl: ' || ParseWeekCycle(:OLD."WeekCycle");
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', PrzedmiotID: ' || :NEW."SubjectId" || 
+                     ', NauczycielID: ' || :NEW."TeacherId" || 
+                     ', SalaID: ' || :NEW."RoomId" || 
+                     ', GrupaID: ' || :NEW."GroupId" || 
+                     ', TypZajec: ' || ParseClassType(:NEW."ClassType") || 
+                     ', Dzien: ' || :NEW."DayOfWeek" || 
+                     ', Start: ' || :NEW."StartTime" || 
+                     ', Koniec: ' || :NEW."EndTime" || 
+                     ', Cykl: ' || ParseWeekCycle(:NEW."WeekCycle");
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', PrzedmiotID: ' || :OLD."SubjectId" || 
+                     ', NauczycielID: ' || :OLD."TeacherId" || 
+                     ', SalaID: ' || :OLD."RoomId" || 
+                     ', GrupaID: ' || :OLD."GroupId" || 
+                     ', TypZajec: ' || ParseClassType(:OLD."ClassType") || 
+                     ', Dzien: ' || :OLD."DayOfWeek" || 
+                     ', Start: ' || :OLD."StartTime" || 
+                     ', Koniec: ' || :OLD."EndTime" || 
+                     ', Cykl: ' || ParseWeekCycle(:OLD."WeekCycle");
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Timetables', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+
+CREATE OR REPLACE TRIGGER TRG_SUBJECTLOG
+AFTER INSERT OR UPDATE OR DELETE ON "Subjects"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Skrot: ' || NVL(:NEW."Abbreviation", 'Brak') || 
+                     ', Kod: ' || NVL(:NEW."Code", 'Brak');
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Skrot: ' || NVL(:OLD."Abbreviation", 'Brak') || 
+                     ', Kod: ' || NVL(:OLD."Code", 'Brak');
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Skrot: ' || NVL(:NEW."Abbreviation", 'Brak') || 
+                     ', Kod: ' || NVL(:NEW."Code", 'Brak');
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Skrot: ' || NVL(:OLD."Abbreviation", 'Brak') || 
+                     ', Kod: ' || NVL(:OLD."Code", 'Brak');
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Subject', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/

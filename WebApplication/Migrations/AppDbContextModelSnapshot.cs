@@ -43,7 +43,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AcademicYears");
+                    b.ToTable("AcademicYears", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Building", b =>
@@ -71,7 +71,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("Buildings");
+                    b.ToTable("Buildings", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Faculty", b =>
@@ -94,7 +94,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Faculties");
+                    b.ToTable("Faculties", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.FieldOfStudy", b =>
@@ -127,7 +127,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("FacultyId");
 
-                    b.ToTable("FieldsOfStudy");
+                    b.ToTable("FieldsOfStudy", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Group", b =>
@@ -163,7 +163,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("SpecializationId");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Log", b =>
@@ -199,7 +199,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Permission", b =>
@@ -221,7 +221,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Role", b =>
@@ -239,7 +239,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.RolePermission", b =>
@@ -254,7 +254,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.ToTable("RolePermissions");
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Room", b =>
@@ -283,7 +283,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("BuildingId");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.ScheduleChange", b =>
@@ -325,7 +325,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("TimetableId");
 
-                    b.ToTable("ScheduleChanges");
+                    b.ToTable("ScheduleChanges", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Semester", b =>
@@ -354,7 +354,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("AcademicYearId");
 
-                    b.ToTable("Semesters");
+                    b.ToTable("Semesters", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Specialization", b =>
@@ -372,7 +372,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Specializations");
+                    b.ToTable("Specializations", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Student", b =>
@@ -400,7 +400,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.StudentGroup", b =>
@@ -415,7 +415,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("StudentGroups");
+                    b.ToTable("StudentGroups", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Subject", b =>
@@ -443,7 +443,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Teacher", b =>
@@ -475,7 +475,7 @@ namespace WebApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Timetable", b =>
@@ -523,7 +523,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Timetables");
+                    b.ToTable("Timetables", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.User", b =>
@@ -572,7 +572,7 @@ namespace WebApplication.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication.Models.Building", b =>
