@@ -8,8 +8,8 @@ public class ScheduleChange
     [Key] public int Id { get; set; }
     public int TimetableId { get; set; }
     [ForeignKey("TimetableId")] public virtual Timetable? OriginalEntry { get; set; }
-    public DateTime ChangeDate { get; set; }
-    [Required, MaxLength(50)] public string ChangeType { get; set; } // e.g., Cancellation, Relocation
+    public DateTime? ChangeDate { get; set; }
+    //[Required, MaxLength(50)] public string ChangeType { get; set; } // e.g., Cancellation, Relocation
     public int? NewRoomId { get; set; }
     [ForeignKey("NewRoomId")] public virtual Room? NewRoom { get; set; }
     public int? NewTeacherId { get; set; }

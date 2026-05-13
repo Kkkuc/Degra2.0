@@ -1,0 +1,57 @@
+@model WebApplication.Models.ScheduleChange
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>ScheduleChange</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="TimetableId" class="control-label"></label>
+                <select asp-for="TimetableId" class="form-control" asp-items="ViewBag.TimetableId"></select>
+                <span asp-validation-for="TimetableId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ChangeDate" class="control-label"></label>
+                <input asp-for="ChangeDate" class="form-control" />
+                <span asp-validation-for="ChangeDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewRoomId" class="control-label"></label>
+                <select asp-for="NewRoomId" class="form-control" asp-items="ViewBag.NewRoomId"></select>
+                <span asp-validation-for="NewRoomId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewTeacherId" class="control-label"></label>
+                <select asp-for="NewTeacherId" class="form-control" asp-items="ViewBag.NewTeacherId"></select>
+                <span asp-validation-for="NewTeacherId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewStartTime" class="control-label"></label>
+                <input asp-for="NewStartTime" class="form-control" />
+                <span asp-validation-for="NewStartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NewEndTime" class="control-label"></label>
+                <input asp-for="NewEndTime" class="form-control" />
+                <span asp-validation-for="NewEndTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

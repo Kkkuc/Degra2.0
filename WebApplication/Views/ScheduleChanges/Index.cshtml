@@ -1,0 +1,66 @@
+@model IEnumerable<WebApplication.Models.ScheduleChange>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.OriginalEntry)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ChangeDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NewRoom)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NewTeacher)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NewStartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NewEndTime)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.OriginalEntry.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ChangeDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewRoom.RoomNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewTeacher.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewStartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewEndTime)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
