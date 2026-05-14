@@ -38,7 +38,7 @@
                     <select name="fieldId" class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-xl px-4 py-2 text-sm mt-1 focus:ring-2 focus:ring-blue-500/20">
                         <option value="">Select Field</option>
                         @foreach (var f in (List<FieldOfStudy>)ViewBag.Fields) {
-                        <option value="@f.Id" selected="@(Context.Request.Query["fieldId"] == f.Id.ToString())">@f.Name</option>
+                            <option value="@f.Id" selected="@(Context.Request.Query["fieldId"] == f.Id.ToString())">@f.Name</option>
                         }
                     </select>
                 </div>
@@ -47,7 +47,7 @@
                     <select name="semId" class="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-xl px-4 py-2 text-sm mt-1 focus:ring-2 focus:ring-blue-500/20">
                         <option value="">Select Semester</option>
                         @foreach (var s in (List<Semester>)ViewBag.Semesters) {
-                        <option value="@s.Id" selected="@(Context.Request.Query["semId"] == s.Id.ToString())">@s.Name</option>
+                            <option value="@s.Id" selected="@(Context.Request.Query["semId"] == s.Id.ToString())">@s.Name</option>
                         }
                     </select>
                 </div>
@@ -99,14 +99,51 @@
 
 @section Scripts {
 <script>
+    const STORAGE_KEY = 'scheduler_cache';
+    const TTL = 3600000;
+
     const state = {
         viewMode: 'week',
         currentDate: new Date(),
-        lessons: @Html.Raw(Json.Serialize(Model.Lessons)),
-        subjects: @Html.Raw(Json.Serialize(Model.Subjects)),
+        lessons: [],
+        subjects: [],
         timeSlots: @Html.Raw(Json.Serialize(Model.TimeSlots)),
         enabledSubjectIds: []
     };
+
+    function initData() {
+        const serverLessons = @Html.Raw(Json.Serialize(Model.Lessons));
+        const serverSubjects = @Html.Raw(Json.Serialize(Model.Subjects));
+        const cachedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const now = Date.now();
+
+        if (serverLessons && serverLessons.length > 0) {
+            state.lessons = serverLessons;
+            state.subjects = serverSubjects;
+            saveToCache(serverLessons, serverSubjects);
+        } else if (cachedData) {
+            const isOld = (now - cachedData.timestamp) > TTL;
+            if (isOld) {
+                state.lessons = serverLessons || [];
+                state.subjects = serverSubjects || [];
+            } else {
+                state.lessons = cachedData.lessons;
+                state.subjects = cachedData.subjects;
+            }
+        } else {
+            state.lessons = [];
+            state.subjects = [];
+        }
+    }
+
+    function saveToCache(lessons, subjects) {
+        const dataToCache = {
+            lessons: lessons,
+            subjects: subjects,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToCache));
+    }
 
     function initPersistence() {
         const filterFields = ['fieldId', 'semId', 'gW', 'gC', 'gL', 'gPs', 'gP', 'gS'];
@@ -123,7 +160,6 @@
                     if (name === 'fieldId' && val !== '') hasSavedData = true;
                 }
             });
-
             if (hasSavedData) {
                 window.location.search = params.toString();
                 return true;
@@ -138,7 +174,8 @@
         }
 
         const savedSubjects = localStorage.getItem('selectedSubjectIds');
-        state.enabledSubjectIds = savedSubjects ? JSON.parse(savedSubjects) : state.subjects.map(s => parseInt(s.id));
+        state.enabledSubjectIds = savedSubjects ? 
+            JSON.parse(savedSubjects) : state.subjects.map(s => parseInt(s.id));
 
         filterFields.forEach(name => {
             const element = document.querySelector(`[name="${name}"]`);
@@ -267,10 +304,9 @@
                     const l = filteredLessons[0];
                     const count = filteredLessons.length;
                     html += `
-                        <div onclick="showLessonDetails(${dayIdx}, ${slotIdx})" 
+                    <div onclick="showLessonDetails(${dayIdx}, ${slotIdx})" 
                         class="absolute inset-x-2 top-2 z-10 p-3 rounded-xl border-l-4 shadow-sm bg-opacity-10 cursor-pointer hover:scale-[1.02] transition-transform" 
-                             style="background-color: ${l.color}20;
-                             border-color: ${l.color}40; border-left-color: ${l.color}; height: ${l.duration * 60 - 10}px">
+                             style="background-color: ${l.color}20; border-color: ${l.color}40; border-left-color: ${l.color}; height: ${l.duration * 60 - 10}px">
                             <div class="font-medium text-sm truncate">
                                 ${l.subject} ${count > 1 ? `<span class="ml-1 px-1.5 py-0.5 bg-black/10 dark:bg-white/10 rounded text-[10px] font-bold">+${count-1}</span>` : ''}
                             </div>
@@ -316,6 +352,7 @@
         lucide.createIcons();
     }
 
+    initData();
     if (!initPersistence()) {
         render();
     }

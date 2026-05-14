@@ -3,18 +3,7 @@
 @section HeaderLeft {
     <div class="flex items-center gap-4">
         <h2 class="font-bold text-2xl tracking-tight">Teachers</h2>
-        <div class="relative">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" placeholder="Search teachers..." class="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all w-64" />
-        </div>
     </div>
-}
-
-@section HeaderRight {
-    <button class="flex items-center gap-2 px-5 py-2.5 bg-primary-custom rounded-xl hover:opacity-90 transition-all shadow-sm">
-        <i data-lucide="user-plus" class="w-4 h-4"></i>
-        <span>Add Teacher</span>
-    </button>
 }
 
 <div class="p-8">
@@ -22,48 +11,12 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b border-border bg-gray-50/50 dark:bg-gray-800/50">
-                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase tracking-wider">Teacher</th>
-                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase tracking-wider">Academic Title</th>
-                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase tracking-wider">Email Address</th>
-                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Teacher</th>
+                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Academic Title</th>
+                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Email Address</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-border">
-                @foreach (var teacher in Model)
-                {
-                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors group">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
-                                    @teacher.FirstName[0]@teacher.LastName[0]
-                                </div>
-                                <div>
-                                    <div class="font-medium">@teacher.FirstName @teacher.LastName</div>
-                                    <div class="text-xs text-gray-500">ID: #@teacher.Id</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm">
-                            <span class="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium">@teacher.AcademicTitle</span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="mail" class="w-4 h-4"></i>
-                                @teacher.Email
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button class="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                                <button class="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 rounded-lg transition-colors">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                }
+            <tbody id="teachers-list" class="divide-y divide-border">
             </tbody>
         </table>
     </div>
@@ -71,27 +24,51 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.querySelector('input[placeholder="Search teachers..."]');
-            const tableRows = document.querySelectorAll('tbody tr');
+        const STORAGE_KEY = 'teachers_cache';
+        const TTL = 3600000;
 
-            if (searchInput) {
-                searchInput.addEventListener('input', (e) => {
-                    const query = e.target.value.toLowerCase().trim();
+        function initTeachers() {
+            const serverData = @Html.Raw(Json.Serialize(Model));
+            const cached = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            const now = Date.now();
+            let teachers = [];
 
-                    tableRows.forEach(row => {
-                        const teacherName = row.querySelector('.font-medium').textContent.toLowerCase();
-                        
-                        if (teacherName.includes(query)) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-                });
+            if (serverData && serverData.length > 0) {
+                teachers = serverData;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ data: serverData, timestamp: now }));
+            } else if (cached && (now - cached.timestamp < TTL)) {
+                teachers = cached.data;
             }
-        });
 
-        lucide.createIcons();
+            renderTeachers(teachers);
+        }
+
+        function renderTeachers(teachers) {
+            const list = document.getElementById('teachers-list');
+            list.innerHTML = teachers.map(t => `
+                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold">
+                                ${t.firstName[0]}${t.lastName[0]}
+                            </div>
+                            <div class="font-medium">${t.firstName} ${t.lastName}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium">${t.academicTitle}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            ${t.email}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        initTeachers();
     </script>
 }

@@ -3,78 +3,66 @@
 @section HeaderLeft {
     <div class="flex items-center gap-4">
         <h2 class="font-bold text-2xl tracking-tight">Rooms</h2>
-        <div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1 ml-2">
-            <button class="px-4 py-1.5 rounded-lg text-sm transition-all bg-white dark:bg-gray-700 shadow-sm font-medium">All Rooms</button>
-            <button class="px-4 py-1.5 rounded-lg text-sm transition-all hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500">Laboratories</button>
-            <button class="px-4 py-1.5 rounded-lg text-sm transition-all hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500">Lectures</button>
-        </div>
-    </div>
-}
-
-@section HeaderRight {
-    <div class="flex items-center gap-3">
-        <button class="p-2.5 bg-card border border-border rounded-xl hover:opacity-80 transition-all shadow-sm">
-            <i data-lucide="filter" class="w-5 h-5"></i>
-        </button>
-        <button class="flex items-center gap-2 px-5 py-2.5 bg-primary-custom rounded-xl hover:opacity-90 transition-all shadow-sm">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>New Room</span>
-        </button>
     </div>
 }
 
 <div class="p-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        @foreach (var room in Model)
-        {
-            <div class="bg-card rounded-2xl border border-border p-6 hover:shadow-lg hover:border-blue-500/30 transition-all group">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400">
-                        <i data-lucide="door-open" class="w-6 h-6"></i>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-gray-100 dark:bg-gray-800 text-gray-500">
-                        @room.RoomType
-                    </span>
-                </div>
-                
-                <h3 class="text-xl font-bold mb-1">Room @room.RoomNumber</h3>
-                <p class="text-sm text-gray-500 mb-6 flex items-center gap-1">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                    @room.Building.Name
-                </p>
-
-                <div class="grid grid-cols-2 gap-4 py-4 border-t border-border">
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase font-medium">Capacity</div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
-                            <span class="font-semibold">@room.Capacity</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase font-medium">Status</div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                            <span class="font-semibold text-green-600 text-sm">Available</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-4 border-t border-border flex gap-2">
-                    <button class="flex-1 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                        Details
-                    </button>
-                    <button class="px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                        <i data-lucide="calendar-range" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-        }
+    <div id="rooms-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     </div>
 </div>
 
 @section Scripts {
     <script>
-        lucide.createIcons();
+        const STORAGE_KEY = 'rooms_cache';
+        const TTL = 3600000;
+
+        function initRooms() {
+            const serverData = @Html.Raw(Json.Serialize(Model));
+            const cached = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            const now = Date.now();
+            let rooms = [];
+
+            if (serverData && serverData.length > 0) {
+                rooms = serverData;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ data: serverData, timestamp: now }));
+            } else if (cached && (now - cached.timestamp < TTL)) {
+                rooms = cached.data;
+            }
+
+            renderRooms(rooms);
+        }
+
+        function renderRooms(rooms) {
+            const container = document.getElementById('rooms-container');
+            container.innerHTML = rooms.map(room => `
+                <div class="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600">
+                            <i data-lucide="door-open" class="w-6 h-6"></i>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase bg-gray-100 dark:bg-gray-800 text-gray-500">
+                            ${room.roomType || 'Other'}
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-1">Room ${room.roomNumber}</h3>
+                    <p class="text-sm text-gray-500 mb-6 flex items-center gap-1">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                        ${room.building ? room.building.name : 'Unknown Building'}
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 py-4 border-t border-border">
+                        <div>
+                            <div class="text-xs text-gray-400 uppercase font-medium">Capacity</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+                                <span class="font-semibold">${room.capacity}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        initRooms();
     </script>
 }

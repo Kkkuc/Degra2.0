@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.Models;
 
 namespace WebApplication.Controllers;
 
@@ -15,7 +16,14 @@ public class TeachersController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var teachers = await _context.Teachers.ToListAsync();
-        return View(teachers);
+        try
+        {
+            var teachers = await _context.Teachers.ToListAsync();
+            return View(teachers);
+        }
+        catch
+        {
+            return View(new List<Teacher>());
+        }
     }
 }

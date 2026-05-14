@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.Models;
 
 namespace WebApplication.Controllers;
 
@@ -15,9 +16,16 @@ public class RoomsController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var rooms = await _context.Rooms
-            .Include(r => r.Building)
-            .ToListAsync();
-        return View(rooms);
+        try
+        {
+            var rooms = await _context.Rooms
+                .Include(r => r.Building)
+                .ToListAsync();
+            return View(rooms);
+        }
+        catch
+        {
+            return View(new List<Room>());
+        }
     }
 }
