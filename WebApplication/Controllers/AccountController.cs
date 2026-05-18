@@ -23,11 +23,13 @@ public class AccountController : Controller
     public async Task<IActionResult> Login(string username, string password)
     {
         //do popatrzenia i ulepszenia
-        var user = _context.Users.Include(u => u.Role).FirstOrDefault(u => u.Username == username && u.PasswordHash == password);
-
-        if (user != null)
+        var user = await _context.Users
+        .Include(u => u.Role)
+        .FirstOrDefaultAsync(u => u.Username == username);
+        //co za gorwno
+        if (user != null /*&& BCrypt.Net.BCrypt.Verify(password, user.PasswordHash) jak dodamy hashwowanie*/)
         {
-        
+
             var claims = new List<Claim>
             {      
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
