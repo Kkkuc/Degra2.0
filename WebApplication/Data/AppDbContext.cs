@@ -48,7 +48,13 @@ namespace WebApplication.Data
 
             modelBuilder.Entity<RolePermission>()
                 .HasKey(rp => new { rp.RoleId, rp.PermissionId });
-            
+
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "User" },
+                new Role { Id = 2, Name = "Moderator" });
+
+      
+
             /*
              modelBuilder.Entity<Timetable>()
                 .Property(t => t.WeekCycle)
