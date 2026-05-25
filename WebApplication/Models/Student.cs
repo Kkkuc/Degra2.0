@@ -8,5 +8,5 @@ public class Student
     [Required, MaxLength(20)] public string StudentID { get; set; } // Index number
     [Required, MaxLength(100)] public string FirstName { get; set; }
     [Required, MaxLength(100)] public string LastName { get; set; }
-    public virtual ICollection<StudentGroup> StudentGroups { get; set; }
+    public virtual ICollection<StudentGroup>? StudentGroups { get; set; }
 }
