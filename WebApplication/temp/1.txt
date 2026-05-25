@@ -1,0 +1,272 @@
+<div class="container-fluid">
+
+<header>
+  <div class="wilogo"></div>
+  <div class="info">
+    <h1 class="d-none d-md-block">Wydział Informatyki PB</h1>
+    <h2 class="d-none d-md-block">Rozkłady zajęć studentów i nauczycieli</h2>
+  </div>
+</header>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse justify-content-md-center" id="navbarSupportedContent">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="./rozklad.php?page=home">Początek</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownForStudents" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dla studentów
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownForStudents">
+          <a class="dropdown-item" href="./rozklad.php?page=st">Studia stacjonarne</a>
+          <a class="dropdown-item" href="./rozklad.php?page=nst">Studia niestacjonarne</a>
+          <a class="dropdown-item" href="./rozklad.php?page=pd">Studia podyplomowe</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="./rozklad.php?page=student">Rozkład spersonalizowany (eksperymentalne)</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="./rozklad.php?page=nau">Rozkład nauczyciela</a>
+		  </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownForTeachers" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dla nauczycieli
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownForTeachers">
+          <a class="dropdown-item" href="./rozklad.php?page=sal">Zajętość sal</a>
+          <a class="dropdown-item" href="./rozklad.php?page=wolne">Znajdź wolną salę</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="./rozklad.php?page=nau">Rozkład zajęć</a>
+          <a class="dropdown-item" href="./rozklad.php?page=konedit">Edytuj terminy konsultacji</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="./rozklad.php?page=konster">Zestawienie konsultacji</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="row"><section class="animated fadeIn col-12">
+
+<div class="alert alert-warning alert-dismissible show" role="alert" id="cookiealert">
+W ramach naszego serwisu www stosujemy pliki cookies zapisywane na urządzeniu użytkownika w celu dostosowania zachowania serwisu do indywidualnych preferencji użytkownika oraz w celach statystycznych. <br>
+Użytkownik ma możliwość samodzielnej zmiany ustawień dotyczących cookies w swojej przeglądarce internetowej.<br>
+Korzystając ze strony wyrażają Państwo zgodę na używanie plików cookies, zgodnie z ustawieniami przeglądarki.
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">×</span>
+</button>
+</div>
+
+<script>
+
+if (getCookie("cookie_dismiss") == "yes") {
+	$('#cookiealert').alert('close')
+}
+
+$('#cookiealert').on('closed.bs.alert', function () {
+	if (getCookie("cookie_dismiss") == "yes") {
+	} else {
+		setCookie("cookie_dismiss", "yes");
+	}
+})
+
+</script>
+
+
+<h2>Rozkład zajęć nauczyciela</h2>
+
+<p>Rozkład zajęć nauczyciela pozwala na szybkie sprawdzenie rozkładu zajęć nauczyciela
+Wydziału Informatyki. Wykaz zawiera wyłącznie nauczycieli, którzy prowadzą zajęcia 
+w bieżącym semestrze</p>
+
+<p>Aby uzyskać szczegółowe informacje na temat zajęć prowadzonych przez nauczyciela
+należy ustawić kursor myszki nad wybranym polem na rozkładzie.</p>
+
+<form action="./rozklad.php" method="get" name="selection" id="teachers_form">
+  <select size="7" data-placeholder="Wybierz nauczyciela" class="chosen-select form-control mb-2 mr-sm-2" name="id" id="teacher" title="Nazwisko i imię nauczyciela" style="width: 350px; display: none;">
+
+      <option value="468" selected="">ALO </option>
+      <option value="50">Adamski Marcin</option>
+      <option value="432">Antoniuk Paweł</option>
+      <option value="91">Bagiński Czesław</option>
+      <option value="456">Balyka Ihar</option>
+      <option value="227">Bartosiewicz Zbigniew</option>
+      <option value="45">Borowicz Adam</option>
+      <option value="75">Borowska Anna</option>
+      <option value="90">Bramska Halina</option>
+      <option value="13">Busłowska Eugenia</option>
+      <option value="422">Bułatow Witali</option>
+      <option value="445">Chańko Damian</option>
+      <option value="28">Chmielewski Andrzej</option>
+      <option value="438">Chmielewski Bartłomiej</option>
+      <option value="341">Choromański Mateusz</option>
+      <option value="344">Ciereszko Małgorzata Ewa</option>
+      <option value="204">Czajkowski Marcin</option>
+      <option value="418">Czemiel-Grzybowska Wioletta</option>
+      <option value="278">Dobkowska Sylwia</option>
+      <option value="32">Drużdżel Agnieszka</option>
+      <option value="194">Drużdżel Marek J.</option>
+      <option value="36">Duda Dorota</option>
+      <option value="471">Duda Kamil</option>
+      <option value="397">Dziemidok Marcin</option>
+      <option value="410">Falkowska B.</option>
+      <option value="283">Filipowicz-Chomko Marzena</option>
+      <option value="217">Girejko Ewa</option>
+      <option value="466">Gnatowski Maciej</option>
+      <option value="35">Gościk Joanna</option>
+      <option value="224">Grabińska Violetta</option>
+      <option value="62">Grabowski Daniel</option>
+      <option value="98">Grekow Jacek</option>
+      <option value="51">Grzeszczuk Piotr</option>
+      <option value="1">Grześ Tomasz</option>
+      <option value="465">Hapunik Jakub</option>
+      <option value="364">Hordjewicz Tomasz</option>
+      <option value="34">Hońko Piotr</option>
+      <option value="89">Jabłońska Domurat Alina</option>
+      <option value="17">Jakowluk Wiktor</option>
+      <option value="365">Jankowski Dariusz</option>
+      <option value="184">Jurczuk Krzysztof</option>
+      <option value="259">KN MSI </option>
+      <option value="201">Kacprzak Dariusz</option>
+      <option value="276">Kacprzak Magdalena</option>
+      <option value="288">Kamińska Irena</option>
+      <option value="347">Kartowicz-Stolarska Izabela</option>
+      <option value="21">Klimowicz Adam</option>
+      <option value="141">Komarewska Małgorzata</option>
+      <option value="430">Kopczewski Marek</option>
+      <option value="218">Kopczyński Maciej</option>
+      <option value="458">Kowalewski Jakub</option>
+      <option value="295">Koźniewski Marcin</option>
+      <option value="147">Krawczuk Jerzy</option>
+      <option value="31">Krętowska Małgorzata</option>
+      <option value="96">Krętowski Marek</option>
+      <option value="371">Kuczyński Tomasz</option>
+      <option value="354">Kuźmicz Artur</option>
+      <option value="27">Kużelewska Urszula</option>
+      <option value="74">Kwedlo Wojciech</option>
+      <option value="346">Kępczyk Marek</option>
+      <option value="454">Magnuszewski Piotr</option>
+      <option value="73">Makarec Agnieszka</option>
+      <option value="211">Malinowska Agnieszka</option>
+      <option value="66">Mazurek Ryszard</option>
+      <option value="398">Milewski Patryk</option>
+      <option value="446">Mirčevski Bruno</option>
+      <option value="459">Mojkowski Piotr</option>
+      <option value="230">Mozyrska Dorota</option>
+      <option value="18">Mrozek Ireneusz</option>
+      <option value="409">Nazarko J.</option>
+      <option value="71">Olbryś Joanna</option>
+      <option value="46">Omieljanowicz Mirosław</option>
+      <option value="460">Orłowski Patryk</option>
+      <option value="215">Ostrowski Krzysztof</option>
+      <option value="457">Pawluczuk Andrzej</option>
+      <option value="246">Piekarski Krzysztof</option>
+      <option value="216">Poskrobko Anna</option>
+      <option value="376">Przybyszewski Karol</option>
+      <option value="116">Reska Daniel</option>
+      <option value="137">Rogalski Wojciech</option>
+      <option value="400">Roszkowska Ewa</option>
+      <option value="49">Rubin Grzegorz</option>
+      <option value="43">Saeed Khalid</option>
+      <option value="16">Salauyou Valery</option>
+      <option value="352">Sawicki Aleksander</option>
+      <option value="434">Seweryn Kasper Jan</option>
+      <option value="205">Skoczylas Marcin</option>
+      <option value="100">Smolarczyk Beata</option>
+      <option value="52">Sosnowski Zenon</option>
+      <option value="407">Stalończyk Izabela</option>
+      <option value="229">Stasiewicz Rajmund</option>
+      <option value="336">Staszewska Aniela</option>
+      <option value="29">Stepaniuk Jarosław</option>
+      <option value="467">Szarejko Łukasz</option>
+      <option value="299">Szuper-Jakubiuk Dorota</option>
+      <option value="370">Szymkowski Maciej</option>
+      <option value="60">Tabędzki Marek</option>
+      <option value="26">Tadejko Paweł</option>
+      <option value="33">Topczewska Magdalena</option>
+      <option value="393">Topolewicz Katarzyna</option>
+      <option value="453">Twardowski Adrian</option>
+      <option value="449">Wnuszyńska Urszula</option>
+      <option value="214">Wyrwas Małgorzata</option>
+      <option value="415">Zabielski Kamil</option>
+      <option value="275">Zabielski Paweł</option>
+      <option value="431">Zaprzałka Jakub</option>
+      <option value="447">Zarzycki Kajetan</option>
+      <option value="302">Zieliński Sławomir</option>
+      <option value="406">Zimnoch Anna</option>
+      <option value="97">Łukaszuk Tomasz</option>
+      <option value="114">Łupińska-Dubicka Anna</option>
+      <option value="172">Śleszyńska Dorota</option>
+      <option value="202">Śleszyński Maciej</option>
+  
+  </select><div class="chosen-container chosen-container-single" style="width: 350px;" title="Nazwisko i imię nauczyciela" id="teacher_chosen"><a class="chosen-single"><span>ALO </span><div><b></b></div></a><div class="chosen-drop"><div class="chosen-search"><input type="text" autocomplete="off"></div><ul class="chosen-results"></ul></div></div>
+  <input type="hidden" name="page" value="nau">
+  <button type="submit" class="btn btn-primary btn-sm" name="submit">Wyświetl</button>
+</form>
+
+<map name="MapaRozk">
+  <area shape="rect" coords="240, 20, 320, 180" data-toggle="popover" data-placement="auto" data-html="true" data-content=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " href="#" alt=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " data-original-title="" title="">
+  <area shape="rect" coords="160, 20, 240, 140" data-toggle="popover" data-placement="auto" data-html="true" data-content=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " href="#" alt=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " data-original-title="" title="">
+  <area shape="rect" coords="80, 20, 160, 180" data-toggle="popover" data-placement="auto" data-html="true" data-content=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " href="#" alt=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " data-original-title="" title="">
+  <area shape="rect" coords="320, 20, 400, 140" data-toggle="popover" data-placement="auto" data-html="true" data-content=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " href="#" alt=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " data-original-title="" title="">
+  <area shape="rect" coords="400, 20, 480, 180" data-toggle="popover" data-placement="auto" data-html="true" data-content=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " href="#" alt=" (Ps) grupa 1&lt;br&gt;sala B3&lt;br&gt;REZERWACJE, " data-original-title="" title="">
+</map>
+
+<div class="img_caption align-items-center justify-content-center">
+
+  <h2>Tygodniowy rozkład zajęć nauczyciela<br>ALO</h2>
+  <img src="./teacher/teacher.php?id=468" alt="Rozkład zajęć nauczyciela: ALO" usemap="#MapaRozk" width="721" height="321">
+  <p>Terminy konsultacji zaznaczono kolorem 
+	<span style="background-color: #60ff40; border: 1px solid black;">&nbsp;zielonym&nbsp;</span>, 
+  inne zajęcia kolorem 
+	<span style="background-color: #80c0ff; border: 1px solid black;">&nbsp;niebieskim&nbsp;</span>
+  </p>
+  <input type="button" value="Wersja do druku" onclick="javascript:window.open('rozklad.php?id=468&amp;page=nauprnt&amp;popup=yes', 'Rozklad_zajec', 'toolbar=yes,menubar=yes,scrollbars=no,resizable=no,width=780,height=500,location=no,directories=no,status=no');">
+</div>
+<h2>Szczegółowy rozkład zajęć</h2>
+<h4>poniedziałek</h4>
+<p>8:30-15:30:  (Ps) grupa 1, sala B3, REZERWACJE, <br>
+</p>
+<h4>wtorek</h4>
+<p>8:30-13:30:  (Ps) grupa 1, sala B3, REZERWACJE, <br>
+</p>
+<h4>środa</h4>
+<p>8:30-15:30:  (Ps) grupa 1, sala B3, REZERWACJE, <br>
+</p>
+<h4>czwartek</h4>
+<p>8:30-13:30:  (Ps) grupa 1, sala B3, REZERWACJE, <br>
+</p>
+<h4>piątek</h4>
+<p>8:30-15:30:  (Ps) grupa 1, sala B3, REZERWACJE, <br>
+</p>
+<script>
+$(function () {
+  $('[data-toggle="popover"]').popover({trigger: 'hover'});
+})
+</script>
+
+<script>
+$(document).ready(function() {
+	$("#teacher")
+		.chosen({no_results_text: "Brak wyników!"})
+		.change(function(event) {
+			document.getElementById("teachers_form").submit.click();
+		});
+});
+</script>
+
+</section></div>
+
+<footer class="bg-dark text-light rounded">
+  <p>
+    Wszelkie uwagi dotyczące serwisu prosimy kierować do
+    <a href="mailto:wi.rozklady@pb.edu.pl">administratora serwisu</a>
+    &nbsp;&nbsp;—&nbsp;&nbsp;
+    <a href="./rozklad.php?page=acc">Deklaracja dostępności</a>
+  </p>
+</footer>
+</div>

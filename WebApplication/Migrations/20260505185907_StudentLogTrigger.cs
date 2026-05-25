@@ -1,0 +1,78 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace WebApplication.Migrations
+{
+    /// <inheritdoc />
+    public partial class StudentLogTrigger : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            // Metoda Up wykonuje się przy aktualizacji bazy (database update)
+            migrationBuilder.Sql("""
+                CREATE OR REPLACE TRIGGER trg_StudentLog
+            AFTER INSERT OR UPDATE OR DELETE ON "Students" 
+            FOR EACH ROW
+            DECLARE
+                v_operation NVARCHAR2(20);
+                v_old_val NVARCHAR2(2000);
+                v_new_val NVARCHAR2(2000);
+                v_user NVARCHAR2(200);
+            BEGIN
+                v_old_val := '-';
+                v_new_val := '-';
+
+                v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+                IF INSERTING THEN
+                    v_operation := 'INSERT';
+                    -- Cudzysłowy wracają do nazw kolumn bazy z EF
+                    v_new_val := 'ID: ' || :NEW."StudentID" || ', Imie: ' || :NEW."FirstName" || 
+                                 ', Nazwisko: ' || :NEW."LastName";
+
+                ELSIF UPDATING THEN
+                    v_operation := 'UPDATE';
+                    v_old_val := 'ID: ' || :NEW."StudentID" || ', Imie: ' || :NEW."FirstName" || 
+                                 ', Nazwisko: ' || :NEW."LastName";
+
+                    v_new_val := 'ID: ' || :NEW."StudentID" || ', Imie: ' || :NEW."FirstName" || 
+                                 ', Nazwisko: ' || :NEW."LastName";
+
+                ELSIF DELETING THEN
+                    v_operation := 'DELETE';
+                    v_old_val := 'ID: ' || :NEW."StudentID" || ', Imie: ' || :NEW."FirstName" || 
+                                 ', Nazwisko: ' || :NEW."LastName";
+                END IF;
+
+                -- Nazwy tabeli logów i jej kolumn (te ze screena) też muszą mieć cudzysłowy
+                INSERT INTO "Logs" ( 
+                    "TableName", 
+                    "Operation", 
+                    "OldValue", 
+                    "NewValue", 
+                    "UserChanged", 
+                    "ChangedAt"
+                ) VALUES (
+                    'Student', 
+                    v_operation, 
+                    v_old_val, 
+                    v_new_val, 
+                    v_user, 
+                    CURRENT_TIMESTAMP
+                );
+            END;
+            """);
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            // Metoda Down wykonuje się, gdy chcesz cofnąć migrację
+            // Musimy poinstruować EF Core, jak ma usunąć ten trigger
+            migrationBuilder.Sql("""
+                DROP TRIGGER trg_StudentLog
+            """);
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Nowy Użytkownik";
+}
+
+<h2>Utwórz konto dla nowego pracownika / studenta</h2>
+
+<div style="border: 1px solid #ccc; padding: 20px; max-width: 400px; margin-top: 20px;">
+    <form asp-controller="Admin" asp-action="UtworzKonto" method="post">
+        
+        <div style="margin-bottom: 15px;">
+            <label>Login:</label><br />
+            <input type="text" name="username" required style="width: 100%;" />
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Adres e-mail:</label><br />
+            <input type="email" name="email" required style="width: 100%;" />
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Hasło tymczasowe:</label><br />
+            <input type="password" name="tempPassword" required style="width: 100%;" />
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Wybierz Rolę:</label><br />
+            <select name="roleId" asp-items="ViewBag.Roles" required style="width: 100%;">
+                <option value="">-- Wybierz --</option>
+            </select>
+        </div>
+        
+        <div style="color: red; margin-bottom: 10px;">
+            @Html.ValidationSummary(true)
+        </div>
+
+        <button type="submit" style="background-color: green; color: white; padding: 10px; width: 100%; border: none;">
+            Utwórz i Zapisz w Bazie
+        </button>
+    </form>
+</div>
+
+<div style="margin-top: 15px;">
+    <a asp-action="Index">Wróc do listy użytkowników</a>
+</div>

@@ -1,0 +1,68 @@
+@model IEnumerable<WebApplication.Models.Room>
+
+@section HeaderLeft {
+    <div class="flex items-center gap-4">
+        <h2 class="font-bold text-2xl tracking-tight">Rooms</h2>
+    </div>
+}
+
+<div class="p-8">
+    <div id="rooms-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const STORAGE_KEY = 'rooms_cache';
+        const TTL = 3600000;
+
+        function initRooms() {
+            const serverData = @Html.Raw(Json.Serialize(Model));
+            const cached = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            const now = Date.now();
+            let rooms = [];
+
+            if (serverData && serverData.length > 0) {
+                rooms = serverData;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ data: serverData, timestamp: now }));
+            } else if (cached && (now - cached.timestamp < TTL)) {
+                rooms = cached.data;
+            }
+
+            renderRooms(rooms);
+        }
+
+        function renderRooms(rooms) {
+            const container = document.getElementById('rooms-container');
+            container.innerHTML = rooms.map(room => `
+                <div class="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600">
+                            <i data-lucide="door-open" class="w-6 h-6"></i>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase bg-gray-100 dark:bg-gray-800 text-gray-500">
+                            ${room.roomType || 'Other'}
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-1">Room ${room.roomNumber}</h3>
+                    <p class="text-sm text-gray-500 mb-6 flex items-center gap-1">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                        ${room.building ? room.building.name : 'Unknown Building'}
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 py-4 border-t border-border">
+                        <div>
+                            <div class="text-xs text-gray-400 uppercase font-medium">Capacity</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+                                <span class="font-semibold">${room.capacity}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        initRooms();
+    </script>
+}
