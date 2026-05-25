@@ -1,17 +1,22 @@
-using WebApplication.Models;
+using WebApplication.DTOs.FieldOfStudy;
 
 namespace WebApplication.Services.Interfaces;
 
 public interface IFieldsOfStudiesService
 {
-    Task<IEnumerable<FieldOfStudy>> GetAllWithFacultyAsync();
-    Task<FieldOfStudy?> GetByIdWithFacultyAsync(int id);
-    Task<FieldOfStudy?> GetByIdAsync(int id);
-    Task CreateAsync(FieldOfStudy fieldOfStudy);
-    Task UpdateAsync(FieldOfStudy fieldOfStudy);
+    Task<IEnumerable<FieldOfStudyIndexDto>> GetAllForIndexAsync();
+
+    Task<FieldOfStudyDetailsDto?> GetDetailsByIdAsync(int id);
+
+    Task<FieldOfStudyFormDto?> GetFormByIdAsync(int id);
+
+    Task CreateAsync(FieldOfStudyFormDto dto);
+
+    Task<bool> UpdateAsync(FieldOfStudyFormDto dto);
+
     Task DeleteAsync(int id);
+
     Task<bool> ExistsAsync(int id);
-        
-    // Pomocnicza metoda dla listy rozwijanej wydziałów w widokach Create/Edit
-    Task<IEnumerable<Faculty>> GetAllFacultiesAsync();
+
+    Task<IEnumerable<KeyValuePair<int, string>>> GetFacultyDropdownListAsync();
 }

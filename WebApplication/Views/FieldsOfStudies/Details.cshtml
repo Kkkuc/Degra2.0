@@ -1,4 +1,4 @@
-@model WebApplication.Models.FieldOfStudy
+@model WebApplication.DTOs.FieldOfStudy.FieldOfStudyDetailsDto
 
 @{
     ViewData["Title"] = "Details";
@@ -12,10 +12,10 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Faculty)
+            @Html.DisplayNameFor(model => model.FacultyName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Faculty.Name)
+            @Html.DisplayFor(model => model.FacultyName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -30,10 +30,10 @@
             @Html.DisplayFor(model => model.Degree)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Mode)
+            @Html.DisplayNameFor(model => model.ModeDisplay)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Mode)
+            @Html.DisplayFor(model => model.ModeDisplay)
         </dd>
     </dl>
 </div>
