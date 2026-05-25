@@ -5,20 +5,13 @@ using System.Security.Claims;
 using WebApplication.Data;
 using Microsoft.EntityFrameworkCore;
 
-public class AccountController : Controller
+public class AccountController(AppDbContext context) : Controller
 {
-    private readonly AppDbContext _context;
-
-    public AccountController(AppDbContext context)
-    {
-        _context = context;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Login(string username, string password)
     {
         //do popatrzenia i ulepszenia
-        var user = _context.Users.Include(u => u.Role).FirstOrDefault(u => u.Username == username && u.PasswordHash == password);
+        var user = context.Users.Include(u => u.Role).FirstOrDefault(u => u.Username == username && u.PasswordHash == password);
 
         if (user != null)
         {

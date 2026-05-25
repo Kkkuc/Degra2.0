@@ -1,22 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Services;
 
 namespace WebApplication.Controllers
 {
-    public class BuildingsController(AppDbContext context) : Controller
+    public class BuildingsController(IBuildingsService buildingsService) : Controller
     {
         // GET: Buildings
         public async Task<IActionResult> Index()
         {
-            var appDbContext = context.Buildings.Include(b => b.Faculty);
-            return View(await appDbContext.ToListAsync());
+            var data = await buildingsService.GetAllWithFacultyAsync();
+            return View(data);
         }
 
         // GET: Buildings/Details/5
@@ -27,9 +24,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var building = await context.Buildings
-                .Include(b => b.Faculty)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var building = await buildingsService.GetByIdWithFacultyAsync(id.Value);
             if (building == null)
             {
                 return NotFound();
@@ -39,9 +34,10 @@ namespace WebApplication.Controllers
         }
 
         // GET: Buildings/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name");
+            var faculties = await buildingsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name");
             return View();
         }
 
@@ -54,11 +50,11 @@ namespace WebApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                context.Add(building);
-                await context.SaveChangesAsync();
+                await buildingsService.CreateAsync(building);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", building.FacultyId);
+            var faculties = await buildingsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", building.FacultyId);
             return View(building);
         }
 
@@ -70,12 +66,13 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var building = await context.Buildings.FindAsync(id);
+            var building = await buildingsService.GetByIdAsync(id.Value);
             if (building == null)
             {
                 return NotFound();
             }
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", building.FacultyId);
+            var faculties = await buildingsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", building.FacultyId);
             return View(building);
         }
 
@@ -95,23 +92,20 @@ namespace WebApplication.Controllers
             {
                 try
                 {
-                    context.Update(building);
-                    await context.SaveChangesAsync();
+                    await buildingsService.UpdateAsync(building);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BuildingExists(building.Id))
+                    if (!await buildingsService.ExistsAsync(building.Id))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", building.FacultyId);
+            var faculties = await buildingsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", building.FacultyId);
             return View(building);
         }
 
@@ -123,9 +117,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var building = await context.Buildings
-                .Include(b => b.Faculty)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var building = await buildingsService.GetByIdWithFacultyAsync(id.Value);
             if (building == null)
             {
                 return NotFound();
@@ -139,19 +131,9 @@ namespace WebApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var building = await context.Buildings.FindAsync(id);
-            if (building != null)
-            {
-                context.Buildings.Remove(building);
-            }
-
-            await context.SaveChangesAsync();
+            await buildingsService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
-
-        private bool BuildingExists(int id)
-        {
-            return context.Buildings.Any(e => e.Id == id);
-        }
+        
     }
 }
