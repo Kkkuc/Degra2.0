@@ -50,7 +50,8 @@ public class GroupsController(IGroupsService groupsService) : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        [Bind("Id,SemesterId,FieldOfStudyId,SpecializationId,ClassType,Name")] Group @group)
+        [Bind("Id,SemesterId,FieldOfStudyId,SpecializationId,ClassType,Name")]
+        Group @group)
     {
         if (ModelState.IsValid)
         {
@@ -96,7 +97,8 @@ public class GroupsController(IGroupsService groupsService) : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id,
-        [Bind("Id,SemesterId,FieldOfStudyId,SpecializationId,ClassType,Name")] Group @group)
+        [Bind("Id,SemesterId,FieldOfStudyId,SpecializationId,ClassType,Name")]
+        Group @group)
     {
         if (id != group.Id)
         {
