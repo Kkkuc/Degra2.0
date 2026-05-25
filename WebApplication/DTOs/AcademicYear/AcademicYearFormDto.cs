@@ -4,14 +4,7 @@ namespace WebApplication.DTOs.AcademicYear;
 
 public class AcademicYearFormDto
 {
-    public int Id { get; set; }
-        
-    [Required(ErrorMessage = "Name is required")]
-    public string Name { get; set; } = string.Empty;
-        
-    [Required]
-    public DateOnly StartDate { get; set; }
-        
-    [Required]
-    public DateOnly EndDate { get; set; }
+    public int Id { get; set; } 
+    
+    public DateRangeDto Period { get; set; } = new();
 }

@@ -1,4 +1,4 @@
-@model WebApplication.DTOs.AcademicYear.AcademicYearDto
+@model WebApplication.DTOs.AcademicYear.AcademicYearFormDto
 
 @{
     ViewData["Title"] = "Edit";
@@ -15,19 +15,14 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <label asp-for="Period.StartDate" class="control-label"></label>
+                <input asp-for="Period.StartDate" class="form-control" />
+                <span asp-validation-for="Period.StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
+                <label asp-for="Period.EndDate" class="control-label"></label>
+                <input asp-for="Period.EndDate" class="form-control" />
+                <span asp-validation-for="Period.EndDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

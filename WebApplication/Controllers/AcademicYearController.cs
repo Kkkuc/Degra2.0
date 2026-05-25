@@ -11,14 +11,14 @@ namespace WebApplication.Controllers
         // GET: AcademicYear
         public async Task<IActionResult> Index()
         {
-            var data = await academicYearService.GetAllAsync();
+            var data = await academicYearService.GetAllForIndexAsync();
             return View(data);
         }
 
         // GET: AcademicYear/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var dto = await academicYearService.GetByIdAsync(id);
+            var dto = await academicYearService.GetDetailsByIdAsync(id);
             if (dto == null)
             {
                 return NotFound();
@@ -46,9 +46,9 @@ namespace WebApplication.Controllers
         }
 
         // GET: AcademicYear/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var dto = await academicYearService.GetByIdAsync(id);
+            var dto = await academicYearService.GetFormByIdAsync(id);
             if (dto == null)
             {
                 return NotFound();
@@ -71,7 +71,7 @@ namespace WebApplication.Controllers
             {
                 return View(dto);
             }
-
+            
             var updated = await academicYearService.UpdateAsync(dto);
             if (!updated)
             {
@@ -82,20 +82,15 @@ namespace WebApplication.Controllers
         }
 
         // GET: AcademicYear/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
+            var dto = await academicYearService.GetDetailsByIdAsync(id);
+            if (dto == null)
             {
                 return NotFound();
             }
 
-            var academicYear = await academicYearService.GetByIdAsync(id.Value);
-            if (academicYear == null)
-            {
-                return NotFound();
-            }
-
-            return View(academicYear);
+            return View(dto);
         }
 
         // POST: AcademicYear/Delete/5

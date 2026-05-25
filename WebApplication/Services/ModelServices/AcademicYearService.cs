@@ -5,62 +5,83 @@ using WebApplication.DTOs.AcademicYear;
 using WebApplication.Models;
 using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Services
+namespace WebApplication.Services.ModelServices
 {
     public class AcademicYearService(AppDbContext context) : IAcademicYearService
     {
-        public async Task<IEnumerable<AcademicYearDto>> GetAllAsync()
+        public async Task<IEnumerable<AcademicYearIndexDto>> GetAllForIndexAsync()
         {
             return await context.AcademicYears
-                .Select(ay => new AcademicYearDto(
+                .Select(ay => new AcademicYearIndexDto(
                     ay.Id,
-                    ay.Name,
-                    ay.StartDate,
-                    ay.EndDate
+                    ay.Name
                 ))
                 .ToListAsync();
         }
-
-        public async Task<AcademicYearDto?> GetByIdAsync(int? id)
+        
+        public async Task<AcademicYearDetailsDto?> GetDetailsByIdAsync(int id)
         {
             return await context.AcademicYears
                 .Where(ay => ay.Id == id)
-                .Select(ay => new AcademicYearDto(
+                .Select(ay => new AcademicYearDetailsDto(
                     ay.Id,
                     ay.Name,
-                    ay.StartDate,
-                    ay.EndDate
-                )) 
+                    new DateRangeDto
+                    {
+                        StartDate = ay.StartDate,
+                        EndDate = ay.EndDate
+                    }
+                ))
                 .FirstOrDefaultAsync();
         }
-
+        
+        public async Task<AcademicYearFormDto?> GetFormByIdAsync(int id)
+        {
+            return await context.AcademicYears
+                .Where(ay => ay.Id == id)
+                .Select(ay => new AcademicYearFormDto
+                {
+                    Id = ay.Id,
+                    Period = new DateRangeDto
+                    {
+                        StartDate = ay.StartDate,
+                        EndDate = ay.EndDate
+                    }
+                })
+                .FirstOrDefaultAsync();
+        }
+        
         public async Task CreateAsync(AcademicYearFormDto dto)
         {
+            var generatedName = $"{dto.Period.StartDate.Year}/{dto.Period.EndDate.Year}";
+
             var academicYear = new AcademicYear
             {
-                Name = dto.Name,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate
+                Name = generatedName,
+                StartDate = dto.Period.StartDate,
+                EndDate = dto.Period.EndDate
             };
 
             context.Add(academicYear);
             await context.SaveChangesAsync();
         }
-
+        
         public async Task<bool> UpdateAsync(AcademicYearFormDto dto)
         {
             var academicYear = await context.AcademicYears.FindAsync(dto.Id);
             if (academicYear == null) return false;
             
-            academicYear.Name = dto.Name;
-            academicYear.StartDate = dto.StartDate;
-            academicYear.EndDate = dto.EndDate;
+            var generatedName = $"{dto.Period.StartDate.Year}/{dto.Period.EndDate.Year}";
+
+            academicYear.Name = generatedName;
+            academicYear.StartDate = dto.Period.StartDate;
+            academicYear.EndDate = dto.Period.EndDate;
 
             context.Update(academicYear);
             await context.SaveChangesAsync();
             return true;
         }
-
+        
         public async Task DeleteAsync(int id)
         {
             var academicYear = await context.AcademicYears.FindAsync(id);
@@ -69,6 +90,11 @@ namespace WebApplication.Services
                 context.AcademicYears.Remove(academicYear);
                 await context.SaveChangesAsync();
             }
+        }
+        
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await context.AcademicYears.AnyAsync(ay => ay.Id == id);
         }
     }
 }

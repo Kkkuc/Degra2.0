@@ -1,4 +1,4 @@
-@model WebApplication.DTOs.AcademicYear.AcademicYearDto
+@model WebApplication.DTOs.AcademicYear.AcademicYearIndexDto
 
 @{
     ViewData["Title"] = "Delete";
@@ -17,18 +17,6 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StartDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StartDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EndDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EndDate)
         </dd>
     </dl>
     

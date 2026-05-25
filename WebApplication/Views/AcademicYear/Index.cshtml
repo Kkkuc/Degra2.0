@@ -1,4 +1,4 @@
-@model IEnumerable<WebApplication.DTOs.AcademicYear.AcademicYearDto>
+@model IEnumerable<WebApplication.DTOs.AcademicYear.AcademicYearIndexDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -25,7 +25,7 @@
     {
         <tr>
             <td>
-                @item.DurationDisplay
+                @item.Name
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
