@@ -81,7 +81,7 @@ public class ScraperController(AppDbContext context) : Controller
                     if (teacher.Id == 0) context.Teachers.Add(teacher);
 
                     var building = await context.Buildings.FirstOrDefaultAsync(b => b.Name == dto.BuildingName)
-                        ?? new Building { Name = dto.BuildingName, FacultyId = faculty.Id, HouseNumber = "45A", Street = "Wiejska"};
+                        ?? new Building { Name = dto.BuildingName, FacultyId = faculty.Id, HouseNumber = "45A", Street = "Wiejska", City = "Białystok", PostalCode = "15-351"};
                     if (building.Id == 0) context.Buildings.Add(building);
                     await context.SaveChangesAsync();
 
