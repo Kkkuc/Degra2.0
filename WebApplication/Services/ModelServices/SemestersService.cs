@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Services
 {

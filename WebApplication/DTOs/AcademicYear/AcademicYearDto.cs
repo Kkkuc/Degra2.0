@@ -1,4 +1,4 @@
-namespace WebApplication.DTOs;
+namespace WebApplication.DTOs.AcademicYear;
 
 public record AcademicYearDto(int Id, string Name, DateOnly StartDate, DateOnly EndDate)
 {

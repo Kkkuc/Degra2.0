@@ -1,6 +1,6 @@
 using WebApplication.Models;
 
-namespace WebApplication.Services;
+namespace WebApplication.Services.Interfaces;
 
 public interface IFieldsOfStudiesService
 {

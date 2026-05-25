@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Data;
-using WebApplication.Models;
-using WebApplication.Services;
+using WebApplication.DTOs.Building;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers
 {
@@ -12,32 +10,27 @@ namespace WebApplication.Controllers
         // GET: Buildings
         public async Task<IActionResult> Index()
         {
-            var data = await buildingsService.GetAllWithFacultyAsync();
-            return View(data);
+            var data = await buildingsService.GetAllForIndexAsync();
+            return View(data); 
         }
 
         // GET: Buildings/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var building = await buildingsService.GetByIdWithFacultyAsync(id.Value);
+            var building = await buildingsService.GetDetailsByIdAsync(id);
             if (building == null)
             {
                 return NotFound();
             }
 
-            return View(building);
+            return View(building); 
         }
 
         // GET: Buildings/Create
         public async Task<IActionResult> Create()
         {
-            var faculties = await buildingsService.GetAllFacultiesAsync();
-            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name");
+            var faculties = await buildingsService.GetFacultyDropdownListAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Key", "Value");
             return View();
         }
 
@@ -46,34 +39,28 @@ namespace WebApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Street,HouseNumber,City,PostalCode,FacultyId")] Building building)
+        public async Task<IActionResult> Create(BuildingFormDto dto)
         {
             if (ModelState.IsValid)
             {
-                await buildingsService.CreateAsync(building);
+                await buildingsService.CreateAsync(dto);
                 return RedirectToAction(nameof(Index));
             }
-            var faculties = await buildingsService.GetAllFacultiesAsync();
-            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", building.FacultyId);
-            return View(building);
+            
+            var faculties = await buildingsService.GetFacultyDropdownListAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Key", "Value", dto.FacultyId);
+            return View(dto);
         }
 
         // GET: Buildings/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var buildingForm = await buildingsService.GetFormByIdAsync(id);
+            if (buildingForm == null) return NotFound();
 
-            var building = await buildingsService.GetByIdAsync(id.Value);
-            if (building == null)
-            {
-                return NotFound();
-            }
-            var faculties = await buildingsService.GetAllFacultiesAsync();
-            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", building.FacultyId);
-            return View(building);
+            var faculties = await buildingsService.GetFacultyDropdownListAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Key", "Value", buildingForm.FacultyId);
+            return View(buildingForm);
         }
 
         // POST: Buildings/Edit/5
@@ -81,49 +68,36 @@ namespace WebApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Street,HouseNumber,City,PostalCode,FacultyId")] Building building)
+        public async Task<IActionResult> Edit(int id, BuildingFormDto dto)
         {
-            if (id != building.Id)
-            {
-                return NotFound();
-            }
+            if (id != dto.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
-                try
+                var success = await buildingsService.UpdateAsync(dto);
+                if (!success)
                 {
-                    await buildingsService.UpdateAsync(building);
+                    if (!await buildingsService.ExistsAsync(dto.Id)) return NotFound();
+                    ModelState.AddModelError(string.Empty, "Wystąpił błąd aktualizacji.");
                 }
-                catch (DbUpdateConcurrencyException)
+                else
                 {
-                    if (!await buildingsService.ExistsAsync(building.Id))
-                    {
-                        return NotFound();
-                    }
-                    throw;
+                    return RedirectToAction(nameof(Index));
                 }
-                return RedirectToAction(nameof(Index));
             }
-            var faculties = await buildingsService.GetAllFacultiesAsync();
-            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", building.FacultyId);
-            return View(building);
+            
+            var faculties = await buildingsService.GetFacultyDropdownListAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Key", "Value", dto.FacultyId);
+            return View(dto);
         }
 
         // GET: Buildings/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var building = await buildingsService.GetDetailsByIdAsync(id);
+            if (building == null) return NotFound();
 
-            var building = await buildingsService.GetByIdWithFacultyAsync(id.Value);
-            if (building == null)
-            {
-                return NotFound();
-            }
-
-            return View(building);
+            return View(building); 
         }
 
         // POST: Buildings/Delete/5
@@ -134,6 +108,5 @@ namespace WebApplication.Controllers
             await buildingsService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
-        
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Models;
 using WebApplication.Services;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers
 {

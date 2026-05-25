@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApplication.DTOs;
+namespace WebApplication.DTOs.AcademicYear;
 
 public class AcademicYearFormDto
 {

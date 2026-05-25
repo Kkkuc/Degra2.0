@@ -1,7 +1,6 @@
-using WebApplication.DTOs;
-using WebApplication.Models;
+using WebApplication.DTOs.AcademicYear;
 
-namespace WebApplication.Services;
+namespace WebApplication.Services.Interfaces;
 
 public interface IAcademicYearService
 {

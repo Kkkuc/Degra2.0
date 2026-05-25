@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication.Models;
 using WebApplication.Models.enums;
 using WebApplication.Services;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
