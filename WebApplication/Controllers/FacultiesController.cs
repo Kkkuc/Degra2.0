@@ -1,16 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Services;
 
 namespace WebApplication.Controllers
 {
-    public class FacultiesController(AppDbContext context) : Controller
+    public class FacultiesController(IFacultiesService facultiesService) : Controller
     {
         // GET: Faculties
         public async Task<IActionResult> Index()
         {
-            return View(await context.Faculties.ToListAsync());
+            var data = await facultiesService.GetAllAsync();
+            return View(data);
         }
 
         // GET: Faculties/Details/5
@@ -21,8 +22,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var faculty = await context.Faculties
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var faculty = await facultiesService.GetByIdAsync(id.Value);
             if (faculty == null)
             {
                 return NotFound();
@@ -44,13 +44,12 @@ namespace WebApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Abbreviation")] Faculty faculty)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                context.Add(faculty);
-                await context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return View(faculty);
             }
-            return View(faculty);
+            await facultiesService.CreateAsync(faculty);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Faculties/Edit/5
@@ -61,7 +60,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var faculty = await context.Faculties.FindAsync(id);
+            var faculty = await facultiesService.GetByIdAsync(id.Value);
             if (faculty == null)
             {
                 return NotFound();
@@ -81,27 +80,23 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    context.Update(faculty);
-                    await context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FacultyExists(faculty.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return View(faculty);
             }
-            return View(faculty);
+            try
+            {
+                await facultiesService.UpdateAsync(faculty);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await facultiesService.ExistsAsync(faculty.Id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Faculties/Delete/5
@@ -112,8 +107,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var faculty = await context.Faculties
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var faculty = await facultiesService.GetByIdAsync(id.Value);
             if (faculty == null)
             {
                 return NotFound();
@@ -127,19 +121,8 @@ namespace WebApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var faculty = await context.Faculties.FindAsync(id);
-            if (faculty != null)
-            {
-                context.Faculties.Remove(faculty);
-            }
-
-            await context.SaveChangesAsync();
+            await facultiesService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool FacultyExists(int id)
-        {
-            return context.Faculties.Any(e => e.Id == id);
         }
     }
 }

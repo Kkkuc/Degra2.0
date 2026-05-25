@@ -15,6 +15,7 @@ builder.Services.Scan(scan => scan
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IAcademicYearService, AcademicYearService>();
 builder.Services.AddScoped<IBuildingsService, BuildingsService>();
+builder.Services.AddScoped<IFacultiesService, FacultiesService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));

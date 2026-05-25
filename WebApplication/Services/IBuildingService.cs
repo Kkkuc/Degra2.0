@@ -12,7 +12,6 @@ namespace WebApplication.Services
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
         
-        // Potrzebne do wypełnienia SelectList w widokach formularzy
         Task<IEnumerable<Faculty>> GetAllFacultiesAsync();
     }
 }
