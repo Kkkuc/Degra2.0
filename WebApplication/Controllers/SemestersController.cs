@@ -1,157 +1,141 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Services;
 
-namespace WebApplication.Controllers
+namespace WebApplication.Controllers;
+
+public class SemestersController(ISemestersService semestersService) : Controller
 {
-    public class SemestersController(AppDbContext context) : Controller
+    // GET: Semesters
+    public async Task<IActionResult> Index()
     {
-        // GET: Semesters
-        public async Task<IActionResult> Index()
+        var data = await semestersService.GetAllWithAcademicYearAsync();
+        return View(data);
+    }
+
+    // GET: Semesters/Details/5
+    public async Task<IActionResult> Details(int? id)
+    {
+        if (id == null)
         {
-            var appDbContext = context.Semesters.Include(s => s.AcademicYear);
-            return View(await appDbContext.ToListAsync());
+            return NotFound();
         }
 
-        // GET: Semesters/Details/5
-        public async Task<IActionResult> Details(int? id)
+        var semester = await semestersService.GetByIdWithAcademicYearAsync(id.Value);
+        if (semester == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var semester = await context.Semesters
-                .Include(s => s.AcademicYear)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (semester == null)
-            {
-                return NotFound();
-            }
-
-            return View(semester);
+            return NotFound();
         }
 
-        // GET: Semesters/Create
-        public IActionResult Create()
+        return View(semester);
+    }
+
+    // GET: Semesters/Create
+    public async Task<IActionResult> Create()
+    {
+        var academicYears = await semestersService.GetAllAcademicYearsAsync();
+        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name");
+        return View();
+    }
+
+    // POST: Semesters/Create
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("Id,AcademicYearId,Name,StartDate,EndDate")] Semester semester)
+    {
+        if (ModelState.IsValid)
         {
-            ViewData["AcademicYearId"] = new SelectList(context.AcademicYears, "Id", "Name");
-            return View();
-        }
-
-        // POST: Semesters/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,AcademicYearId,Name,StartDate,EndDate")] Semester semester)
-        {
-            if (ModelState.IsValid)
-            {
-                context.Add(semester);
-                await context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["AcademicYearId"] = new SelectList(context.AcademicYears, "Id", "Name", semester.AcademicYearId);
-            return View(semester);
-        }
-
-        // GET: Semesters/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var semester = await context.Semesters.FindAsync(id);
-            if (semester == null)
-            {
-                return NotFound();
-            }
-            ViewData["AcademicYearId"] = new SelectList(context.AcademicYears, "Id", "Name", semester.AcademicYearId);
-            return View(semester);
-        }
-
-        // POST: Semesters/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,AcademicYearId,Name,StartDate,EndDate")] Semester semester)
-        {
-            if (id != semester.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    context.Update(semester);
-                    await context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SemesterExists(semester.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["AcademicYearId"] = new SelectList(context.AcademicYears, "Id", "Name", semester.AcademicYearId);
-            return View(semester);
-        }
-
-        // GET: Semesters/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var semester = await context.Semesters
-                .Include(s => s.AcademicYear)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (semester == null)
-            {
-                return NotFound();
-            }
-
-            return View(semester);
-        }
-
-        // POST: Semesters/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var semester = await context.Semesters.FindAsync(id);
-            if (semester != null)
-            {
-                context.Semesters.Remove(semester);
-            }
-
-            await context.SaveChangesAsync();
+            await semestersService.CreateAsync(semester);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SemesterExists(int id)
+        var academicYears = await semestersService.GetAllAcademicYearsAsync();
+        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name", semester.AcademicYearId);
+        return View(semester);
+    }
+
+    // GET: Semesters/Edit/5
+    public async Task<IActionResult> Edit(int? id)
+    {
+        if (id == null)
         {
-            return context.Semesters.Any(e => e.Id == id);
+            return NotFound();
         }
+
+        var semester = await semestersService.GetByIdAsync(id.Value);
+        if (semester == null)
+        {
+            return NotFound();
+        }
+
+        var academicYears = await semestersService.GetAllAcademicYearsAsync();
+        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name", semester.AcademicYearId);
+        return View(semester);
+    }
+
+    // POST: Semesters/Edit/5
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, [Bind("Id,AcademicYearId,Name,StartDate,EndDate")] Semester semester)
+    {
+        if (id != semester.Id)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                await semestersService.UpdateAsync(semester);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await semestersService.ExistsAsync(semester.Id))
+                {
+                    return NotFound();
+                }
+
+                throw;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        var academicYears = await semestersService.GetAllAcademicYearsAsync();
+        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name", semester.AcademicYearId);
+        return View(semester);
+    }
+
+    // GET: Semesters/Delete/5
+    public async Task<IActionResult> Delete(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        var semester = await semestersService.GetByIdWithAcademicYearAsync(id.Value);
+        if (semester == null)
+        {
+            return NotFound();
+        }
+
+        return View(semester);
+    }
+
+    // POST: Semesters/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        await semestersService.DeleteAsync(id);
+        return RedirectToAction(nameof(Index));
     }
 }
