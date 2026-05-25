@@ -36,7 +36,7 @@ public class RoomsController(IRoomsService roomsService) : Controller
     public async Task<IActionResult> Create()
     {
         var buildings = await roomsService.GetAllBuildingsAsync();
-        ViewData["BuildingId"] = new SelectList(buildings, "Id", "City");
+        ViewData["BuildingId"] = new SelectList(buildings, "Id", "Name");
         return View();
     }
 
@@ -54,7 +54,7 @@ public class RoomsController(IRoomsService roomsService) : Controller
         }
 
         var buildings = await roomsService.GetAllBuildingsAsync();
-        ViewData["BuildingId"] = new SelectList(buildings, "Id", "City", room.BuildingId);
+        ViewData["BuildingId"] = new SelectList(buildings, "Id", "Name", room.BuildingId);
         return View(room);
     }
 
@@ -73,7 +73,7 @@ public class RoomsController(IRoomsService roomsService) : Controller
         }
 
         var buildings = await roomsService.GetAllBuildingsAsync();
-        ViewData["BuildingId"] = new SelectList(buildings, "Id", "City", room.BuildingId);
+        ViewData["BuildingId"] = new SelectList(buildings, "Id", "Name", room.BuildingId);
         return View(room);
     }
 
@@ -109,7 +109,7 @@ public class RoomsController(IRoomsService roomsService) : Controller
         }
 
         var buildings = await roomsService.GetAllBuildingsAsync();
-        ViewData["BuildingId"] = new SelectList(buildings, "Id", "City", room.BuildingId);
+        ViewData["BuildingId"] = new SelectList(buildings, "Id", "Name", room.BuildingId);
         return View(room);
     }
 

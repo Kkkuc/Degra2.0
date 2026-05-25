@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Models;
+using WebApplication.Models.enums;
 using WebApplication.Services;
 
 namespace WebApplication.Controllers;
@@ -41,6 +42,7 @@ public class GroupsController(IGroupsService groupsService) : Controller
         ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name");
         ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name");
         ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name");
+        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
         return View();
     }
 
@@ -65,6 +67,7 @@ public class GroupsController(IGroupsService groupsService) : Controller
         ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name", group.FieldOfStudyId);
         ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name", group.SemesterId);
         ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name", group.SpecializationId);
+        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
         return View(group);
     }
 
@@ -88,6 +91,7 @@ public class GroupsController(IGroupsService groupsService) : Controller
         ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name", group.FieldOfStudyId);
         ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name", group.SemesterId);
         ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name", group.SpecializationId);
+        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
         return View(group);
     }
 
@@ -130,6 +134,7 @@ public class GroupsController(IGroupsService groupsService) : Controller
         ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name", group.FieldOfStudyId);
         ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name", group.SemesterId);
         ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name", group.SpecializationId);
+        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
         return View(group);
     }
 

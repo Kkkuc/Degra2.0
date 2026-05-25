@@ -19,6 +19,15 @@ builder.Services.AddScoped<IBuildingsService, BuildingsService>();
 builder.Services.AddScoped<IFacultiesService, FacultiesService>();
 builder.Services.AddScoped<IFieldsOfStudiesService, FieldsOfStudiesService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
+builder.Services.AddScoped<IRoomsService, RoomsService>();
+builder.Services.AddScoped<IScheduleChangesService, ScheduleChangesService>();
+builder.Services.AddScoped<ISemestersService, SemestersService>();
+builder.Services.AddScoped<ISpecializationsService, SpecializationsService>();
+builder.Services.AddScoped<IStudentGroupsService, StudentGroupsService>();
+builder.Services.AddScoped<IStudentsService, StudentsService>();
+builder.Services.AddScoped<ISubjectsService, SubjectsService>();
+builder.Services.AddScoped<ITeachersService, TeachersService>();
+builder.Services.AddScoped<ITimetablesService, TimetablesService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
