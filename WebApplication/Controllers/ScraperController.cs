@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Services;
 using WebApplication.Models;
+using WebApplication.Models.enums;
 
 namespace WebApplication.Controllers;
 
@@ -129,7 +130,7 @@ public class ScraperController(AppDbContext context) : Controller
                                ?? new FieldOfStudy
                                {
                                    Name = dto.FieldOfStudyName, FacultyId = faculty.Id, Degree = "I stopień",
-                                   Mode = "Stacjonarne"
+                                   Mode = StudyMode.FullTime
                                };
                     if (fost.Id == 0) context.FieldsOfStudy.Add(fost);
 

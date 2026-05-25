@@ -18,7 +18,7 @@ public class User
     [ForeignKey("StudentId")] public virtual Student? Student { get; set; }
     public int? TeacherId { get; set; }
     [ForeignKey("TeacherId")] public virtual Teacher? Teacher { get; set; }
-    //narazie null do testow, potem to sie zrobi
+   
     public bool? IsActive { get; set; } = true;
     public DateTime? LastLogin { get; set; }
 }
