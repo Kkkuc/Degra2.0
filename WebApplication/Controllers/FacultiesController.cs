@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication.Models;
-using WebApplication.Services;
+using WebApplication.DTOs.Faculty;
 using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers
@@ -16,57 +15,46 @@ namespace WebApplication.Controllers
         }
 
         // GET: Faculties/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
+            var dto = await facultiesService.GetByIdAsync(id);
+            if (dto == null)
             {
                 return NotFound();
             }
 
-            var faculty = await facultiesService.GetByIdAsync(id.Value);
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-
-            return View(faculty);
+            return View(dto);
         }
 
         // GET: Faculties/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
         // POST: Faculties/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Abbreviation")] Faculty faculty)
+        public async Task<IActionResult> Create(FacultyDto dto)
         {
             if (!ModelState.IsValid)
             {
-                return View(faculty);
+                return View(dto);
             }
-            await facultiesService.CreateAsync(faculty);
+
+            await facultiesService.CreateAsync(dto);
             return RedirectToAction(nameof(Index));
         }
 
         // GET: Faculties/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
+            var dto = await facultiesService.GetByIdAsync(id);
+            if (dto == null)
             {
                 return NotFound();
             }
 
-            var faculty = await facultiesService.GetByIdAsync(id.Value);
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-            return View(faculty);
+            return View(dto);
         }
 
         // POST: Faculties/Edit/5
@@ -74,47 +62,43 @@ namespace WebApplication.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Abbreviation")] Faculty faculty)
+        public async Task<IActionResult> Edit(int id, FacultyDto dto)
         {
-            if (id != faculty.Id)
+            if (id != dto.Id)
             {
                 return NotFound();
             }
 
             if (!ModelState.IsValid)
             {
-                return View(faculty);
+                return View(dto);
             }
-            try
+
+            var updated = await facultiesService.UpdateAsync(dto);
+            if (updated)
             {
-                await facultiesService.UpdateAsync(faculty);
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+
+            if (!await facultiesService.ExistsAsync(dto.Id))
             {
-                if (!await facultiesService.ExistsAsync(faculty.Id))
-                {
-                    return NotFound();
-                }
-                throw;
+                return NotFound();
             }
-            return RedirectToAction(nameof(Index));
+
+            ModelState.AddModelError(string.Empty, "Error during updating");
+            return View(dto);
         }
 
         // GET: Faculties/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
+            var dto = await facultiesService.GetByIdAsync(id);
+            if (dto == null)
             {
                 return NotFound();
             }
 
-            var faculty = await facultiesService.GetByIdAsync(id.Value);
-            if (faculty == null)
-            {
-                return NotFound();
-            }
-
-            return View(faculty);
+            return View(dto);
         }
 
         // POST: Faculties/Delete/5
