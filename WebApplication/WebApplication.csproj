@@ -42,4 +42,8 @@
       <_ContentIncludedByDefault Remove="Views\Teachers\Index.cshtml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="DTOs\Group\" />
+    </ItemGroup>
+
 </Project>
