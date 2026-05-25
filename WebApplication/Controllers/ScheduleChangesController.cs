@@ -46,14 +46,12 @@ namespace WebApplication.Controllers
         public IActionResult Create()
         {
             ViewData["NewRoomId"] = new SelectList(context.Rooms, "Id", "RoomNumber");
-    
-            // Zmiana: Wyświetlamy Imię i Nazwisko zamiast samego imienia
+            
             ViewData["NewTeacherId"] = context.Teachers
                 .Select(t => new { t.Id, FullName = t.FirstName + " " + t.LastName })
                 .ToList();
             ViewData["NewTeacherId"] = new SelectList((System.Collections.IEnumerable)ViewData["NewTeacherId"], "Id", "FullName");
 
-            // Zmiana: Czytelny opis Timetable
             var timetables = context.Timetables
                 .Include(t => t.Subject)
                 .Include(t => t.Teacher)
