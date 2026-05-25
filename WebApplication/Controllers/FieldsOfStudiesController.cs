@@ -3,16 +3,17 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Services;
 
 namespace WebApplication.Controllers
 {
-    public class FieldsOfStudiesController(AppDbContext context) : Controller
+    public class FieldsOfStudiesController(IFieldsOfStudiesService fieldsService) : Controller
     {
         // GET: FieldsOfStudies
         public async Task<IActionResult> Index()
         {
-            var appDbContext = context.FieldsOfStudy.Include(f => f.Faculty);
-            return View(await appDbContext.ToListAsync());
+            var data = await fieldsService.GetAllWithFacultyAsync();
+            return View(data);
         }
 
         // GET: FieldsOfStudies/Details/5
@@ -23,9 +24,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var fieldOfStudy = await context.FieldsOfStudy
-                .Include(f => f.Faculty)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var fieldOfStudy = await fieldsService.GetByIdWithFacultyAsync(id.Value);
             if (fieldOfStudy == null)
             {
                 return NotFound();
@@ -35,9 +34,10 @@ namespace WebApplication.Controllers
         }
 
         // GET: FieldsOfStudies/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name");
+            var faculties = await fieldsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name");
             return View();
         }
 
@@ -50,11 +50,12 @@ namespace WebApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                context.Add(fieldOfStudy);
-                await context.SaveChangesAsync();
+                await fieldsService.CreateAsync(fieldOfStudy);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
+
+            var faculties = await fieldsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", fieldOfStudy.FacultyId);
             return View(fieldOfStudy);
         }
 
@@ -66,12 +67,14 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var fieldOfStudy = await context.FieldsOfStudy.FindAsync(id);
+            var fieldOfStudy = await fieldsService.GetByIdAsync(id.Value);
             if (fieldOfStudy == null)
             {
                 return NotFound();
             }
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
+
+            var faculties = await fieldsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", fieldOfStudy.FacultyId);
             return View(fieldOfStudy);
         }
 
@@ -91,23 +94,23 @@ namespace WebApplication.Controllers
             {
                 try
                 {
-                    context.Update(fieldOfStudy);
-                    await context.SaveChangesAsync();
+                    await fieldsService.UpdateAsync(fieldOfStudy);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FieldOfStudyExists(fieldOfStudy.Id))
+                    if (!await fieldsService.ExistsAsync(fieldOfStudy.Id))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacultyId"] = new SelectList(context.Faculties, "Id", "Name", fieldOfStudy.FacultyId);
+
+            var faculties = await fieldsService.GetAllFacultiesAsync();
+            ViewData["FacultyId"] = new SelectList(faculties, "Id", "Name", fieldOfStudy.FacultyId);
             return View(fieldOfStudy);
         }
 
@@ -119,9 +122,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var fieldOfStudy = await context.FieldsOfStudy
-                .Include(f => f.Faculty)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var fieldOfStudy = await fieldsService.GetByIdWithFacultyAsync(id.Value);
             if (fieldOfStudy == null)
             {
                 return NotFound();
@@ -135,19 +136,8 @@ namespace WebApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var fieldOfStudy = await context.FieldsOfStudy.FindAsync(id);
-            if (fieldOfStudy != null)
-            {
-                context.FieldsOfStudy.Remove(fieldOfStudy);
-            }
-
-            await context.SaveChangesAsync();
+            await fieldsService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool FieldOfStudyExists(int id)
-        {
-            return context.FieldsOfStudy.Any(e => e.Id == id);
         }
     }
 }
