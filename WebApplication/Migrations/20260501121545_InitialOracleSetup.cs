@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialOracleSetup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,7 +27,21 @@ namespace WebApplication.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Faculties",
+                name: "Buildings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
+                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
+                    Name = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false),
+                    Address = table.Column<string>(type: "NVARCHAR2(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Buildings", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClassTypes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
@@ -37,25 +51,21 @@ namespace WebApplication.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Faculties", x => x.Id);
+                    table.PrimaryKey("PK_ClassTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Logs",
+                name: "Departments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    TableName = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    Operation = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    OldValue = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    NewValue = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    UserChanged = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
-                    ChangedAt = table.Column<DateTime>(type: "TIMESTAMP(7)", nullable: false)
+                    Name = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false),
+                    Abbreviation = table.Column<string>(type: "NVARCHAR2(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Logs", x => x.Id);
+                    table.PrimaryKey("PK_Departments", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,19 +93,6 @@ namespace WebApplication.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Specializations",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
-                        .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    Name = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Specializations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -167,22 +164,23 @@ namespace WebApplication.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Buildings",
+                name: "Rooms",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    Name = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false),
-                    Address = table.Column<string>(type: "NVARCHAR2(200)", maxLength: 200, nullable: false),
-                    FacultyId = table.Column<int>(type: "NUMBER(10)", nullable: false)
+                    BuildingId = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    Number = table.Column<string>(type: "NVARCHAR2(20)", maxLength: 20, nullable: false),
+                    Capacity = table.Column<int>(type: "NUMBER(10)", nullable: true),
+                    Type = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Buildings", x => x.Id);
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Buildings_Faculties_FacultyId",
-                        column: x => x.FacultyId,
-                        principalTable: "Faculties",
+                        name: "FK_Rooms_Buildings_BuildingId",
+                        column: x => x.BuildingId,
+                        principalTable: "Buildings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -193,7 +191,7 @@ namespace WebApplication.Migrations
                 {
                     Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    FacultyId = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    DepartmentId = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     Name = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false),
                     Degree = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false),
                     Mode = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false)
@@ -202,9 +200,9 @@ namespace WebApplication.Migrations
                 {
                     table.PrimaryKey("PK_FieldsOfStudy", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FieldsOfStudy_Faculties_FacultyId",
-                        column: x => x.FacultyId,
-                        principalTable: "Faculties",
+                        name: "FK_FieldsOfStudy_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -270,23 +268,21 @@ namespace WebApplication.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Rooms",
+                name: "Specializations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
-                    BuildingId = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    RoomNumber = table.Column<string>(type: "NVARCHAR2(20)", maxLength: 20, nullable: false),
-                    Capacity = table.Column<int>(type: "NUMBER(10)", nullable: true),
-                    RoomType = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false)
+                    FieldOfStudyId = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    Name = table.Column<string>(type: "NVARCHAR2(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.PrimaryKey("PK_Specializations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Rooms_Buildings_BuildingId",
-                        column: x => x.BuildingId,
-                        principalTable: "Buildings",
+                        name: "FK_Specializations_FieldsOfStudy_FieldOfStudyId",
+                        column: x => x.FieldOfStudyId,
+                        principalTable: "FieldsOfStudy",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -298,20 +294,19 @@ namespace WebApplication.Migrations
                     Id = table.Column<int>(type: "NUMBER(10)", nullable: false)
                         .Annotation("Oracle:Identity", "START WITH 1 INCREMENT BY 1"),
                     SemesterId = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    FieldOfStudyId = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    SpecializationId = table.Column<int>(type: "NUMBER(10)", nullable: true),
-                    ClassType = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    SpecializationId = table.Column<int>(type: "NUMBER(10)", nullable: false),
+                    ClassTypeId = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     Name = table.Column<string>(type: "NVARCHAR2(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Groups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Groups_FieldsOfStudy_FieldOfStudyId",
-                        column: x => x.FieldOfStudyId,
-                        principalTable: "FieldsOfStudy",
+                        name: "FK_Groups_ClassTypes_ClassTypeId",
+                        column: x => x.ClassTypeId,
+                        principalTable: "ClassTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Groups_Semesters_SemesterId",
                         column: x => x.SemesterId,
@@ -323,7 +318,7 @@ namespace WebApplication.Migrations
                         column: x => x.SpecializationId,
                         principalTable: "Specializations",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -360,15 +355,21 @@ namespace WebApplication.Migrations
                     TeacherId = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     RoomId = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     GroupId = table.Column<int>(type: "NUMBER(10)", nullable: false),
-                    ClassType = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false),
+                    ClassTypeId = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     DayOfWeek = table.Column<int>(type: "NUMBER(10)", nullable: false),
                     StartTime = table.Column<TimeSpan>(type: "INTERVAL DAY(8) TO SECOND(7)", nullable: false),
                     EndTime = table.Column<TimeSpan>(type: "INTERVAL DAY(8) TO SECOND(7)", nullable: false),
-                    WeekCycle = table.Column<string>(type: "NVARCHAR2(2000)", nullable: false)
+                    WeekCycle = table.Column<string>(type: "NVARCHAR2(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Timetables", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Timetables_ClassTypes_ClassTypeId",
+                        column: x => x.ClassTypeId,
+                        principalTable: "ClassTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Timetables_Groups_GroupId",
                         column: x => x.GroupId,
@@ -431,19 +432,14 @@ namespace WebApplication.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Buildings_FacultyId",
-                table: "Buildings",
-                column: "FacultyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FieldsOfStudy_FacultyId",
+                name: "IX_FieldsOfStudy_DepartmentId",
                 table: "FieldsOfStudy",
-                column: "FacultyId");
+                column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Groups_FieldOfStudyId",
+                name: "IX_Groups_ClassTypeId",
                 table: "Groups",
-                column: "FieldOfStudyId");
+                column: "ClassTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Groups_SemesterId",
@@ -486,9 +482,19 @@ namespace WebApplication.Migrations
                 column: "AcademicYearId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Specializations_FieldOfStudyId",
+                table: "Specializations",
+                column: "FieldOfStudyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StudentGroups_GroupId",
                 table: "StudentGroups",
                 column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Timetables_ClassTypeId",
+                table: "Timetables",
+                column: "ClassTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Timetables_GroupId",
@@ -530,9 +536,6 @@ namespace WebApplication.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Logs");
-
-            migrationBuilder.DropTable(
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
@@ -569,7 +572,7 @@ namespace WebApplication.Migrations
                 name: "Teachers");
 
             migrationBuilder.DropTable(
-                name: "FieldsOfStudy");
+                name: "ClassTypes");
 
             migrationBuilder.DropTable(
                 name: "Semesters");
@@ -584,7 +587,10 @@ namespace WebApplication.Migrations
                 name: "AcademicYears");
 
             migrationBuilder.DropTable(
-                name: "Faculties");
+                name: "FieldsOfStudy");
+
+            migrationBuilder.DropTable(
+                name: "Departments");
         }
     }
 }

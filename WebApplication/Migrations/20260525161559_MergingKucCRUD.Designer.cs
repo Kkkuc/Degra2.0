@@ -12,8 +12,8 @@ using WebApplication.Data;
 namespace WebApplication.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260525153156_AddRoles")]
-    partial class AddRoles
+    [Migration("20260525161559_MergingKucCRUD")]
+    partial class MergingKucCRUD
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,16 +33,18 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                    b.Property<string>("EndDate")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(10)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("NVARCHAR2(20)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                    b.Property<string>("StartDate")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(10)");
 
                     b.HasKey("Id");
 
@@ -57,18 +59,33 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
+                    b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("NVARCHAR2(100)");
 
                     b.Property<int>("FacultyId")
                         .HasColumnType("NUMBER(10)");
+
+                    b.Property<string>("HouseNumber")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("NVARCHAR2(10)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("NVARCHAR2(100)");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("NVARCHAR2(10)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("NVARCHAR2(150)");
 
                     b.HasKey("Id");
 
@@ -311,13 +328,8 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("ChangeDate")
+                    b.Property<DateTime?>("ChangeDate")
                         .HasColumnType("TIMESTAMP(7)");
-
-                    b.Property<string>("ChangeType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("NVARCHAR2(50)");
 
                     b.Property<TimeSpan?>("NewEndTime")
                         .HasColumnType("INTERVAL DAY(8) TO SECOND(7)");
@@ -356,16 +368,18 @@ namespace WebApplication.Migrations
                     b.Property<int>("AcademicYearId")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                    b.Property<string>("EndDate")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(10)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("NVARCHAR2(20)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                    b.Property<string>("StartDate")
+                        .IsRequired()
+                        .HasColumnType("NVARCHAR2(10)");
 
                     b.HasKey("Id");
 

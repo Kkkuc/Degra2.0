@@ -12,8 +12,8 @@ using WebApplication.Data;
 namespace WebApplication.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260525151742_UserChangeNull")]
-    partial class UserChangeNull
+    [Migration("20260501154752_RepairFacultyConnections")]
+    partial class RepairFacultyConnections
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,6 +75,29 @@ namespace WebApplication.Migrations
                     b.HasIndex("FacultyId");
 
                     b.ToTable("Buildings");
+                });
+
+            modelBuilder.Entity("WebApplication.Models.ClassType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("NUMBER(10)");
+
+                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("NVARCHAR2(10)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("NVARCHAR2(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ClassTypes");
                 });
 
             modelBuilder.Entity("WebApplication.Models.Faculty", b =>
@@ -141,11 +164,7 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClassType")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<int>("FieldOfStudyId")
+                    b.Property<int>("ClassTypeId")
                         .HasColumnType("NUMBER(10)");
 
                     b.Property<string>("Name")
@@ -156,54 +175,18 @@ namespace WebApplication.Migrations
                     b.Property<int>("SemesterId")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<int?>("SpecializationId")
+                    b.Property<int>("SpecializationId")
                         .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FieldOfStudyId");
+                    b.HasIndex("ClassTypeId");
 
                     b.HasIndex("SemesterId");
 
                     b.HasIndex("SpecializationId");
 
                     b.ToTable("Groups");
-                });
-
-            modelBuilder.Entity("WebApplication.Models.Log", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("TIMESTAMP(7)");
-
-                    b.Property<string>("NewValue")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("OldValue")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("Operation")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("TableName")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.Property<string>("UserChanged")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("WebApplication.Models.Permission", b =>
@@ -275,14 +258,15 @@ namespace WebApplication.Migrations
                     b.Property<int?>("Capacity")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<string>("RoomNumber")
+                    b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("NVARCHAR2(20)");
 
-                    b.Property<string>("RoomType")
+                    b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
+                        .HasMaxLength(50)
+                        .HasColumnType("NVARCHAR2(50)");
 
                     b.HasKey("Id");
 
@@ -370,12 +354,17 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("FieldOfStudyId")
+                        .HasColumnType("NUMBER(10)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("NVARCHAR2(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FieldOfStudyId");
 
                     b.ToTable("Specializations");
                 });
@@ -491,9 +480,8 @@ namespace WebApplication.Migrations
 
                     OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ClassType")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
+                    b.Property<int>("ClassTypeId")
+                        .HasColumnType("NUMBER(10)");
 
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("NUMBER(10)");
@@ -516,11 +504,12 @@ namespace WebApplication.Migrations
                     b.Property<int>("TeacherId")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<string>("WeekCycle")
-                        .IsRequired()
-                        .HasColumnType("NVARCHAR2(2000)");
+                    b.Property<int>("WeekCycle")
+                        .HasColumnType("NUMBER(10)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClassTypeId");
 
                     b.HasIndex("GroupId");
 
@@ -546,7 +535,7 @@ namespace WebApplication.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("NVARCHAR2(100)");
 
-                    b.Property<bool?>("IsActive")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("BOOLEAN");
 
                     b.Property<DateTime?>("LastLogin")
@@ -606,10 +595,10 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.Group", b =>
                 {
-                    b.HasOne("WebApplication.Models.FieldOfStudy", "FieldOfStudy")
-                        .WithMany("Groups")
-                        .HasForeignKey("FieldOfStudyId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("WebApplication.Models.ClassType", "ClassType")
+                        .WithMany()
+                        .HasForeignKey("ClassTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebApplication.Models.Semester", "Semester")
@@ -621,9 +610,10 @@ namespace WebApplication.Migrations
                     b.HasOne("WebApplication.Models.Specialization", "Specialization")
                         .WithMany("Groups")
                         .HasForeignKey("SpecializationId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("FieldOfStudy");
+                    b.Navigation("ClassType");
 
                     b.Navigation("Semester");
 
@@ -694,6 +684,17 @@ namespace WebApplication.Migrations
                     b.Navigation("AcademicYear");
                 });
 
+            modelBuilder.Entity("WebApplication.Models.Specialization", b =>
+                {
+                    b.HasOne("WebApplication.Models.FieldOfStudy", "FieldOfStudy")
+                        .WithMany("Specializations")
+                        .HasForeignKey("FieldOfStudyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FieldOfStudy");
+                });
+
             modelBuilder.Entity("WebApplication.Models.StudentGroup", b =>
                 {
                     b.HasOne("WebApplication.Models.Group", "Group")
@@ -715,6 +716,12 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.Timetable", b =>
                 {
+                    b.HasOne("WebApplication.Models.ClassType", "ClassType")
+                        .WithMany()
+                        .HasForeignKey("ClassTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebApplication.Models.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
@@ -738,6 +745,8 @@ namespace WebApplication.Migrations
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ClassType");
 
                     b.Navigation("Group");
 
@@ -790,7 +799,7 @@ namespace WebApplication.Migrations
 
             modelBuilder.Entity("WebApplication.Models.FieldOfStudy", b =>
                 {
-                    b.Navigation("Groups");
+                    b.Navigation("Specializations");
                 });
 
             modelBuilder.Entity("WebApplication.Models.Group", b =>
