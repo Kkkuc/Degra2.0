@@ -1,19 +1,37 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs;
 using WebApplication.Models;
 
 namespace WebApplication.Services
 {
     public class AcademicYearService(AppDbContext context) : IAcademicYearService
     {
-        public async Task<IEnumerable<AcademicYear>> GetAllAsync()
+        public async Task<IEnumerable<AcademicYearDto>> GetAllAsync()
         {
-            return await context.AcademicYears.ToListAsync();
+            return await context.AcademicYears
+                .Select(ay => new AcademicYearDto
+                {
+                    Id = ay.Id,
+                    Name = ay.Name,
+                    StartDate = ay.StartDate,
+                    EndDate = ay.EndDate
+                })
+                .ToListAsync();
         }
 
-        public async Task<AcademicYear?> GetByIdAsync(int id)
+        public async Task<AcademicYearDto?> GetByIdAsync(int id)
         {
-            return await context.AcademicYears.FirstOrDefaultAsync(m => m.Id == id);
+            return await context.AcademicYears
+                .Where(ay => ay.Id == id)
+                .Select(ay => new AcademicYearDto
+                {
+                    Id = ay.Id,
+                    Name = ay.Name,
+                    StartDate = ay.StartDate,
+                    EndDate = ay.EndDate
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task CreateAsync(AcademicYear academicYear)
