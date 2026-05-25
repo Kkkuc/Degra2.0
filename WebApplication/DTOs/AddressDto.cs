@@ -16,4 +16,6 @@ public class AddressDto
     [Required(ErrorMessage = "Kod pocztowy jest wymagany")]
     public string PostalCode { get; set; } = string.Empty;
 
+    [Display(Name = "Address")]
+    public string FullDisplay => $"{Street}, {HouseNumber}, {City}, {PostalCode}";
 }
