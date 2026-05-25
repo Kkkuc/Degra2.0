@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Models;
+using WebApplication.DTOs;
 using WebApplication.Services;
 
 namespace WebApplication.Controllers
@@ -15,80 +14,66 @@ namespace WebApplication.Controllers
         }
 
         // GET: AcademicYear/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null) return NotFound();
+            var dto = await academicYearService.GetByIdAsync(id);
+            if (dto == null)
+            {
+                return NotFound();
+            }
 
-            var academicYear = await academicYearService.GetByIdAsync(id.Value);
-            if (academicYear == null) return NotFound();
-
-            return View(academicYear);
+            return View(dto);
         }
 
         // GET: AcademicYear/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
+
 
         // POST: AcademicYear/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,StartDate,EndDate")] AcademicYear academicYear)
+        public async Task<IActionResult> Create(AcademicYearFormDto dto)
         {
             if (!ModelState.IsValid)
             {
-                return View(academicYear);
+                return View(dto);
             }
 
-            await academicYearService.CreateAsync(academicYear);
+            await academicYearService.CreateAsync(dto);
             return RedirectToAction(nameof(Index));
         }
 
         // GET: AcademicYear/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            var dto = await academicYearService.GetByIdAsync(id);
+            if (dto == null)
             {
                 return NotFound();
             }
 
-            var academicYear = await academicYearService.GetByIdAsync(id.Value);
-            if (academicYear == null)
-            {
-                return NotFound();
-            }
-
-            return View(academicYear);
+            return View(dto);
         }
 
         // POST: AcademicYear/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate")] AcademicYear academicYear)
+        public async Task<IActionResult> Edit(int id, AcademicYearFormDto dto)
         {
-            if (id != academicYear.Id)
+            if (id != dto.Id)
             {
                 return NotFound();
             }
 
             if (!ModelState.IsValid)
             {
-                return View(academicYear);
+                return View(dto);
             }
 
-            try
+            var updated = await academicYearService.UpdateAsync(dto);
+            if (!updated)
             {
-                await academicYearService.UpdateAsync(academicYear);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await academicYearService.ExistsAsync(academicYear.Id))
-                {
-                    return NotFound();
-                }
-
-                throw;
+                return NotFound();
             }
 
             return RedirectToAction(nameof(Index));

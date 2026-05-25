@@ -1,12 +1,6 @@
-namespace WebApplication.DTOs
+namespace WebApplication.DTOs;
+
+public record AcademicYearDto(int Id, string Name, DateOnly StartDate, DateOnly EndDate)
 {
-    public class AcademicYearDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
-        
-        public string DurationDisplay => $"{StartDate} - {EndDate}";
-    }
+    public string DurationDisplay => $"{StartDate} - {EndDate}";
 }
