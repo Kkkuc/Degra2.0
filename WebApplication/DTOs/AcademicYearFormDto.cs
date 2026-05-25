@@ -4,9 +4,9 @@ namespace WebApplication.DTOs;
 
 public class AcademicYearFormDto
 {
-    public int Id { get; set; } // Dla edycji, przy tworzeniu będzie 0
+    public int Id { get; set; }
         
-    [Required(ErrorMessage = "Nazwa jest wymagana")]
+    [Required(ErrorMessage = "Name is required")]
     public string Name { get; set; } = string.Empty;
         
     [Required]

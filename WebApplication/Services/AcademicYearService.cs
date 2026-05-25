@@ -31,20 +31,6 @@ namespace WebApplication.Services
                 )) 
                 .FirstOrDefaultAsync();
         }
-        
-        public async Task<AcademicYearFormDto?> GetFormByIdAsync(int? id)
-        {
-            return await context.AcademicYears
-                .Where(ay => ay.Id == id)
-                .Select(ay => new AcademicYearFormDto
-                {
-                    Id = ay.Id,
-                    Name = ay.Name,
-                    StartDate = ay.StartDate,
-                    EndDate = ay.EndDate
-                })
-                .FirstOrDefaultAsync();
-        }
 
         public async Task CreateAsync(AcademicYearFormDto dto)
         {
@@ -63,8 +49,7 @@ namespace WebApplication.Services
         {
             var academicYear = await context.AcademicYears.FindAsync(dto.Id);
             if (academicYear == null) return false;
-
-            // Przepisujemy wartości z DTO do encji śledzonej przez EF Core
+            
             academicYear.Name = dto.Name;
             academicYear.StartDate = dto.StartDate;
             academicYear.EndDate = dto.EndDate;
@@ -82,11 +67,6 @@ namespace WebApplication.Services
                 context.AcademicYears.Remove(academicYear);
                 await context.SaveChangesAsync();
             }
-        }
-
-        public async Task<bool> ExistsAsync(int id)
-        {
-            return await context.AcademicYears.AnyAsync(e => e.Id == id);
         }
     }
 }
