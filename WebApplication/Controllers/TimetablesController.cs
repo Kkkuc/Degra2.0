@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Models;
+using WebApplication.Models.enums;
 using WebApplication.Services;
 
 namespace WebApplication.Controllers;
@@ -94,6 +95,9 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
         ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetable.RoomId);
         ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetable.SubjectId);
         ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetable.TeacherId);
+        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
+        ViewData["DayOfWeek"] = new SelectList(Enum.GetValues<DayOfWeek>());
+        ViewData["WeekCycle"] = new SelectList(Enum.GetValues<WeekCycle>());
         return View(timetable);
     }
 
@@ -135,6 +139,9 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
         ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetable.RoomId);
         ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetable.SubjectId);
         ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetable.TeacherId);
+        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
+        ViewData["DayOfWeek"] = new SelectList(Enum.GetValues<DayOfWeek>());
+        ViewData["WeekCycle"] = new SelectList(Enum.GetValues<WeekCycle>());
         return View(timetable);
     }
 

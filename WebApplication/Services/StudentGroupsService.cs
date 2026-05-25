@@ -22,9 +22,12 @@ public class StudentGroupsService(AppDbContext context) : IStudentGroupsService
             .FirstOrDefaultAsync(m => m.StudentId == studentId);
     }
 
+    // POPRAWKA: Używamy FirstOrDefaultAsync zamiast FindAsync, 
+    // ponieważ FindAsync wymaga kompletnego klucza złożonego.
     public async Task<StudentGroup?> GetByStudentIdAsync(int studentId)
     {
-        return await context.StudentGroups.FindAsync(studentId);
+        return await context.StudentGroups
+            .FirstOrDefaultAsync(m => m.StudentId == studentId);
     }
 
     public async Task CreateAsync(StudentGroup studentGroup)
@@ -39,9 +42,12 @@ public class StudentGroupsService(AppDbContext context) : IStudentGroupsService
         await context.SaveChangesAsync();
     }
 
+    // POPRAWKA: Bezpieczne pobieranie encji przed usunięciem
     public async Task DeleteAsync(int studentId)
     {
-        var studentGroup = await context.StudentGroups.FindAsync(studentId);
+        var studentGroup = await context.StudentGroups
+            .FirstOrDefaultAsync(m => m.StudentId == studentId);
+            
         if (studentGroup != null)
         {
             context.StudentGroups.Remove(studentGroup);
@@ -65,7 +71,8 @@ public class StudentGroupsService(AppDbContext context) : IStudentGroupsService
             .Select(s => new StudentLookupItem
             {
                 Id = s.Id,
-                FullName = s.FirstName + " " + s.LastName
+                // Tutaj mapujesz na FullName, więc kontroler musi tego używać!
+                FullName = s.FirstName + " " + s.LastName 
             })
             .ToListAsync();
     }
