@@ -1,16 +1,18 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Services;
 
 namespace WebApplication.Controllers
 {
-    public class SpecializationsController(AppDbContext context) : Controller
+    public class SpecializationsController(ISpecializationsService specializationsService) : Controller
     {
         // GET: Specializations
         public async Task<IActionResult> Index()
         {
-            return View(await context.Specializations.ToListAsync());
+            var data = await specializationsService.GetAllAsync();
+            return View(data);
         }
 
         // GET: Specializations/Details/5
@@ -21,8 +23,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var specialization = await context.Specializations
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var specialization = await specializationsService.GetByIdAsync(id.Value);
             if (specialization == null)
             {
                 return NotFound();
@@ -38,19 +39,17 @@ namespace WebApplication.Controllers
         }
 
         // POST: Specializations/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Specialization specialization)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                context.Add(specialization);
-                await context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return View(specialization);
             }
-            return View(specialization);
+
+            await specializationsService.CreateAsync(specialization);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Specializations/Edit/5
@@ -61,47 +60,42 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var specialization = await context.Specializations.FindAsync(id);
+            var specialization = await specializationsService.GetByIdAsync(id.Value);
             if (specialization == null)
             {
                 return NotFound();
             }
+
             return View(specialization);
         }
 
         // POST: Specializations/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Specialization specialization)
         {
-            if (id != specialization.Id)
+            if (id != specialization.Id) return NotFound();
+
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return View(specialization);
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    context.Update(specialization);
-                    await context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SpecializationExists(specialization.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await specializationsService.UpdateAsync(specialization);
             }
-            return View(specialization);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await specializationsService.ExistsAsync(specialization.Id))
+                {
+                    return NotFound();
+                }
+
+                throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Specializations/Delete/5
@@ -112,8 +106,7 @@ namespace WebApplication.Controllers
                 return NotFound();
             }
 
-            var specialization = await context.Specializations
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var specialization = await specializationsService.GetByIdAsync(id.Value);
             if (specialization == null)
             {
                 return NotFound();
@@ -127,19 +120,8 @@ namespace WebApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var specialization = await context.Specializations.FindAsync(id);
-            if (specialization != null)
-            {
-                context.Specializations.Remove(specialization);
-            }
-
-            await context.SaveChangesAsync();
+            await specializationsService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool SpecializationExists(int id)
-        {
-            return context.Specializations.Any(e => e.Id == id);
         }
     }
 }
