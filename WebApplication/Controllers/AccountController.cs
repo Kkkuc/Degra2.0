@@ -30,7 +30,7 @@ public class AccountController : Controller
         .Include(u => u.Role)
         .FirstOrDefaultAsync(u => u.Username == username);
         //co za gorwno
-        if (user != null /*&& BCrypt.Net.BCrypt.Verify(password, user.PasswordHash) jak dodamy hashwowanie*/)
+        if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
         {
 
             var claims = new List<Claim>
