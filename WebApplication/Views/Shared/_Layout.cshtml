@@ -10,7 +10,7 @@
         tailwind.config = {
             darkMode: 'class'
         }
-        
+
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             document.documentElement.classList.add('dark');
@@ -78,105 +78,105 @@
     </style>
 </head>
 <body class="h-screen overflow-hidden">
-    <div class="flex h-full w-full">
-        <aside class="w-64 bg-sidebar border-r border-border h-full flex flex-col backdrop-blur-sm">
-            <div class="p-6 flex-1 flex flex-col overflow-hidden">
-                <h2 class="mb-8 text-xl font-bold tracking-tight">System</h2>
-                <nav class="space-y-2 mb-10">
-                    <a asp-controller="Scheduler" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
-                        <i data-lucide="calendar" class="w-5 h-5"></i>
-                        <span>Timetable</span>
-                    </a>
-                    <a asp-controller="Rooms" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
-                        <i data-lucide="download" class="w-5 h-5"></i>
-                        <span>Rooms</span>
-                    </a>
-                    <a asp-controller="Teachers" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
-                        <i data-lucide="users" class="w-5 h-5"></i>
-                        <span>Teachers</span>
-                    </a>
-                    <a asp-controller="Scraper" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
-                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-                        <span>Scraper</span>
-                    </a>
-                </nav>
-                @RenderSection("SidebarExtra", required: false)
+<div class="flex h-full w-full">
+    <aside class="w-64 bg-sidebar border-r border-border h-full flex flex-col backdrop-blur-sm">
+        <div class="p-6 flex-1 flex flex-col overflow-hidden">
+            <h2 class="mb-8 text-xl font-bold tracking-tight">System</h2>
+            <nav class="space-y-2 mb-10">
+                <a asp-controller="Scheduler" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    <span>Timetable</span>
+                </a>
+                <a asp-controller="Rooms" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                    <span>Rooms</span>
+                </a>
+                <a asp-controller="Teachers" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span>Teachers</span>
+                </a>
+                <a asp-controller="Scraper" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    <span>Scraper</span>
+                </a>
+            </nav>
+            @RenderSection("SidebarExtra", required: false)
+        </div>
+        @if (User.Identity.IsAuthenticated)
+        {
+        <div class="w-full flex flex-col gap-3 px-4 py-4 border-t border-border mt-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
+                    @(!string.IsNullOrEmpty(User.Identity.Name) ? User.Identity.Name[0].ToString().ToUpper() : "U")
+                </div>
+                <div class="flex-1 text-left min-w-0">
+                    <div class="font-medium text-sm truncate">@User.Identity.Name</div>
+                    <div class="text-xs text-gray-500 truncate">Academic System</div>
+                </div>
             </div>
-            @if (User.Identity.IsAuthenticated)
-            {
-                <div class="w-full flex flex-col gap-3 px-4 py-4 border-t border-border mt-auto">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
-                            @(!string.IsNullOrEmpty(User.Identity.Name) ? User.Identity.Name[0].ToString().ToUpper() : "U")
-                        </div>
-                        <div class="flex-1 text-left min-w-0">
-                            <div class="font-medium text-sm truncate">@User.Identity.Name</div>
-                            <div class="text-xs text-gray-500 truncate">Academic System</div>
-                        </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <a asp-controller="Account" asp-action="Settings" class="flex-1 flex items-center justify-center gap-2 px-2 py-2 rounded-xl text-xs font-medium border border-border hover:bg-sidebar-accent/50 transition-all">
-                            <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                            <span>Settings</span>
-                        </a>
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="flex-1 flex m-0">
-                            <button type="submit" class="w-full flex items-center justify-center gap-2 px-2 py-2 rounded-xl text-xs font-medium text-red-500 border border-red-500/20 hover:bg-red-500/10 transition-all">
-                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-                                <span>Log Out</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="w-full flex flex-col px-4 py-4 border-t border-border mt-auto">
-                    <a asp-controller="Account" asp-action="Login" class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-primary-custom text-white font-bold transition-all hover:opacity-90 shadow-md text-sm">
-                        <i data-lucide="log-in" class="w-4 h-4"></i>
-                        <span>Log In</span>
-                    </a>
-                </div>
-            }
-        </aside>
-
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="border-b border-border px-8 py-5 flex items-center justify-between bg-header backdrop-blur-md sticky top-0 z-40">
-                <div class="flex items-center gap-4">
-                    @RenderSection("HeaderLeft", required: false)
-                </div>
-                <div class="flex items-center gap-3">
-                    @RenderSection("HeaderRight", required: false)
-                    <button onclick="toggleTheme()" class="p-2.5 hover:bg-sidebar-accent rounded-xl transition-colors">
-                        <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+            <div class="flex gap-2">
+                <a asp-controller="Account" asp-action="Settings" class="flex-1 flex items-center justify-center gap-2 px-2 py-2 rounded-xl text-xs font-medium border border-border hover:bg-sidebar-accent/50 transition-all">
+                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                    <span>Settings</span>
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="flex-1 flex m-0">
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-2 py-2 rounded-xl text-xs font-medium text-red-500 border border-red-500/20 hover:bg-red-500/10 transition-all">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Log Out</span>
                     </button>
-                </div>
-            </header>
-
-            <div id="main-content" class="flex-1 overflow-auto">
-                @RenderBody()
+                </form>
             </div>
-        </main>
-    </div>
-
-    <script>
-        function updateThemeIcon() {
-            const isDark = document.documentElement.classList.contains('dark');
-            const icon = document.getElementById('theme-icon');
-            if (icon) {
-                icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-                lucide.createIcons();
-            }
+        </div>
         }
-
-        function toggleTheme() {
-            const html = document.documentElement;
-            const isDarkNow = html.classList.toggle('dark');
-            localStorage.setItem('theme', isDarkNow ? 'dark' : 'light');
-            updateThemeIcon();
+        else
+        {
+        <div class="w-full flex flex-col px-4 py-4 border-t border-border mt-auto">
+            <a asp-controller="Account" asp-action="Login" class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-primary-custom text-white font-bold transition-all hover:opacity-90 shadow-md text-sm">
+                <i data-lucide="log-in" class="w-4 h-4"></i>
+                <span>Log In</span>
+            </a>
+        </div>
         }
+    </aside>
 
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="border-b border-border px-8 py-5 flex items-center justify-between bg-header backdrop-blur-md sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                @RenderSection("HeaderLeft", required: false)
+            </div>
+            <div class="flex items-center gap-3">
+                @RenderSection("HeaderRight", required: false)
+                <button onclick="toggleTheme()" class="p-2.5 hover:bg-sidebar-accent rounded-xl transition-colors">
+                    <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="main-content" class="flex-1 overflow-auto">
+            @RenderBody()
+        </div>
+    </main>
+</div>
+
+<script>
+    function updateThemeIcon() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            lucide.createIcons();
+        }
+    }
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDarkNow = html.classList.toggle('dark');
+        localStorage.setItem('theme', isDarkNow ? 'dark' : 'light');
         updateThemeIcon();
-    </script>
-    @await RenderSectionAsync("Scripts", required: false)
+    }
+
+    updateThemeIcon();
+</script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

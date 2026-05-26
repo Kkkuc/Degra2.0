@@ -1,34 +1,27 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using WebApplication.Data;
 using Microsoft.EntityFrameworkCore;
+using WebApplication.Data;
 
 namespace WebApplication.Controllers;
 
-public class AccountController : Controller
+public class AccountController(AppDbContext context) : Controller
 {
-
-    private readonly AppDbContext _context;
-    public AccountController(AppDbContext context)
-    {
-        _context = context;
-    }
-
     [HttpGet]
     public IActionResult Login()
     {
         return View();
     }
-
+    
     [HttpPost]
     public async Task<IActionResult> Login(string username, string password)
     {
         //do popatrzenia i ulepszenia
-        var user = await _context.Users
-        .Include(u => u.Role)
-        .FirstOrDefaultAsync(u => u.Username == username);
+        var user = await context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Username == username);
         //co za gorwno
         if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
         {
@@ -39,7 +32,7 @@ public class AccountController : Controller
     
                 new Claim(ClaimTypes.Name, user.Username), 
     
-                new Claim(ClaimTypes.Role, user.Role.Name.ToString())
+                new Claim(ClaimTypes.Role, user.Role!.Name)
             };
 
 

@@ -1,16 +1,39 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 using WebApplication.Data;
+using WebApplication.Services;
 using System.Text.Json.Serialization;
 
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
+/*
+builder.Services.Scan(scan => scan
+    .FromApplicationDependencies()
+    .AddClasses(classes => classes.Where(c => c.Name.EndsWith("Service")))
+    .AsMatchingInterface()
+    .WithScopedLifetime());
+*/
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
+builder.Services.AddControllersWithViews();
+//builder.Services.AddScoped<TimetableCrawler>();
+builder.Services.AddScoped<IAcademicYearService, AcademicYearService>();
+builder.Services.AddScoped<IBuildingsService, BuildingsService>();
+builder.Services.AddScoped<IFacultiesService, FacultiesService>();
+builder.Services.AddScoped<IFieldsOfStudiesService, FieldsOfStudiesService>();
+builder.Services.AddScoped<IGroupsService, GroupsService>();
+builder.Services.AddScoped<IRoomsService, RoomsService>();
+builder.Services.AddScoped<IScheduleChangesService, ScheduleChangesService>();
+builder.Services.AddScoped<ISemestersService, SemestersService>();
+builder.Services.AddScoped<ISpecializationsService, SpecializationsService>();
+builder.Services.AddScoped<IStudentGroupsService, StudentGroupsService>();
+builder.Services.AddScoped<IStudentsService, StudentsService>();
+builder.Services.AddScoped<ISubjectsService, SubjectsService>();
+builder.Services.AddScoped<ITeachersService, TeachersService>();
+builder.Services.AddScoped<ITimetablesService, TimetablesService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));

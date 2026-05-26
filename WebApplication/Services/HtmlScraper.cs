@@ -10,7 +10,7 @@ public class ScrapedTimetableDto
     public string TeacherTitle { get; set; } = "mgr";
     public string TeacherFirstName { get; set; } = "N/A";
     public string TeacherLastName { get; set; } = "N/A";
-    public int DayOfWeek { get; set; }
+    public DayOfWeek DayOfWeek { get; set; }
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public string SubjectName { get; set; } = "Brak nazwy";
@@ -30,15 +30,17 @@ public class HtmlScraper
         var doc = new HtmlDocument();
         doc.LoadHtml(htmlContent);
 
-        var teacherNode = doc.DocumentNode.SelectSingleNode("//h2[contains(text(), 'Tygodniowy rozkład zajęć nauczyciela')]");
-        var teacherRaw = teacherNode?.InnerHtml.Split(new[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Trim();
-        
+        var teacherNode =
+            doc.DocumentNode.SelectSingleNode("//h2[contains(text(), 'Tygodniowy rozkład zajęć nauczyciela')]");
+        var teacherRaw = teacherNode.InnerHtml.Split(new[] { "<br>" }, StringSplitOptions.RemoveEmptyEntries)
+            .LastOrDefault()?.Trim();
+
         string tTitle = "mgr", tFirst = "N/A", tLast = "N/A";
 
         if (!string.IsNullOrEmpty(teacherRaw))
         {
             var parts = WebUtility.HtmlDecode(teacherRaw).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            
+
             if (parts.Length >= 3)
             {
                 tLast = parts.Last();
@@ -53,17 +55,20 @@ public class HtmlScraper
             else if (parts.Length == 1)
             {
                 tFirst = parts[0];
-                tLast = parts[0]; 
+                tLast = parts[0];
             }
         }
 
-        var daysMap = new Dictionary<string, int> { { "poniedziałek", 1 }, { "wtorek", 2 }, { "środa", 3 }, { "czwartek", 4 }, { "piątek", 5 } };
+        var daysMap = new Dictionary<string, int>
+            { { "poniedziałek", 1 }, { "wtorek", 2 }, { "środa", 3 }, { "czwartek", 4 }, { "piątek", 5 } };
         var detailHeader = doc.DocumentNode.SelectSingleNode("//h2[text()='Szczegółowy rozkład zajęć']");
         if (detailHeader == null) return timetables;
 
         var currentNode = detailHeader.NextSibling;
         int currentDayOfWeek = 0;
-        var lineRegex = new Regex(@"^(\d{1,2}:\d{2})-(\d{1,2}:\d{2}):\s+(.+?)\s+\((.*?)\)\s+(grupa\s+[^,]+),\s+sala\s+([^,]+)(?:,\s+(.*))?$");
+        var lineRegex =
+            new Regex(
+                @"^(\d{1,2}:\d{2})-(\d{1,2}:\d{2}):\s+(.+?)\s+\((.*?)\)\s+(grupa\s+[^,]+),\s+sala\s+([^,]+)(?:,\s+(.*))?$");
 
         while (currentNode != null)
         {
@@ -92,7 +97,7 @@ public class HtmlScraper
                             TeacherTitle = string.IsNullOrWhiteSpace(tTitle) ? "mgr" : tTitle,
                             TeacherFirstName = string.IsNullOrWhiteSpace(tFirst) ? "N/A" : tFirst,
                             TeacherLastName = string.IsNullOrWhiteSpace(tLast) ? "N/A" : tLast,
-                            DayOfWeek = currentDayOfWeek,
+                            DayOfWeek = (DayOfWeek)currentDayOfWeek,
                             StartTime = TimeSpan.Parse(match.Groups[1].Value),
                             EndTime = TimeSpan.Parse(match.Groups[2].Value),
                             SubjectName = match.Groups[3].Value.Trim(),
@@ -101,13 +106,17 @@ public class HtmlScraper
                             RoomNumber = room,
                             BuildingName = building,
                             WeekCycle = MapWeekCycle(extraInfo),
-                            FieldOfStudyName = extraInfo.Contains("kier.") ? Regex.Match(extraInfo, @"kier\.\s+([^,]+)").Groups[1].Value : "Inne"
+                            FieldOfStudyName = extraInfo.Contains("kier.")
+                                ? Regex.Match(extraInfo, @"kier\.\s+([^,]+)").Groups[1].Value
+                                : "Inne"
                         });
                     }
                 }
             }
+
             currentNode = currentNode.NextSibling;
         }
+
         return timetables;
     }
 
