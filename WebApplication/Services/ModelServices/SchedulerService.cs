@@ -76,11 +76,14 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
             Teacher = t.TeacherFullName,
             Time = $@"{t.StartTime:hh\:mm} – {t.EndTime:hh\:mm}"
         }).ToList();
-
+        
+        var rand = new Random();
+        
         var subjectsDto = rawSubjects.Select(s => new SubjectIndexDto
         (
             s.Id,
-            s.Name
+            s.Name,
+            $"#{rand.Next(0x1000000)}"
         )).ToList();
 
         return new SchedulerViewModel

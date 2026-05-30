@@ -10,8 +10,9 @@ public class SubjectsService(AppDbContext context) : ISubjectsService
 {
     public async Task<IEnumerable<SubjectIndexDto>> GetAllForIndexAsync()
     {
+        var rand = new Random();
         return await context.Subjects
-            .Select(s => new SubjectIndexDto(s.Id, s.Name))
+            .Select(s => new SubjectIndexDto(s.Id, s.Name, $"#{rand.Next(0x1000000)}"))
             .ToListAsync();
     }
 

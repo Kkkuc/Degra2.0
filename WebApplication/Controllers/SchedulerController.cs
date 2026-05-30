@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebApplication.DTOs.Scheduler;
 using WebApplication.Services.Interfaces;
-using SchedulerViewModel = WebApplication.Models.SchedulerViewModel;
 
 namespace WebApplication.Controllers;
 

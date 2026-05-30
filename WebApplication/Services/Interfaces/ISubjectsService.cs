@@ -1,5 +1,6 @@
 using WebApplication.DTOs.Subject;
 using WebApplication.Models;
+using SubjectIndexDto = WebApplication.DTOs.Subject.SubjectIndexDto;
 
 namespace WebApplication.Services.Interfaces;
 
