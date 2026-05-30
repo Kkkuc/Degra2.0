@@ -77,12 +77,11 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
             Time = $@"{t.StartTime:hh\:mm} – {t.EndTime:hh\:mm}"
         }).ToList();
 
-        var subjectsDto = rawSubjects.Select(s => new SubjectDto
-        {
-            Id = s.Id.ToString(),
-            Name = s.Name,
-            Color = GetColorForSubject(s.Id)
-        }).ToList();
+        var subjectsDto = rawSubjects.Select(s => new SubjectIndexDto
+        (
+            s.Id,
+            s.Name
+        )).ToList();
 
         return new SchedulerViewModel
         {

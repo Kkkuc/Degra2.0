@@ -1,13 +1,15 @@
+using WebApplication.DTOs.Subject;
 using WebApplication.Models;
 
-namespace WebApplication.Services;
+namespace WebApplication.Services.Interfaces;
 
 public interface ISubjectsService
 {
-    Task<IEnumerable<Subject>> GetAllAsync();
-    Task<Subject?> GetByIdAsync(int id);
-    Task CreateAsync(Subject subject);
-    Task UpdateAsync(Subject subject);
-    Task DeleteAsync(int id);
+    Task<IEnumerable<SubjectIndexDto>> GetAllForIndexAsync();
+    Task<SubjectDetailsDto?> GetDetailsByIdAsync(int id);
+    Task<SubjectFormDto?> GetFormByIdAsync(int id);
+    Task CreateAsync(SubjectFormDto dto);
+    Task<bool> UpdateAsync(SubjectFormDto dto);
+    Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
 }
