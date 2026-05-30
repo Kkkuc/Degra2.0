@@ -1,48 +1,68 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs.Specialization;
 using WebApplication.Models;
+using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Services
+namespace WebApplication.Services.ModelServices;
+
+public class SpecializationsService(AppDbContext context) : ISpecializationsService
 {
-    public class SpecializationsService(AppDbContext context) : ISpecializationsService
+    public async Task<IEnumerable<SpecializationDto>> GetAllAsync()
     {
-        public async Task<IEnumerable<Specialization>> GetAllAsync()
+        return await context.Specializations
+            .Select(s => new SpecializationDto(s.Id, s.Name))
+            .ToListAsync();
+    }
+    
+    public async Task<SpecializationDto?> GetByIdAsync(int id)
+    {
+        return await context.Specializations
+            .Where(s => s.Id == id)
+            .Select(s => new SpecializationDto(s.Id, s.Name))
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task CreateAsync(SpecializationDto dto)
+    {
+        var specialization = new Specialization
         {
-            return await context.Specializations.ToListAsync();
+            Name = dto.Name
+        };
+
+        context.Specializations.Add(specialization);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<bool> UpdateAsync(SpecializationDto dto)
+    {
+        var specialization = await context.Specializations.FirstOrDefaultAsync(s => s.Id == dto.Id);
+        if (specialization == null)
+        {
+            return false;
         }
 
-        public async Task<Specialization?> GetByIdAsync(int id)
+        specialization.Name = dto.Name;
+
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var specialization = await context.Specializations.FirstOrDefaultAsync(s => s.Id == id);
+        if (specialization == null)
         {
-            return await context.Specializations.FirstOrDefaultAsync(m => m.Id == id);
+            return false;
         }
 
-        public async Task CreateAsync(Specialization specialization)
-        {
-            context.Add(specialization);
-            await context.SaveChangesAsync();
-        }
+        context.Specializations.Remove(specialization);
+        await context.SaveChangesAsync();
+        return true;
+    }
 
-        public async Task UpdateAsync(Specialization specialization)
-        {
-            context.Update(specialization);
-            await context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var specialization = await context.Specializations.FindAsync(id);
-            if (specialization != null)
-            {
-                context.Specializations.Remove(specialization);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<bool> ExistsAsync(int id)
-        {
-            return await context.Specializations.AnyAsync(e => e.Id == id);
-        }
+    public async Task<bool> ExistsAsync(int id)
+    {
+        return await context.Specializations.AnyAsync(e => e.Id == id);
     }
 }
