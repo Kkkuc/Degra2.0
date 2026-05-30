@@ -17,7 +17,7 @@ public class AdminController(AppDbContext context) : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> UtworzKonto()
+    public async Task<IActionResult> CreateAccount()
     {
         var roles = await context.Roles.ToListAsync();
         ViewBag.Roles = new SelectList(roles, "Id", "Name");
@@ -26,7 +26,7 @@ public class AdminController(AppDbContext context) : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> UtworzKonto(string username, string email, string tempPassword, int roleId)
+    public async Task<IActionResult> CreateAccount(string username, string email, string tempPassword, int roleId)
     {
         if (await context.Users.AnyAsync(u => u.Username == username))
         {

@@ -11,16 +11,23 @@ public class AccountService(AppDbContext context) : IAccountService
 {
     public async Task<ClaimsPrincipal?> AuthenticateUserAsync(LoginDto dto)
     {
-        var user = await context.Users
-            .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Username == dto.Username);
+        var userData = await context.Users
+            .Where(u => u.Username == dto.Username)
+            .Select(u => new
+            {
+                u.Id,
+                u.Username,
+                u.PasswordHash,
+                RoleName = u.Role != null ? u.Role.Name : string.Empty
+            })
+            .FirstOrDefaultAsync();
 
-        if (user == null)
+        if (userData == null)
         {
             return null;
         }
         
-        if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, userData.PasswordHash))
         {
             return null;
         }
@@ -33,9 +40,9 @@ public class AccountService(AppDbContext context) : IAccountService
 
         var claims = new List<Claim>
         {      
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
-            new Claim(ClaimTypes.Name, user.Username), 
-            new Claim(ClaimTypes.Role, user.Role!.Name)
+            new Claim(ClaimTypes.NameIdentifier, userData.Id.ToString()), 
+            new Claim(ClaimTypes.Name, userData.Username), 
+            new Claim(ClaimTypes.Role, userData.RoleName)
         };
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
