@@ -36,6 +36,7 @@ builder.Services.AddScoped<IStudentsService, StudentsService>();
 builder.Services.AddScoped<ISubjectsService, SubjectsService>();
 builder.Services.AddScoped<ITeachersService, TeachersService>();
 builder.Services.AddScoped<ITimetablesService, TimetablesService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));

@@ -1,61 +1,51 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Data;
+using WebApplication.DTOs.Account;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
-public class AccountController(AppDbContext context) : Controller
+public class AccountController(IAccountService accountService) : Controller
 {
     [HttpGet]
     public IActionResult Login()
     {
         return View();
     }
-    
+
     [HttpPost]
-    public async Task<IActionResult> Login(string username, string password)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(LoginDto dto)
     {
-        //do popatrzenia i ulepszenia
-        var user = await context.Users
-            .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Username == username);
-        //co za gorwno
-        if (user != null /*&& BCrypt.Net.BCrypt.Verify(password, user.PasswordHash) jak dodamy hashwowanie*/)
+        if (!ModelState.IsValid)
         {
+            return View(dto);
+        }
 
-            var claims = new List<Claim>
-            {      
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
-    
-                new Claim(ClaimTypes.Name, user.Username), 
-    
-                new Claim(ClaimTypes.Role, user.Role!.Name)
-            };
+        var principal = await accountService.AuthenticateUserAsync(dto);
 
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
+        if (principal != null)
+        {
             var authProperties = new AuthenticationProperties
             {
-                IsPersistent = true //pytanie zcy cchcemy zeby zostawały po zamknieciu
+                IsPersistent = true // Zostaje po zamknięciu przeglądarki
             };
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
+                principal,
                 authProperties);
 
             return RedirectToAction("Index", "Scheduler");
         }
 
-        ModelState.AddModelError("", "Invalid username or password.");
-        return View();
+        ModelState.AddModelError(string.Empty, "Niepoprawna nazwa użytkownika lub hasło.");
+        return View(dto);
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

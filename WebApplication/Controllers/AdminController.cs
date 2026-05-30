@@ -1,30 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using WebApplication.Data;
 using WebApplication.Models;
+
+namespace WebApplication.Controllers;
+
 [Authorize(Roles = "Moderator")]
-public class AdminController : Controller
+public class AdminController(AppDbContext context) : Controller
 {
-
-    private readonly AppDbContext _context;
-
-    public AdminController(AppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<IActionResult> Index()
     {
-        var users = await _context.Users.Include(u => u.Role).ToListAsync();
+        var users = await context.Users.Include(u => u.Role).ToListAsync();
         return View(users);
     }
 
     [HttpGet]
     public async Task<IActionResult> UtworzKonto()
     {
-        var roles = await _context.Roles.ToListAsync();
+        var roles = await context.Roles.ToListAsync();
         ViewBag.Roles = new SelectList(roles, "Id", "Name");
 
         return View();
@@ -33,10 +28,10 @@ public class AdminController : Controller
     [HttpPost]
     public async Task<IActionResult> UtworzKonto(string username, string email, string tempPassword, int roleId)
     {
-        if (await _context.Users.AnyAsync(u => u.Username == username))
+        if (await context.Users.AnyAsync(u => u.Username == username))
         {
             ModelState.AddModelError(string.Empty, "Użytkownik o takiej nazwie już istnieje.");
-            ViewBag.Roles = new SelectList(await _context.Roles.ToListAsync(), "Id", "Name");
+            ViewBag.Roles = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
             return View();
         }
 
@@ -48,8 +43,8 @@ public class AdminController : Controller
             RoleId = roleId
         };
 
-        _context.Users.Add(newUser);
-        await _context.SaveChangesAsync();
+        context.Users.Add(newUser);
+        await context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = $"Konto dla {username} zostało utworzone!";
         return RedirectToAction("Index");
