@@ -1,19 +1,18 @@
-using WebApplication.Models;
+using WebApplication.DTOs.Group;
 
 namespace WebApplication.Services.Interfaces;
 
 public interface IGroupsService
 {
-    Task<IEnumerable<Group>> GetAllWithRelationsAsync();
-    Task<Group?> GetByIdWithRelationsAsync(int id);
-    Task<Group?> GetByIdAsync(int id);
-    Task CreateAsync(Group group);
-    Task UpdateAsync(Group group);
-    Task DeleteAsync(int id);
+    Task<IEnumerable<GroupIndexDto>> GetAllForIndexAsync();
+    Task<GroupDetailsDto?> GetDetailsByIdAsync(int id);
+    Task<GroupFormDto?> GetFormByIdAsync(int id);
+    Task CreateAsync(GroupFormDto dto);
+    Task<bool> UpdateAsync(GroupFormDto dto);
+    Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
-
-    // Metody pomocnicze do nakarmienia SelectListów w widokach Create/Edit
-    Task<IEnumerable<FieldOfStudy>> GetAllFieldsOfStudyAsync();
-    Task<IEnumerable<Semester>> GetAllSemestersAsync();
-    Task<IEnumerable<Specialization>> GetAllSpecializationsAsync();
+    
+    Task<Dictionary<int, string>> GetFieldsOfStudyDropdownListAsync();
+    Task<Dictionary<int, string>> GetSemestersDropdownListAsync();
+    Task<Dictionary<int, string>> GetSpecializationsDropdownListAsync();
 }

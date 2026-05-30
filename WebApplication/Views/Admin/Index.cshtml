@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebApplication.Models.User>
+﻿@model IEnumerable<WebApplication.DTOs.Admin.UserListDto>
 @{
     ViewData["Title"] = "Zarządzanie Użytkownikami";
 }
@@ -32,7 +32,7 @@
             <tr>
                 <td>@user.Id</td>
                 <td>@user.Username</td>
-                <td>@user.Role.Name</td>
+                <td>@user.RoleName</td>
             </tr>
         }
     </tbody>
