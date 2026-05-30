@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs.Student;
 using WebApplication.DTOs.StudentGroup;
 using WebApplication.Models;
 using WebApplication.Services.Interfaces;
@@ -104,10 +105,10 @@ public class StudentGroupsService(AppDbContext context) : IStudentGroupsService
             .ToDictionaryAsync(g => g.Id, g => g.Name);
     }
 
-    public async Task<IEnumerable<StudentLookupDto>> GetStudentsLookupAsync()
+    public async Task<IEnumerable<StudentDto>> GetStudentsLookupAsync()
     {
         return await context.Students
-            .Select(s => new StudentLookupDto(
+            .Select(s => new StudentDto(
                 s.Id,
                 s.FirstName + " " + s.LastName
             ))

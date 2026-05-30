@@ -85,7 +85,7 @@ public class StudentGroupController(IStudentGroupsService studentGroupsService) 
 
         ViewData["GroupId"] = new SelectList(groups, "Key", "Value", selectedGroupId);
         
-        // Ponieważ GetStudentsLookupAsync zwraca listę rekordów StudentLookupDto(Id, FullName):
+        // Ponieważ GetStudentsLookupAsync zwraca listę rekordów StudentDto(Id, FullName):
         ViewData["StudentId"] = new SelectList(students, "Id", "FullName", selectedStudentId);
     }
 }

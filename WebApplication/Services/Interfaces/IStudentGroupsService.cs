@@ -1,3 +1,4 @@
+using WebApplication.DTOs.Student;
 using WebApplication.DTOs.StudentGroup;
 
 namespace WebApplication.Services.Interfaces;
@@ -13,5 +14,5 @@ public interface IStudentGroupsService
     Task<bool> ExistsAsync(int studentId);
     
     Task<Dictionary<int, string>> GetGroupsDropdownAsync();
-    Task<IEnumerable<StudentLookupDto>> GetStudentsLookupAsync();
+    Task<IEnumerable<StudentDto>> GetStudentsLookupAsync();
 }
