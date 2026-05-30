@@ -19,7 +19,7 @@ public class SubjectsService(AppDbContext context) : ISubjectsService
     {
         return await context.Subjects
             .Where(s => s.Id == id)
-            .Select(s => new SubjectDetailsDto(s.Id, s.Name, s.Abbreviation ?? "Brak", s.Code ?? "Brak"))
+            .Select(s => new SubjectDetailsDto(s.Id, s.Name, s.Abbreviation, s.Code))
             .FirstOrDefaultAsync();
     }
 

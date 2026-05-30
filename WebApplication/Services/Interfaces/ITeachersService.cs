@@ -1,13 +1,14 @@
-using WebApplication.Models;
+using WebApplication.DTOs.Teacher;
 
-namespace WebApplication.Services;
+namespace WebApplication.Services.Interfaces;
 
 public interface ITeachersService
 {
-    Task<IEnumerable<Teacher>> GetAllAsync();
-    Task<Teacher?> GetByIdAsync(int id);
-    Task CreateAsync(Teacher teacher);
-    Task UpdateAsync(Teacher teacher);
-    Task DeleteAsync(int id);
+    Task<IEnumerable<TeacherDto>> GetAllAsync();
+    Task<TeacherDto?> GetByIdAsync(int id);
+    Task<TeacherFormDto?> GetFormByIdAsync(int id);
+    Task CreateAsync(TeacherFormDto dto);
+    Task<bool> UpdateAsync(TeacherFormDto dto);
+    Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
 }

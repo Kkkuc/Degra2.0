@@ -1,4 +1,4 @@
-@model IEnumerable<WebApplication.Models.Teacher>
+@model IEnumerable<WebApplication.DTOs.Teacher.TeacherDto>
 
 @section HeaderLeft {
     <div class="flex items-center gap-4">
@@ -10,11 +10,11 @@
     <div class="bg-card rounded-xl border border-border overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="border-b border-border bg-gray-50/50 dark:bg-gray-800/50">
-                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Teacher</th>
-                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Academic Title</th>
-                    <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Email Address</th>
-                </tr>
+            <tr class="border-b border-border bg-gray-50/50 dark:bg-gray-800/50">
+                <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Teacher</th>
+                <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Academic Title</th>
+                <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Email Address</th>
+            </tr>
             </thead>
             <tbody id="teachers-list" class="divide-y divide-border">
             </tbody>
@@ -35,7 +35,7 @@
 
             if (serverData && serverData.length > 0) {
                 teachers = serverData;
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({ data: serverData, timestamp: now }));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({data: serverData, timestamp: now}));
             } else if (cached && (now - cached.timestamp < TTL)) {
                 teachers = cached.data;
             }
@@ -45,28 +45,41 @@
 
         function renderTeachers(teachers) {
             const list = document.getElementById('teachers-list');
-            list.innerHTML = teachers.map(t => `
-                <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold">
-                                ${t.firstName[0]}${t.lastName[0]}
+            list.innerHTML = teachers.map(t => {
+                // Bezpieczne wyciąganie pierwszych liter imienia i nazwiska z pola fullName
+                const nameParts = t.fullName ? t.fullName.trim().split(/\s+/) : [];
+                const initials = nameParts.length >= 2
+                    ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase()
+                    : (t.fullName ? t.fullName.substring(0, 2).toUpperCase() : "??");
+
+                return `
+                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold text-sm select-none">
+                                    ${initials}
+                                </div>
+                                <div class="font-medium">${t.fullName}</div>
                             </div>
-                            <div class="font-medium">${t.firstName} ${t.lastName}</div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium">${t.academicTitle}</span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="mail" class="w-4 h-4"></i>
-                            ${t.email}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-            lucide.createIcons();
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <span class="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium text-gray-700 dark:text-gray-300">
+                                ${t.title || 'Brak'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                                <a href="mailto:${t.email}" class="hover:underline text-blue-600 dark:text-blue-400 transition-colors">${t.email}</a>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         initTeachers();
