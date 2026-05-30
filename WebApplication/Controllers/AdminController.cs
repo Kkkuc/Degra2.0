@@ -1,52 +1,52 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Data;
-using WebApplication.Models;
+using WebApplication.DTOs.Admin;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
 [Authorize(Roles = "Moderator")]
-public class AdminController(AppDbContext context) : Controller
+public class AdminController(IAdminService adminService) : Controller
 {
     public async Task<IActionResult> Index()
     {
-        var users = await context.Users.Include(u => u.Role).ToListAsync();
-        return View(users);
+        var data = await adminService.GetUsersForIndexAsync();
+        return View(data);
     }
 
     [HttpGet]
     public async Task<IActionResult> CreateAccount()
     {
-        var roles = await context.Roles.ToListAsync();
-        ViewBag.Roles = new SelectList(roles, "Id", "Name");
+        var roles = await adminService.GetRolesDropdownListAsync();
+        ViewBag.Roles = new SelectList(roles, "Key", "Value");
 
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAccount(string username, string email, string tempPassword, int roleId)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateAccount(CreateAccountDto dto)
     {
-        if (await context.Users.AnyAsync(u => u.Username == username))
+        if (!ModelState.IsValid)
         {
-            ModelState.AddModelError(string.Empty, "Użytkownik o takiej nazwie już istnieje.");
-            ViewBag.Roles = new SelectList(await context.Roles.ToListAsync(), "Id", "Name");
-            return View();
+            var roles = await adminService.GetRolesDropdownListAsync();
+            ViewBag.Roles = new SelectList(roles, "Key", "Value", dto.RoleId);
+            return View(dto);
         }
 
-        var newUser = new User
+        if (await adminService.UserExistsAsync(dto.Username))
         {
-            Username = username,
-            Email = email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword),
-            RoleId = roleId
-        };
+            ModelState.AddModelError(string.Empty, "Użytkownik o takiej nazwie już istnieje.");
+            
+            var roles = await adminService.GetRolesDropdownListAsync();
+            ViewBag.Roles = new SelectList(roles, "Key", "Value", dto.RoleId);
+            return View(dto);
+        }
 
-        context.Users.Add(newUser);
-        await context.SaveChangesAsync();
+        await adminService.CreateAccountAsync(dto);
 
-        TempData["SuccessMessage"] = $"Konto dla {username} zostało utworzone!";
-        return RedirectToAction("Index");
+        TempData["SuccessMessage"] = $"Konto dla {dto.Username} zostało utworzone!";
+        return RedirectToAction(nameof(Index));
     }
 }
