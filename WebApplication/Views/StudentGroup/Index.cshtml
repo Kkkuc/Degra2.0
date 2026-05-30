@@ -1,4 +1,4 @@
-@model IEnumerable<WebApplication.Models.StudentGroup>
+@model IEnumerable<WebApplication.DTOs.StudentGroup.StudentGroupDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -14,10 +14,10 @@
     <thead>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Student)
+            @Html.DisplayNameFor(model => model.StudentFullName)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Group)
+            @Html.DisplayNameFor(model => model.GroupName)
         </th>
         <th></th>
     </tr>
@@ -27,10 +27,10 @@
     {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Student.FirstName) @Html.DisplayFor(modelItem => item.Student.LastName)
+                @Html.DisplayFor(modelItem => item.StudentFullName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Group.Name)
+                @Html.DisplayFor(modelItem => item.GroupName)
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.StudentId">Details</a> |
