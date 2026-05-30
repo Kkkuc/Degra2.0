@@ -1,4 +1,4 @@
-@model WebApplication.Models.Room
+@model WebApplication.DTOs.Room.RoomDetailsDto
 
 @{
     ViewData["Title"] = "Details";
@@ -12,10 +12,10 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Building)
+            @Html.DisplayNameFor(model => model.BuildingName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Building.Name)
+            @Html.DisplayFor(model => model.BuildingName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.RoomNumber)
@@ -30,10 +30,10 @@
             @Html.DisplayFor(model => model.Capacity)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RoomType)
+            @Html.DisplayNameFor(model => model.RoomTypeDisplay)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RoomType)
+            @Html.DisplayFor(model => model.RoomTypeDisplay)
         </dd>
     </dl>
 </div>
