@@ -29,6 +29,7 @@ builder.Services.AddScoped<IFieldsOfStudiesService, FieldsOfStudiesService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IRoomsService, RoomsService>();
 builder.Services.AddScoped<IScheduleChangesService, ScheduleChangesService>();
+builder.Services.AddScoped<ISchedulerService, SchedulerService>();
 builder.Services.AddScoped<ISemestersService, SemestersService>();
 builder.Services.AddScoped<ISpecializationsService, SpecializationsService>();
 builder.Services.AddScoped<IStudentGroupsService, StudentGroupsService>();
