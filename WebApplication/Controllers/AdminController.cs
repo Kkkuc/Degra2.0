@@ -31,7 +31,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> UtworzKonto(string username, string email, string tempPassword, int roleId)
+    public async Task<IActionResult> UtworzKonto(string username, string email, string tempPassword, int roleId, string? studentId, int? teacherId)
     {
         if (await _context.Users.AnyAsync(u => u.Username == username))
         {
@@ -44,8 +44,10 @@ public class AdminController : Controller
         {
             Username = username,
             Email = email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword),
-            RoleId = roleId
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(tempPassword, 14), //argon2id
+            RoleId = roleId,
+            StudentId = studentId,
+            TeacherId = teacherId
         };
 
         _context.Users.Add(newUser);

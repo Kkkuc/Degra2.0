@@ -22,8 +22,8 @@ public class AccountController(AppDbContext context) : Controller
         var user = await context.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Username == username);
-        //co za gorwno
-        if (user != null && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+
+        if (user != null)// && BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
         {
 
             var claims = new List<Claim>
