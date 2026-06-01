@@ -21,30 +21,12 @@
             <label>Hasło tymczasowe:</label><br />
             <input type="password" name="tempPassword" required style="width: 100%;" />
         </div>
+
         <div style="margin-bottom: 15px;">
             <label>Wybierz Rolę:</label><br />
-            <select id="roleSelect" name="roleId" asp-items="ViewBag.Roles" required style="width: 100%;">
+            <select name="roleId" asp-items="ViewBag.Roles" required style="width: 100%;">
                 <option value="">-- Wybierz --</option>
             </select>
-        </div>
-
-        <div id="dodatkowePolaUsera" style="display: none; background-color: #f9f9f9; padding: 15px; border-left: 4px solid blue; margin-bottom: 15px;">
-            <h4 style="margin-top: 0;">Opcjonalne identyfikatory:</h4>
-
-            <div style="margin-bottom: 10px;">
-                <label>ID Studenta (tylko dla studentów):</label><br />
-                <input type="number" name="studentId" style="width: 100%;" />
-            </div>
-
-            <div>
-                <label>ID Prowadzącego (tylko dla nauczycieli):</label`><br />
-                <input type="number" name="teacherId" style="width: 100%;" />
-            </div>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label>Hasło tymczasowe:</label><br />
-            <input type="password" name="tempPassword" required style="width: 100%;" />
         </div>
         
         <div style="color: red; margin-bottom: 10px;">
@@ -60,32 +42,3 @@
 <div style="margin-top: 15px;">
     <a asp-action="Index">Wróc do listy użytkowników</a>
 </div>
-
-    @section Scripts {
-        <script>
-            // 1. Pobieramy elementy ze strony
-            const roleSelect = document.getElementById('roleSelect');
-            const dodatkowePola = document.getElementById('dodatkowePolaUsera');
-
-            // 2. Nasłuchujemy zmiany w liście rozwijanej (event 'change')
-            roleSelect.addEventListener('change', function() {
-
-                // Pobieramy TEKST wybranej opcji (np. "User", "Moderator")
-                const wybranyTekst = this.options[this.selectedIndex].text;
-
-                // Jeśli wybrano rolę, która nazywa się "User" (lub np. "Student", "Wykładowca")
-                if (wybranyTekst === "User") {
-                    // Pokazujemy pola
-                    dodatkowePola.style.display = 'block';
-                } else {
-                    // Dla Moderatora i innych ról - ukrywamy pola
-                    dodatkowePola.style.display = 'none';
-
-                    // Opcjonalnie: czyścimy wpisane wartości, żeby np.
-                    // Moderator omyłkowo nie dostał zapisanego StudentId
-                    document.querySelector('input[name="studentId"]').value = '';
-                    document.querySelector('input[name="teacherId"]').value = '';
-                }
-            });
-        </script>
-    }
