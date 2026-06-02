@@ -12,11 +12,15 @@
     </div>
 }
 
-<div style="margin-bottom: 15px;">
-    <a asp-controller="Admin" asp-action="UtworzKonto" style="background-color: blue; color: white; padding: 8px 12px; text-decoration: none;">
+<div style="margin-bottom: 20px; display: flex; gap: 10px;">
+    <a asp-controller="Admin" asp-action="UtworzKonto" style="background-color: blue; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">
         + Dodaj Nowego Użytkownika
     </a>
-</div>
+
+    <a asp-controller="Admin" asp-action="GenerujRaportLogowPdf" target="_blank" style="background-color: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">
+        📄 Generuj Raport Zmian (PDF)
+    </a>
+</div>  
 
 <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; max-width: 600px;">
     <thead>

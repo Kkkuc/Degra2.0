@@ -298,4 +298,73 @@ BEGIN
     );
 END;
 /
+CREATE OR REPLACE TRIGGER TRG_USERLOG
+AFTER INSERT OR UPDATE OR DELETE ON "Users"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
 
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Login: ' || :NEW."Username" || 
+                     ', Email: ' || :NEW."Email" || 
+                     ', RoleID: ' || :NEW."RoleId" || 
+                     ', StudentID: ' || NVL(:NEW."StudentId", 'Brak') || 
+                     ', TeacherID: ' || NVL(TO_CHAR(:NEW."TeacherId"), 'Brak') || 
+                     ', Aktywny: ' || NVL(TO_CHAR(:NEW."IsActive"), 'Brak') || 
+                     ', OstatnieLog: ' || NVL(TO_CHAR(:NEW."LastLogin", 'YYYY-MM-DD HH24:MI'), 'Brak') || 
+                     ', Haslo: [UKRYTE]';
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Login: ' || :OLD."Username" || 
+                     ', Email: ' || :OLD."Email" || 
+                     ', RoleID: ' || :OLD."RoleId" || 
+                     ', StudentID: ' || NVL(:OLD."StudentId", 'Brak') || 
+                     ', TeacherID: ' || NVL(TO_CHAR(:OLD."TeacherId"), 'Brak') || 
+                     ', Aktywny: ' || NVL(TO_CHAR(:OLD."IsActive"), 'Brak') || 
+                     ', OstatnieLog: ' || NVL(TO_CHAR(:OLD."LastLogin", 'YYYY-MM-DD HH24:MI'), 'Brak') || 
+                     ', Haslo: [UKRYTE]';
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Login: ' || :NEW."Username" || 
+                     ', Email: ' || :NEW."Email" || 
+                     ', RoleID: ' || :NEW."RoleId" || 
+                     ', StudentID: ' || NVL(:NEW."StudentId", 'Brak') || 
+                     ', TeacherID: ' || NVL(TO_CHAR(:NEW."TeacherId"), 'Brak') || 
+                     ', Aktywny: ' || NVL(TO_CHAR(:NEW."IsActive"), 'Brak') || 
+                     ', OstatnieLog: ' || NVL(TO_CHAR(:NEW."LastLogin", 'YYYY-MM-DD HH24:MI'), 'Brak') || 
+                     ', Haslo: [UKRYTE]';
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Login: ' || :OLD."Username" || 
+                     ', Email: ' || :OLD."Email" || 
+                     ', RoleID: ' || :OLD."RoleId" || 
+                     ', StudentID: ' || NVL(:OLD."StudentId", 'Brak') || 
+                     ', TeacherID: ' || NVL(TO_CHAR(:OLD."TeacherId"), 'Brak') || 
+                     ', Aktywny: ' || NVL(TO_CHAR(:OLD."IsActive"), 'Brak') || 
+                     ', OstatnieLog: ' || NVL(TO_CHAR(:OLD."LastLogin", 'YYYY-MM-DD HH24:MI'), 'Brak') || 
+                     ', Haslo: [UKRYTE]';
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'User', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+
+
+select * from "Logs" order by "ChangedAt";
