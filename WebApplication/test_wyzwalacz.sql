@@ -365,6 +365,393 @@ BEGIN
     );
 END;
 /
+CREATE OR REPLACE TRIGGER TRG_ACADEMICYEARLOG
+AFTER INSERT OR UPDATE OR DELETE ON "AcademicYears"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
 
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Start: ' || TO_CHAR(:NEW."StartDate", 'YYYY-MM-DD') || 
+                     ', Koniec: ' || TO_CHAR(:NEW."EndDate", 'YYYY-MM-DD');
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Start: ' || TO_CHAR(:OLD."StartDate", 'YYYY-MM-DD') || 
+                     ', Koniec: ' || TO_CHAR(:OLD."EndDate", 'YYYY-MM-DD');
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Start: ' || TO_CHAR(:NEW."StartDate", 'YYYY-MM-DD') || 
+                     ', Koniec: ' || TO_CHAR(:NEW."EndDate", 'YYYY-MM-DD');
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Start: ' || TO_CHAR(:OLD."StartDate", 'YYYY-MM-DD') || 
+                     ', Koniec: ' || TO_CHAR(:OLD."EndDate", 'YYYY-MM-DD');
+    END IF;
 
-select * from "Logs" order by "ChangedAt";
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'AcademicYear', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_BUILDINGLOG
+AFTER INSERT OR UPDATE OR DELETE ON "Buildings"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Ulica: ' || :NEW."Street" || 
+                     ', NrDomu: ' || :NEW."HouseNumber" || 
+                     ', Miasto: ' || :NEW."City" || 
+                     ', KodPocztowy: ' || :NEW."PostalCode" || 
+                     ', WydzialID: ' || :NEW."FacultyId";
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Ulica: ' || :OLD."Street" || 
+                     ', NrDomu: ' || :OLD."HouseNumber" || 
+                     ', Miasto: ' || :OLD."City" || 
+                     ', KodPocztowy: ' || :OLD."PostalCode" || 
+                     ', WydzialID: ' || :OLD."FacultyId";
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Ulica: ' || :NEW."Street" || 
+                     ', NrDomu: ' || :NEW."HouseNumber" || 
+                     ', Miasto: ' || :NEW."City" || 
+                     ', KodPocztowy: ' || :NEW."PostalCode" || 
+                     ', WydzialID: ' || :NEW."FacultyId";
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Ulica: ' || :OLD."Street" || 
+                     ', NrDomu: ' || :OLD."HouseNumber" || 
+                     ', Miasto: ' || :OLD."City" || 
+                     ', KodPocztowy: ' || :OLD."PostalCode" || 
+                     ', WydzialID: ' || :OLD."FacultyId";
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Building', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_FACULTYLOG
+AFTER INSERT OR UPDATE OR DELETE ON "Faculties" 
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Skrot: ' || NVL(:NEW."Abbreviation", 'Brak');
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Skrot: ' || NVL(:OLD."Abbreviation", 'Brak');
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Skrot: ' || NVL(:NEW."Abbreviation", 'Brak');
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Skrot: ' || NVL(:OLD."Abbreviation", 'Brak');
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Faculty', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_FIELDOFSTUDYLOG
+AFTER INSERT OR UPDATE OR DELETE ON "FieldsOfStudy" -- Uwaga: sprawdź, czy EF nie wygenerował np. "FieldsOfStudy"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', WydzialID: ' || :NEW."FacultyId" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Stopien: ' || NVL(:NEW."Degree", 'Brak') || 
+                     ', Tryb: ' || NVL(:NEW."Mode", 'Brak');
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', WydzialID: ' || :OLD."FacultyId" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Stopien: ' || NVL(:OLD."Degree", 'Brak') || 
+                     ', Tryb: ' || NVL(:OLD."Mode", 'Brak');
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', WydzialID: ' || :NEW."FacultyId" || 
+                     ', Nazwa: ' || :NEW."Name" || 
+                     ', Stopien: ' || NVL(:NEW."Degree", 'Brak') || 
+                     ', Tryb: ' || NVL(:NEW."Mode", 'Brak');
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', WydzialID: ' || :OLD."FacultyId" || 
+                     ', Nazwa: ' || :OLD."Name" || 
+                     ', Stopien: ' || NVL(:OLD."Degree", 'Brak') || 
+                     ', Tryb: ' || NVL(:OLD."Mode", 'Brak');
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'FieldOfStudy', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_GROUPLOG
+AFTER INSERT OR UPDATE OR DELETE ON "Groups" -- Sprawdź, czy nie "Groups"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+
+    -- Funkcja do parsowania ClassType (taka sama jak w Timetable)
+    FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2 IS
+    BEGIN
+        -- TUTAJ PODMIEŃ WARTOŚCI NA SWOJE Z C# (jeśli są inne)
+        RETURN CASE p_val
+            WHEN 0 THEN 'Wyklad'
+            WHEN 1 THEN 'Cwiczenia'
+            WHEN 2 THEN 'Laboratorium'
+            WHEN 3 THEN 'Seminarium'
+            ELSE 'Nieznany typ (' || TO_CHAR(p_val) || ')'
+        END;
+    END;
+
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', SemestrID: ' || :NEW."SemesterId" || 
+                     ', KierunekID: ' || :NEW."FieldOfStudyId" || 
+                     ', SpecjalizacjaID: ' || NVL(TO_CHAR(:NEW."SpecializationId"), 'Brak') || 
+                     ', TypZajec: ' || ParseClassType(:NEW."ClassType") || 
+                     ', Nazwa: ' || :NEW."Name";
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', SemestrID: ' || :OLD."SemesterId" || 
+                     ', KierunekID: ' || :OLD."FieldOfStudyId" || 
+                     ', SpecjalizacjaID: ' || NVL(TO_CHAR(:OLD."SpecializationId"), 'Brak') || 
+                     ', TypZajec: ' || ParseClassType(:OLD."ClassType") || 
+                     ', Nazwa: ' || :OLD."Name";
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', SemestrID: ' || :NEW."SemesterId" || 
+                     ', KierunekID: ' || :NEW."FieldOfStudyId" || 
+                     ', SpecjalizacjaID: ' || NVL(TO_CHAR(:NEW."SpecializationId"), 'Brak') || 
+                     ', TypZajec: ' || ParseClassType(:NEW."ClassType") || 
+                     ', Nazwa: ' || :NEW."Name";
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', SemestrID: ' || :OLD."SemesterId" || 
+                     ', KierunekID: ' || :OLD."FieldOfStudyId" || 
+                     ', SpecjalizacjaID: ' || NVL(TO_CHAR(:OLD."SpecializationId"), 'Brak') || 
+                     ', TypZajec: ' || ParseClassType(:OLD."ClassType") || 
+                     ', Nazwa: ' || :OLD."Name";
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Group', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_ROLELOG
+AFTER INSERT OR UPDATE OR DELETE ON "Roles"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name";
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name";
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Nazwa: ' || :NEW."Name";
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Nazwa: ' || :OLD."Name";
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Role', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_ROLEPERMISSONLOG
+AFTER INSERT OR UPDATE OR DELETE ON "RolePermissions" -- Sprawdź, czy EF nie wygenerował nazwy "RolePermissions"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'RoleID: ' || :NEW."RoleId" || 
+                     ', PermissionID: ' || :NEW."PermissionId";
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'RoleID: ' || :OLD."RoleId" || 
+                     ', PermissionID: ' || :OLD."PermissionId";
+                     
+        v_new_val := 'RoleID: ' || :NEW."RoleId" || 
+                     ', PermissionID: ' || :NEW."PermissionId";
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'RoleID: ' || :OLD."RoleId" || 
+                     ', PermissionID: ' || :OLD."PermissionId";
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'RolePermission', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
+CREATE OR REPLACE TRIGGER TRG_PERMISSIONLOG
+AFTER INSERT OR UPDATE OR DELETE ON "Permissions"
+FOR EACH ROW
+DECLARE
+    v_operation NVARCHAR2(20);
+    v_old_val NVARCHAR2(2000);
+    v_new_val NVARCHAR2(2000);
+    v_user NVARCHAR2(200);
+BEGIN
+    v_old_val := '-';
+    v_new_val := '-';
+    v_user := SYS_CONTEXT('USERENV', 'SESSION_USER');
+
+    IF INSERTING THEN
+        v_operation := 'INSERT';
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Kod: ' || :NEW."PermissionCode" || 
+                     ', Opis: ' || NVL(:NEW."Description", 'Brak');
+                     
+    ELSIF UPDATING THEN
+        v_operation := 'UPDATE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Kod: ' || :OLD."PermissionCode" || 
+                     ', Opis: ' || NVL(:OLD."Description", 'Brak');
+                     
+        v_new_val := 'ID: ' || :NEW."Id" || 
+                     ', Kod: ' || :NEW."PermissionCode" || 
+                     ', Opis: ' || NVL(:NEW."Description", 'Brak');
+                     
+    ELSIF DELETING THEN
+        v_operation := 'DELETE';
+        v_old_val := 'ID: ' || :OLD."Id" || 
+                     ', Kod: ' || :OLD."PermissionCode" || 
+                     ', Opis: ' || NVL(:OLD."Description", 'Brak');
+    END IF;
+
+    INSERT INTO "Logs" ( 
+        "TableName", "Operation", "OldValue", "NewValue", "UserChanged", "ChangedAt"
+    ) VALUES (
+        'Permission', v_operation, v_old_val, v_new_val, v_user, CURRENT_TIMESTAMP
+    );
+END;
+/
