@@ -82,8 +82,7 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
         var subjectsDto = rawSubjects.Select(s => new SubjectIndexDto
         (
             s.Id,
-            s.Name,
-            $"#{rand.Next(0x1000000)}"
+            s.Name
         )).ToList();
 
         return new SchedulerViewModel

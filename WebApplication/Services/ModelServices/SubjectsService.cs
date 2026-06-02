@@ -12,7 +12,7 @@ public class SubjectsService(AppDbContext context) : ISubjectsService
     {
         var rand = new Random();
         return await context.Subjects
-            .Select(s => new SubjectIndexDto(s.Id, s.Name, $"#{rand.Next(0x1000000)}"))
+            .Select(s => new SubjectIndexDto(s.Id, s.Name))
             .ToListAsync();
     }
 
