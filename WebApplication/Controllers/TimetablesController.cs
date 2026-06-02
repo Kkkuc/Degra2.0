@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using WebApplication.Models;
+using WebApplication.DTOs.Timetable;
 using WebApplication.Models.enums;
-using WebApplication.Services;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
@@ -53,11 +53,11 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,SubjectId,TeacherId,RoomId,GroupId,ClassType,DayOfWeek,StartTime,EndTime,WeekCycle")] Timetable timetable)
+    public async Task<IActionResult> Create(TimetableCreateDto timetableDto)
     {
         if (ModelState.IsValid)
         {
-            await timetablesService.CreateAsync(timetable);
+            await timetablesService.CreateAsync(timetableDto);
             return RedirectToAction(nameof(Index));
         }
         var groups = await timetablesService.GetAllGroupsAsync();
@@ -65,11 +65,11 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
         var subjects = await timetablesService.GetAllSubjectsAsync();
         var teachers = await timetablesService.GetAllTeachersAsync();
 
-        ViewData["GroupId"] = new SelectList(groups, "Id", "Name", timetable.GroupId);
-        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetable.RoomId);
-        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetable.SubjectId);
-        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetable.TeacherId);
-        return View(timetable);
+        ViewData["GroupId"] = new SelectList(groups, "Id", "Name", timetableDto.GroupId);
+        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetableDto.RoomId);
+        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetableDto.SubjectId);
+        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetableDto.TeacherId);
+        return View(timetableDto);
     }
 
     // GET: Timetables/Edit/5
@@ -105,9 +105,9 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,SubjectId,TeacherId,RoomId,GroupId,ClassType,DayOfWeek,StartTime,EndTime,WeekCycle")] Timetable timetable)
+    public async Task<IActionResult> Edit(int id, TimetableEditDto timetableDto)
     {
-        if (id != timetable.Id)
+        if (id != timetableDto.Id)
         {
             return NotFound();
         }
@@ -116,15 +116,15 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
         {
             try
             {
-                await timetablesService.UpdateAsync(timetable);
+               
+               await timetablesService.UpdateAsync(timetableDto);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await timetablesService.ExistsAsync(timetable.Id))
+                if (!await timetablesService.ExistsAsync(timetableDto.Id))
                 {
                     return NotFound();
                 }
-
                 throw;
             }
             return RedirectToAction(nameof(Index));
@@ -134,14 +134,15 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
         var subjects = await timetablesService.GetAllSubjectsAsync();
         var teachers = await timetablesService.GetAllTeachersAsync();
 
-        ViewData["GroupId"] = new SelectList(groups, "Id", "Name", timetable.GroupId);
-        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetable.RoomId);
-        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetable.SubjectId);
-        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetable.TeacherId);
+        // ZMIANA: Przypisanie wybranych wartości z obiektu DTO
+        ViewData["GroupId"] = new SelectList(groups, "Id", "Name", timetableDto.GroupId);
+        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetableDto.RoomId);
+        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetableDto.SubjectId);
+        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetableDto.TeacherId);
         ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
         ViewData["DayOfWeek"] = new SelectList(Enum.GetValues<DayOfWeek>());
         ViewData["WeekCycle"] = new SelectList(Enum.GetValues<WeekCycle>());
-        return View(timetable);
+        return View(timetableDto);
     }
 
     // GET: Timetables/Delete/5

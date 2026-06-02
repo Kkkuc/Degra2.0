@@ -1,15 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs.Timetable;
 using WebApplication.Models;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Services.ModelServices;
 
 public class TimetablesService(AppDbContext context) : ITimetablesService
 {
-    public async Task<IEnumerable<Timetable>> GetAllWithRelationsAsync()
+    public async Task<IEnumerable<TimetableListDto>> GetAllWithRelationsAsync()
     {
         return await context.Timetables
-            .Select(t => new Timetable
+            .Select(t => new TimetableListDto
             {
                 Id = t.Id,
                 ClassType = t.ClassType,
@@ -17,20 +19,19 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
                 StartTime = t.StartTime,
                 EndTime = t.EndTime,
                 WeekCycle = t.WeekCycle,
-                
-                Group = t.Group != null ? new Group { Id = t.Group.Id, Name = t.Group.Name } : null,
-                Room = t.Room != null ? new Room { Id = t.Room.Id, RoomNumber = t.Room.RoomNumber } : null,
-                Subject = t.Subject != null ? new Subject { Id = t.Subject.Id, Name = t.Subject.Name } : null,
-                Teacher = t.Teacher != null ? new Teacher { Id = t.Teacher.Id, FirstName = t.Teacher.FirstName } : null
+                GroupName = t.Group != null ? t.Group.Name : string.Empty,
+                RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
+                SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
+                TeacherName = t.Teacher != null ? t.Teacher.FirstName : string.Empty
             })
             .ToListAsync();
-    }   
+    }
 
-    public async Task<Timetable?> GetByIdWithRelationsAsync(int id)
+    public async Task<TimetableDetailsDto?> GetByIdWithRelationsAsync(int id)
     {
         return await context.Timetables
             .Where(m => m.Id == id)
-            .Select(t => new Timetable
+            .Select(t => new TimetableDetailsDto
             {
                 Id = t.Id,
                 SubjectId = t.SubjectId,
@@ -42,20 +43,19 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
                 StartTime = t.StartTime,
                 EndTime = t.EndTime,
                 WeekCycle = t.WeekCycle,
-                Group = t.Group != null ? new Group { Id = t.Group.Id, Name = t.Group.Name } : null,
-                Room = t.Room != null ? new Room { Id = t.Room.Id, RoomNumber = t.Room.RoomNumber } : null,
-                Subject = t.Subject != null ? new Subject { Id = t.Subject.Id, Name = t.Subject.Name } : null,
-                Teacher = t.Teacher != null ? new Teacher { Id = t.Teacher.Id, FirstName = t.Teacher.FirstName } : null
+                GroupName = t.Group != null ? t.Group.Name : string.Empty,
+                RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
+                SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
+                TeacherName = t.Teacher != null ? t.Teacher.FirstName : string.Empty
             })
             .FirstOrDefaultAsync();
     }
 
-    public async Task<Timetable?> GetByIdAsync(int id)
+    public async Task<TimetableEditDto?> GetByIdAsync(int id)
     {
-        // Zastąpiono FindAsync przez Select, aby pobrać tylko ID i FK potrzebne do formularza edycji
         return await context.Timetables
             .Where(t => t.Id == id)
-            .Select(t => new Timetable
+            .Select(t => new TimetableEditDto
             {
                 Id = t.Id,
                 SubjectId = t.SubjectId,
@@ -71,26 +71,52 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
             .FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(Timetable timetable)
+    public async Task CreateAsync(TimetableCreateDto dto)
     {
+        var timetable = new Timetable
+        {
+            SubjectId = dto.SubjectId,
+            TeacherId = dto.TeacherId,
+            RoomId = dto.RoomId,
+            GroupId = dto.GroupId,
+            ClassType = dto.ClassType,
+            DayOfWeek = dto.DayOfWeek,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            WeekCycle = dto.WeekCycle
+        };
+
         context.Add(timetable);
         await context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(Timetable timetable)
+    public async Task UpdateAsync(TimetableEditDto dto)
     {
+        // Mapowanie DTO -> Encja bazy danych
+        var timetable = new Timetable
+        {
+            Id = dto.Id,
+            SubjectId = dto.SubjectId,
+            TeacherId = dto.TeacherId,
+            RoomId = dto.RoomId,
+            GroupId = dto.GroupId,
+            ClassType = dto.ClassType,
+            DayOfWeek = dto.DayOfWeek,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            WeekCycle = dto.WeekCycle
+        };
+
         context.Update(timetable);
         await context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
     {
-        // Optymalizacja: Nie pobieramy całego obiektu przed usunięciem. 
-        // Tworzymy "pusty" obiekt z samym ID i dołączamy go do śledzenia w celu usunięcia.
         var timetable = new Timetable { Id = id };
         context.Timetables.Entry(timetable).State = EntityState.Deleted;
         await context.SaveChangesAsync();
-    }   
+    }
 
     public async Task<bool> ExistsAsync(int id)
     {
