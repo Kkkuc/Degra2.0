@@ -21,6 +21,8 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddControllersWithViews();
+//webscraper xml file old degra
+builder.Services.AddHttpClient<IScraperService, ScraperService>();
 //builder.Services.AddScoped<TimetableCrawler>();
 builder.Services.AddScoped<IAcademicYearService, AcademicYearService>();
 builder.Services.AddScoped<IBuildingsService, BuildingsService>();
