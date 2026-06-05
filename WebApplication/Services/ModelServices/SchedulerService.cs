@@ -50,8 +50,10 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
             })
             .ToListAsync();
 
-        var rawSubjects = await context.Subjects
-            .Select(s => new { s.Id, s.Name })
+        var rawSubjects = await query
+            .Where(t => t.Subject != null)
+            .Select(t => new { t.Subject!.Id, t.Subject.Name })
+            .Distinct() // Usuwa duplikaty przedmiotów
             .ToListAsync();
 
         // 4. Mapowanie w pamięci RAM (przeliczenia slotów i kolorów)
