@@ -62,6 +62,115 @@ public class AdminController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> GenerateMonthlyStats(int rok, int miesiac)
+    {
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        // Domyślne wartości, jeśli admin nic nie wybrał
+        if (rok == 0) rok = DateTime.Now.Year;
+        if (miesiac == 0) miesiac = DateTime.Now.Month;
+
+        // ODZWIERCIEDLENIE KURSORA PL/SQL W LINQ:
+        // Filtrujemy po roku i miesiącu, grupujemy po TableName oraz Operation, zliczamy i sortujemy
+        var daneStatystyk = await _context.Logs
+            .Where(l => l.ChangedAt.Year == rok && l.ChangedAt.Month == miesiac)
+            .GroupBy(l => new { l.TableName, l.Operation })
+            .Select(g => new
+            {
+                TableName = g.Key.TableName,
+                Operation = g.Key.Operation,
+                OpsCount = g.Count()
+            })
+            .OrderByDescending(g => g.OpsCount)
+            .ThenBy(g => g.TableName)
+            .ToListAsync();
+
+        string[] nazwyMiesiecy = { "", "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień" };
+        string nazwaMiesiacaTekst = miesiac >= 1 && miesiac <= 12 ? nazwyMiesiecy[miesiac] : miesiac.ToString();
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+                page.PageColor(Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(11));
+
+                // NAGŁÓWEK (Identyczny z Twoim DBMS_OUTPUT)
+                page.Header().Column(column =>
+                {
+                    column.Item().Text("=========================================").FontColor(Colors.Grey.Medium);
+                    column.Item().Text($"STATYSTYKI AUDYTU ZA: {miesiac:D2}/{rok} ({nazwaMiesiacaTekst.ToUpper()})").Bold().FontSize(14);
+                    column.Item().Text("=========================================").FontColor(Colors.Grey.Medium);
+                });
+
+                // ZAWARTOŚĆ
+                page.Content().PaddingVertical(1, Unit.Centimetre).Column(column =>
+                {
+                    if (!daneStatystyk.Any())
+                    {
+                        column.Item().PaddingTop(20).Text("Brak operacji w wybranym miesiącu.").Italic().FontColor(Colors.Grey.Darken1);
+                        return;
+                    }
+
+                    column.Item().Table(table =>
+                    {
+                        // Definicja 3 kolumn jak w Twoim komunikacie tekstowym
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(3); // Tabela
+                            columns.RelativeColumn(2); // Operacja
+                            columns.RelativeColumn(1); // Ilość (OpsCount)
+                        });
+
+                        // Nagłówki kolumn
+                        table.Header(header =>
+                        {
+                            header.Cell().BorderBottom(1).Padding(5).Text("Nazwa Tabeli").Bold();
+                            header.Cell().BorderBottom(1).Padding(5).Text("Operacja").Bold();
+                            header.Cell().BorderBottom(1).Padding(5).Text("Ilość zmian").Bold();
+                        });
+
+                        int v_total_operations = 0;
+
+                        // Pętla odpowiadająca: FOR r_stat IN c_stats LOOP
+                        foreach (var r_stat in daneStatystyk)
+                        {
+                            var actionColor = r_stat.Operation == "DELETE" ? Colors.Red.Medium :
+                                              r_stat.Operation == "INSERT" ? Colors.Green.Medium : Colors.Blue.Medium;
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(r_stat.TableName);
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(r_stat.Operation).FontColor(actionColor).Bold();
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(r_stat.OpsCount.ToString());
+
+                            v_total_operations += r_stat.OpsCount;
+                        }
+
+                        // PODSUMOWANIE (Odpowiednik sekcji v_total_operations na końcu procedury)
+                        table.Cell().PaddingTop(15).Text("-----------------------------------------").FontColor(Colors.Grey.Medium);
+                        table.Cell().Text(""); table.Cell().Text("");
+
+                        table.Cell().Padding(5).Text("SUMA WSZYSTKICH ZMIAN IN BAZIE:").Bold();
+                        table.Cell().Padding(5).Text("");
+                        table.Cell().Padding(5).Text(v_total_operations.ToString()).Bold();
+                    });
+                });
+
+                // STOPKA
+                page.Footer().AlignCenter().Text(x =>
+                {
+                    x.Span("Strona "); x.CurrentPageNumber(); x.Span(" z "); x.TotalPages();
+                });
+            });
+        });
+
+        byte[] pdfBytes = document.GeneratePdf();
+        return File(pdfBytes, "application/pdf", $"Statystyki_Miesieczne_{rok}_{miesiac:D2}.pdf");
+    }
+
+    /*
+    [HttpGet]
     public async Task<IActionResult> GenerujRaportLogowPdf()
     {
         // Wymagane przez twórców biblioteki QuestPDF dla darmowych projektów
@@ -150,4 +259,5 @@ public class AdminController : Controller
         byte[] pdfBytes = document.GeneratePdf();
         return File(pdfBytes, "application/pdf", $"Raport_Audytu_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
     }
+    */
 }
