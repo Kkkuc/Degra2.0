@@ -102,6 +102,8 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
 
     private static int GetSlotIndex(TimeSpan time)
     {
+        if (time >= new TimeSpan(20, 5, 0)) return 13;   
+        if (time >= new TimeSpan(19, 20, 0)) return 12;
         if (time >= new TimeSpan(18, 25, 0)) return 11;
         if (time >= new TimeSpan(17, 40, 0)) return 10;
         if (time >= new TimeSpan(16, 45, 0)) return 9;

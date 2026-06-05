@@ -1,4 +1,31 @@
+<style>
+    /* Wymuszenie stałych proporcji gridu: 1. kolumna na godzinę, reszta po równo */
+    .timetable-grid {
+        display: grid !important;
+        grid-template-columns: 80px repeat(5, minmax(150px, 1fr)) !important;
+        width: 100%;
+    }
 
+    /* Zapobiega rozjeżdżaniu się tekstu w nagłówkach i ucinaniu zawartości */
+    .timetable-grid > div {
+        min-width: 0; /* Bezpiecznik dla flex/grid */
+        word-wrap: break-word;
+    }
+
+    .print-scale-portrait .timetable-grid {
+        grid-template-columns: 55px repeat(5, 1fr) !important;
+        width: 100% !important;
+    }
+    .print-scale-portrait {
+        width: 210mm !important;
+        height: 297mm !important;
+        transform-origin: top left;
+    }
+    
+    #timetable-container {
+        overflow-x: auto;
+    }
+</style>
 
 @{
     Layout = "_Layout";
@@ -148,7 +175,8 @@
         const timeSlotsConfig = [
             "08:30 – 09:15", "09:15 – 10:00", "10:15 – 11:00", "11:00 – 11:45",
             "12:00 – 12:45", "12:45 – 13:30", "14:00 – 14:45", "14:45 – 15:30",
-            "16:00 – 16:45", "16:45 – 17:30", "17:40 – 18:25", "18:25 – 19:10"
+            "16:00 – 16:45", "16:45 – 17:30", "17:40 – 18:25", "18:25 – 19:10",
+            "19:20 – 20:05", "20:05 – 20:50"
         ];
 
         const state = {
@@ -427,34 +455,42 @@
                 alert("Brak danych do wygenerowania planu! Najpierw zastosuj filtry.");
                 return;
             }
+            
+            const innerContainer = element.querySelector('.p-8');
+            if (innerContainer) {
+                innerContainer.classList.remove('p-8');
+            }
 
-            // 1. Dodajemy tymczasową klasę CSS, która drastycznie zmniejsza komponent na potrzeby wydruku
-            // Zmniejszamy paddingi, czcionki i wysokość slotów lekcyjnych
             element.classList.add('print-scale-portrait');
 
             const opt = {
-                margin:       [10, 10, 10, 10], // Marginesy 1cm z każdej strony
+                margin:       0, 
                 filename:     `Plan_Zajec_${state.viewMode}_${new Date().toISOString().slice(0,10)}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  {
+                html2canvas: {
                     scale: 2,
                     useCORS: true,
-                    scrollY: 0
+                    scrollY: 0,
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
                 },
                 jsPDF:        {
                     unit: 'mm',
                     format: 'a4',
-                    orientation: 'portrait' // WYMUSZONY PION
-                }
+                    orientation: 'portrait',
+                    compress: true
+                },
+                pagebreak: { mode: [] }
             };
 
-            // 2. Generujemy PDF, a po zakończeniu (obietnica .then) sprzątamy style, 
-            // żeby użytkownik na ekranie nie dostał zawału od mikroskopijnego planu
+            // Generujemy PDF, a w bloku .then() przywracamy stan pierwotny interfejsu
             html2pdf().set(opt).from(element).save().then(() => {
                 element.classList.remove('print-scale-portrait');
+                if (innerContainer) innerContainer.classList.add('p-8'); // Przywracamy padding na ekranie
             }).catch((err) => {
                 console.error(err);
                 element.classList.remove('print-scale-portrait');
+                if (innerContainer) innerContainer.classList.add('p-8');
             });
         }
 
