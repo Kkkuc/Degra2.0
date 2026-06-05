@@ -8,4 +8,5 @@ public interface IAdminService
     Task<Dictionary<int, string>> GetRolesDropdownListAsync();
     Task<bool> UserExistsAsync(string username);
     Task CreateAccountAsync(CreateAccountDto dto);
+    Task<byte[]> GenerateMonthlyStatsPdfAsync(int rok, int miesiac);
 }
