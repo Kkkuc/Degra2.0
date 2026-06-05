@@ -25,7 +25,9 @@ public class ScraperService : IScraperService
         { 9, (new TimeSpan(16, 0, 0), new TimeSpan(16, 45, 0)) },
         { 10, (new TimeSpan(16, 45, 0), new TimeSpan(17, 30, 0)) },
         { 11, (new TimeSpan(17, 40, 0), new TimeSpan(18, 25, 0)) },
-        { 12, (new TimeSpan(18, 25, 0), new TimeSpan(19, 10, 0)) }
+        { 12, (new TimeSpan(18, 25, 0), new TimeSpan(19, 10, 0)) },
+        { 13, (new TimeSpan(19, 20, 0), new TimeSpan(20, 5, 0)) },
+        { 14, (new TimeSpan(20, 05, 0), new TimeSpan(20, 50, 0)) }
     };
 
     public ScraperService(HttpClient httpClient, AppDbContext context)
@@ -41,104 +43,219 @@ public class ScraperService : IScraperService
 
         await EnsureDataConstraintsAsync();
 
+        var academicTitles = ParseAcademicTitles(doc);
+        await ProcessFieldsOfStudyAsync(doc);
+        await ProcessSpecializationsAsync(doc);
         await ProcessRoomsAsync(doc);
-        await ProcessTeachersAsync(doc);
+        await ProcessTeachersAsync(doc, academicTitles);
         await ProcessSubjectsAsync(doc);
         await ProcessTimetableAsync(doc);
     }
 
     private async Task EnsureDataConstraintsAsync()
     {
-        if (!await _context.Faculties.AnyAsync(f => f.Id == 1))
+        try
         {
-            _context.Faculties.Add(new Faculty
+            if (!await _context.Faculties.AnyAsync(f => f.Id == 1) && !_context.Faculties.Local.Any(f => f.Id == 1))
             {
-                Id = 1,
-                Name = "unknown",
-                Abbreviation = "unidentif"
-            });
-            await _context.SaveChangesAsync();
+                _context.Faculties.Add(new Faculty
+                {
+                    Id = 1,
+                    Name = "Faculty 1",
+                    Abbreviation = "FAC1"
+                });
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            _context.ChangeTracker.Clear();
         }
 
-        if (!await _context.Buildings.AnyAsync(b => b.Id == 1))
+        try
         {
-            _context.Buildings.Add(new Building
+            if (!await _context.Buildings.AnyAsync(b => b.Id == 1) && !_context.Buildings.Local.Any(b => b.Id == 1))
             {
-                Id = 1,
-                Name = "unknown",
-                Street = "unknown",
-                HouseNumber = "unidentif",
-                City = "unknown",
-                PostalCode = "00-000",
-                FacultyId = 1
-            });
-            await _context.SaveChangesAsync();
+                _context.Buildings.Add(new Building
+                {
+                    Id = 1,
+                    Name = "Building 1",
+                    Street = "Imported",
+                    HouseNumber = "1",
+                    City = "Imported",
+                    PostalCode = "00-000",
+                    FacultyId = 1
+                });
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            _context.ChangeTracker.Clear();
         }
 
-        if (!await _context.AcademicYears.AnyAsync(y => y.Id == 1))
+        try
         {
-            _context.AcademicYears.Add(new AcademicYear
+            if (!await _context.AcademicYears.AnyAsync(y => y.Id == 1) && !_context.AcademicYears.Local.Any(y => y.Id == 1))
             {
-                Id = 1,
-                Name = "unknown",
-                StartDate = new DateOnly(2025, 10, 1),
-                EndDate = new DateOnly(2026, 9, 30)
-            });
-            await _context.SaveChangesAsync();
+                _context.AcademicYears.Add(new AcademicYear
+                {
+                    Id = 1,
+                    Name = "2025/2026",
+                    StartDate = new DateOnly(2025, 10, 1),
+                    EndDate = new DateOnly(2026, 9, 30)
+                });
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            _context.ChangeTracker.Clear();
         }
 
-        if (!await _context.Semesters.AnyAsync(s => s.Id == 1))
+        try
         {
-            _context.Semesters.Add(new Semester
+            if (!await _context.Semesters.AnyAsync(s => s.Id == 1) && !_context.Semesters.Local.Any(s => s.Id == 1))
             {
-                Id = 1,
-                AcademicYearId = 1,
-                Name = "unknown",
-                StartDate = new DateOnly(2025, 10, 1),
-                EndDate = new DateOnly(2026, 2, 28)
-            });
-            await _context.SaveChangesAsync();
+                _context.Semesters.Add(new Semester
+                {
+                    Id = 1,
+                    AcademicYearId = 1,
+                    Name = "Semester 1",
+                    StartDate = new DateOnly(2025, 10, 1),
+                    EndDate = new DateOnly(2026, 2, 28)
+                });
+                await _context.SaveChangesAsync();
+            }
         }
-
-        if (!await _context.FieldsOfStudy.AnyAsync(f => f.Id == 1))
+        catch (Exception)
         {
-            _context.FieldsOfStudy.Add(new FieldOfStudy
-            {
-                Id = 1,
-                FacultyId = 1,
-                Name = "unknown",
-                Degree = "unknown",
-                Mode = StudyMode.FullTime
-            });
-            await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
         }
     }
 
-    private async Task ProcessRoomsAsync(XDocument doc)
+    private Dictionary<int, string> ParseAcademicTitles(XDocument doc)
     {
-        var elements = doc.Descendants("tabela_sale");
+        var titles = new Dictionary<int, string>();
+        var elements = doc.Descendants("tabela_tytuly");
+
         foreach (var el in elements)
         {
             var idText = el.Element("ID")?.Value;
             var nameText = el.Element("NAZWA")?.Value;
 
             if (string.IsNullOrWhiteSpace(idText) || !int.TryParse(idText, out int id)) continue;
-            if (await _context.Rooms.AnyAsync(r => r.Id == id)) continue;
+            if (string.IsNullOrWhiteSpace(nameText)) continue;
 
-            _context.Rooms.Add(new Room
-            {
-                Id = id,
-                RoomNumber = string.IsNullOrWhiteSpace(nameText) ? "unknown" : nameText,
-                BuildingId = 1,
-                RoomType = RoomType.Other
-            });
+            titles[id] = nameText;
         }
-        await _context.SaveChangesAsync();
+
+        return titles;
     }
 
-    private async Task ProcessTeachersAsync(XDocument doc)
+    private async Task ProcessFieldsOfStudyAsync(XDocument doc)
+    {
+        var elements = doc.Descendants("tabela_studia");
+        var existingIds = await _context.FieldsOfStudy.Select(f => f.Id).ToHashSetAsync();
+
+        foreach (var el in elements)
+        {
+            var idText = el.Element("ID")?.Value;
+            var nameText = el.Element("NAZWA")?.Value;
+
+            if (string.IsNullOrWhiteSpace(idText) || !int.TryParse(idText, out int id)) continue;
+            if (string.IsNullOrWhiteSpace(nameText)) continue;
+            if (existingIds.Contains(id) || _context.FieldsOfStudy.Local.Any(f => f.Id == id)) continue;
+
+            try
+            {
+                _context.FieldsOfStudy.Add(new FieldOfStudy
+                {
+                    Id = id,
+                    FacultyId = 1,
+                    Name = nameText,
+                    Degree = "Imported",
+                    Mode = StudyMode.FullTime
+                });
+                await _context.SaveChangesAsync();
+                existingIds.Add(id);
+            }
+            catch (Exception)
+            {
+                _context.ChangeTracker.Clear();
+            }
+        }
+    }
+
+    private async Task ProcessSpecializationsAsync(XDocument doc)
+    {
+        var elements = doc.Descendants("tabela_specjalnosci");
+        var existingIds = await _context.Specializations.Select(s => s.Id).ToHashSetAsync();
+
+        foreach (var el in elements)
+        {
+            var idText = el.Element("ID")?.Value;
+            var nameText = el.Element("NAZWA")?.Value;
+
+            if (string.IsNullOrWhiteSpace(idText) || !int.TryParse(idText, out int id)) continue;
+            if (string.IsNullOrWhiteSpace(nameText)) continue;
+            if (existingIds.Contains(id) || _context.Specializations.Local.Any(s => s.Id == id)) continue;
+
+            try
+            {
+                _context.Specializations.Add(new Specialization
+                {
+                    Id = id,
+                    Name = nameText
+                });
+                await _context.SaveChangesAsync();
+                existingIds.Add(id);
+            }
+            catch (Exception)
+            {
+                _context.ChangeTracker.Clear();
+            }
+        }
+    }
+
+    private async Task ProcessRoomsAsync(XDocument doc)
+    {
+        var elements = doc.Descendants("tabela_sale");
+        var existingIds = await _context.Rooms.Select(r => r.Id).ToHashSetAsync();
+
+        foreach (var el in elements)
+        {
+            var idText = el.Element("ID")?.Value;
+            var nameText = el.Element("NAZWA")?.Value;
+
+            if (string.IsNullOrWhiteSpace(idText) || !int.TryParse(idText, out int id)) continue;
+            if (string.IsNullOrWhiteSpace(nameText)) continue;
+            if (existingIds.Contains(id) || _context.Rooms.Local.Any(r => r.Id == id)) continue;
+
+            try
+            {
+                _context.Rooms.Add(new Room
+                {
+                    Id = id,
+                    RoomNumber = nameText,
+                    BuildingId = 1,
+                    RoomType = RoomType.Other
+                });
+                await _context.SaveChangesAsync();
+                existingIds.Add(id);
+            }
+            catch (Exception)
+            {
+                _context.ChangeTracker.Clear();
+            }
+        }
+    }
+
+    private async Task ProcessTeachersAsync(XDocument doc, Dictionary<int, string> academicTitles)
     {
         var elements = doc.Descendants("tabela_nauczyciele");
+        var existingIds = await _context.Teachers.Select(t => t.Id).ToHashSetAsync();
+
         foreach (var el in elements)
         {
             var idText = el.Element("ID")?.Value;
@@ -147,22 +264,42 @@ public class ScraperService : IScraperService
             var academicTitleText = el.Element("ID_TYT")?.Value;
 
             if (string.IsNullOrWhiteSpace(idText) || !int.TryParse(idText, out int id)) continue;
-            if (await _context.Teachers.AnyAsync(t => t.Id == id)) continue;
+            if (string.IsNullOrWhiteSpace(firstNameText) || string.IsNullOrWhiteSpace(lastNameText)) continue;
+            if (existingIds.Contains(id) || _context.Teachers.Local.Any(t => t.Id == id)) continue;
 
-            _context.Teachers.Add(new Teacher
+            string title = "None";
+            if (!string.IsNullOrWhiteSpace(academicTitleText) && int.TryParse(academicTitleText, out int titleId))
             {
-                Id = id,
-                FirstName = string.IsNullOrWhiteSpace(firstNameText) ? "unknown" : firstNameText,
-                LastName = string.IsNullOrWhiteSpace(lastNameText) ? "unknown" : lastNameText,
-                AcademicTitle = string.IsNullOrWhiteSpace(academicTitleText) ? "unknown" : academicTitleText
-            });
+                if (academicTitles.TryGetValue(titleId, out var titleName))
+                {
+                    title = titleName;
+                }
+            }
+
+            try
+            {
+                _context.Teachers.Add(new Teacher
+                {
+                    Id = id,
+                    FirstName = firstNameText,
+                    LastName = lastNameText,
+                    AcademicTitle = title
+                });
+                await _context.SaveChangesAsync();
+                existingIds.Add(id);
+            }
+            catch (Exception)
+            {
+                _context.ChangeTracker.Clear();
+            }
         }
-        await _context.SaveChangesAsync();
     }
 
     private async Task ProcessSubjectsAsync(XDocument doc)
     {
         var elements = doc.Descendants("tabela_przedmioty");
+        var existingIds = await _context.Subjects.Select(s => s.Id).ToHashSetAsync();
+
         foreach (var el in elements)
         {
             var idText = el.Element("ID")?.Value;
@@ -170,25 +307,50 @@ public class ScraperService : IScraperService
             var abbrText = el.Element("NAZ_SK")?.Value;
 
             if (string.IsNullOrWhiteSpace(idText) || !int.TryParse(idText, out int id)) continue;
-            if (await _context.Subjects.AnyAsync(s => s.Id == id)) continue;
+            if (string.IsNullOrWhiteSpace(nameText)) continue;
+            if (existingIds.Contains(id) || _context.Subjects.Local.Any(s => s.Id == id)) continue;
 
-            string finalName = string.IsNullOrWhiteSpace(nameText) ? "unknown" : nameText;
-            string finalAbbr = string.IsNullOrWhiteSpace(abbrText) ? "unknown" : abbrText;
-
-            _context.Subjects.Add(new Subject
+            string finalAbbr = string.IsNullOrWhiteSpace(abbrText) ? nameText : abbrText;
+            if (finalAbbr.Length > 20)
             {
-                Id = id,
-                Name = finalName,
-                Abbreviation = finalAbbr,
-                Code = "IMPORTED"
-            });
+                finalAbbr = finalAbbr.Substring(0, 20);
+            }
+
+            try
+            {
+                _context.Subjects.Add(new Subject
+                {
+                    Id = id,
+                    Name = nameText,
+                    Abbreviation = finalAbbr,
+                    Code = "IMPORTED"
+                });
+                await _context.SaveChangesAsync();
+                existingIds.Add(id);
+            }
+            catch (Exception)
+            {
+                _context.ChangeTracker.Clear();
+            }
         }
-        await _context.SaveChangesAsync();
     }
 
     private async Task ProcessTimetableAsync(XDocument doc)
     {
+        var rooms = await _context.Rooms.Select(r => r.Id).ToHashSetAsync();
+        var teachers = await _context.Teachers.Select(t => t.Id).ToHashSetAsync();
+        var subjects = await _context.Subjects.Select(s => s.Id).ToHashSetAsync();
+        var fields = await _context.FieldsOfStudy.Select(f => f.Id).ToHashSetAsync();
+        var semesters = await _context.Semesters.Select(s => s.Id).ToHashSetAsync();
+        var specializations = await _context.Specializations.Select(s => s.Id).ToHashSetAsync();
+        var groups = await _context.Groups.Select(g => g.Id).ToHashSetAsync();
+
+        var timetables = await _context.Timetables
+            .Select(t => new { t.SubjectId, t.TeacherId, t.RoomId, t.GroupId, t.ClassType, t.DayOfWeek, t.StartTime, t.EndTime, t.WeekCycle })
+            .ToHashSetAsync();
+
         var elements = doc.Descendants("tabela_rozklad");
+
         foreach (var el in elements)
         {
             var prjIdText = el.Element("ID_PRZ")?.Value;
@@ -216,6 +378,42 @@ public class ScraperService : IScraperService
                 !int.TryParse(stIdText, out int fieldOfStudyId))
             {
                 continue;
+            }
+
+            if (!rooms.Contains(roomId) || 
+                !teachers.Contains(tchrId) || 
+                !subjects.Contains(prjId) || 
+                !fields.Contains(fieldOfStudyId))
+            {
+                continue;
+            }
+
+            if (!semesters.Contains(semesterId) && !_context.Semesters.Local.Any(s => s.Id == semesterId))
+            {
+                try
+                {
+                    _context.Semesters.Add(new Semester
+                    {
+                        Id = semesterId,
+                        AcademicYearId = 1,
+                        Name = $"Semester {semesterId}",
+                        StartDate = new DateOnly(2025, 10, 1),
+                        EndDate = new DateOnly(2026, 2, 28)
+                    });
+                    await _context.SaveChangesAsync();
+                    semesters.Add(semesterId);
+                }
+                catch (Exception)
+                {
+                    _context.ChangeTracker.Clear();
+                }
+            }
+
+            int? finalizedSpecializationId = null;
+            if (specId > 0)
+            {
+                if (!specializations.Contains(specId)) continue;
+                finalizedSpecializationId = specId;
             }
 
             if (!TimeBlocks.TryGetValue(hourBlock, out var startBlock) || 
@@ -249,109 +447,44 @@ public class ScraperService : IScraperService
                 _ => ClassType.Lecture
             };
 
-            if (!await _context.FieldsOfStudy.AnyAsync(f => f.Id == fieldOfStudyId))
+            if (!groups.Contains(groupId) && !_context.Groups.Local.Any(g => g.Id == groupId))
             {
-                _context.FieldsOfStudy.Add(new FieldOfStudy
+                try
                 {
-                    Id = fieldOfStudyId,
-                    FacultyId = 1,
-                    Name = "unknown",
-                    Degree = "unknown",
-                    Mode = StudyMode.FullTime
-                });
-                await _context.SaveChangesAsync();
-            }
-
-            if (!await _context.Semesters.AnyAsync(s => s.Id == semesterId))
-            {
-                _context.Semesters.Add(new Semester
-                {
-                    Id = semesterId,
-                    AcademicYearId = 1,
-                    Name = "unknown",
-                    StartDate = new DateOnly(2025, 10, 1),
-                    EndDate = new DateOnly(2026, 2, 28)
-                });
-                await _context.SaveChangesAsync();
-            }
-
-            int? finalizedSpecializationId = null;
-            if (specId > 0)
-            {
-                if (!await _context.Specializations.AnyAsync(s => s.Id == specId))
-                {
-                    _context.Specializations.Add(new Specialization
+                    _context.Groups.Add(new Group
                     {
-                        Id = specId,
-                        Name = "unknown"
+                        Id = groupId,
+                        Name = $"Group {groupId}",
+                        ClassType = classType,
+                        SemesterId = semesterId,
+                        FieldOfStudyId = fieldOfStudyId,
+                        SpecializationId = finalizedSpecializationId
                     });
                     await _context.SaveChangesAsync();
+                    groups.Add(groupId);
                 }
-                finalizedSpecializationId = specId;
+                catch (Exception)
+                {
+                    _context.ChangeTracker.Clear();
+                }
             }
 
-            if (!await _context.Groups.AnyAsync(g => g.Id == groupId))
-            {
-                _context.Groups.Add(new Group 
-                { 
-                    Id = groupId, 
-                    Name = "unknown", 
-                    ClassType = classType,
-                    SemesterId = semesterId,
-                    FieldOfStudyId = fieldOfStudyId,
-                    SpecializationId = finalizedSpecializationId
-                });
-                await _context.SaveChangesAsync();
-            }
+            var key = new 
+            { 
+                SubjectId = prjId, 
+                TeacherId = tchrId, 
+                RoomId = roomId, 
+                GroupId = groupId, 
+                ClassType = classType, 
+                DayOfWeek = day, 
+                StartTime = startTime, 
+                EndTime = endTime, 
+                WeekCycle = weekCycle 
+            };
 
-            if (!await _context.Teachers.AnyAsync(t => t.Id == tchrId))
-            {
-                _context.Teachers.Add(new Teacher 
-                { 
-                    Id = tchrId, 
-                    FirstName = "unknown", 
-                    LastName = "unknown",
-                    AcademicTitle = "unknown"
-                });
-                await _context.SaveChangesAsync();
-            }
+            if (timetables.Contains(key)) continue;
 
-            if (!await _context.Rooms.AnyAsync(r => r.Id == roomId))
-            {
-                _context.Rooms.Add(new Room 
-                { 
-                    Id = roomId, 
-                    RoomNumber = "unknown", 
-                    BuildingId = 1, 
-                    RoomType = RoomType.Other 
-                });
-                await _context.SaveChangesAsync();
-            }
-
-            if (!await _context.Subjects.AnyAsync(s => s.Id == prjId))
-            {
-                _context.Subjects.Add(new Subject 
-                { 
-                    Id = prjId, 
-                    Name = "unknown", 
-                    Abbreviation = "unknown", 
-                    Code = "IMPORTED" 
-                });
-                await _context.SaveChangesAsync();
-            }
-
-            bool timetableExists = await _context.Timetables.AnyAsync(t =>
-                t.SubjectId == prjId &&
-                t.TeacherId == tchrId &&
-                t.RoomId == roomId &&
-                t.GroupId == groupId &&
-                t.ClassType == classType &&
-                t.DayOfWeek == day &&
-                t.StartTime == startTime &&
-                t.EndTime == endTime &&
-                t.WeekCycle == weekCycle);
-
-            if (!timetableExists)
+            try
             {
                 _context.Timetables.Add(new Timetable
                 {
@@ -365,8 +498,13 @@ public class ScraperService : IScraperService
                     EndTime = endTime,
                     WeekCycle = weekCycle
                 });
+                await _context.SaveChangesAsync();
+                timetables.Add(key);
+            }
+            catch (Exception)
+            {
+                _context.ChangeTracker.Clear();
             }
         }
-        await _context.SaveChangesAsync();
     }
 }
