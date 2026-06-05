@@ -56,6 +56,29 @@
         </div>
     </div>
 
+    <div style="background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; max-width: 450px;">
+        <form asp-controller="Admin" asp-action="GenerateMonthlyStats" method="get" target="_blank">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 13px; font-weight: bold;">Rok:</label>
+                    <input type="number" name="rok" value="@DateTime.Now.Year" min="2024" max="2030" style="width: 100%; padding: 6px;" />
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 13px; font-weight: bold;">Miesiąc:</label>
+                    <select name="miesiac" style="width: 100%; padding: 6px;">
+                        @for (int i = 1; i <= 12; i++)
+                        {
+                            <option value="@i" selected="@(i == DateTime.Now.Month)">@i (@(new DateTime(2000, i, 1).ToString("MMMM")))</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 10px 15px; cursor: pointer; width: 100%; border-radius: 4px; font-weight: bold;">
+                Wygeneruj Raport Zmian
+            </button>
+        </form>
+    </div>
+    
     <div id="tab-users" class="tab-content hidden">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
