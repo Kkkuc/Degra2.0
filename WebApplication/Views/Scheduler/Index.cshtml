@@ -1,49 +1,51 @@
+
+
 @{
-Layout = "_Layout";
+    Layout = "_Layout";
 }
 
 @if (User.IsInRole("Moderator"))
 {
-<li>
-    <a asp-controller="Admin" asp-action="Index" style="color: purple; font-weight: bold;">
-        Panel Administratora (Zarządzaj Użytkownikami)
-    </a>
-</li>
+    <li>
+        <a asp-controller="Admin" asp-action="Index" style="color: purple; font-weight: bold;">
+            Panel Administratora (Zarządzaj Użytkownikami)
+        </a>
+    </li>
 }
 
 @section HeaderLeft {
-<div class="flex items-center gap-2">
-    <button onclick="navigateDate(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-        <i data-lucide="chevron-left" class="w-5 h-5"></i>
-    </button>
-    <h2 id="current-date-display" class="min-w-[220px] text-center font-semibold text-lg"></h2>
-    <button onclick="navigateDate(1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-        <i data-lucide="chevron-right" class="w-5 h-5"></i>
-    </button>
-</div>
+    <div class="flex items-center gap-2">
+        <button onclick="navigateDate(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <h2 id="current-date-display" class="min-w-[220px] text-center font-semibold text-lg"></h2>
+        <button onclick="navigateDate(1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+    </div>
 }
 
 @section HeaderRight {
-<div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
-    <button onclick="setMode('week')" id="mode-week"
-            class="px-4 py-2 rounded-lg transition-all bg-white dark:bg-gray-700 shadow-sm">Week
+    <div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+        <button onclick="setMode('week')" id="mode-week"
+                class="px-4 py-2 rounded-lg transition-all bg-white dark:bg-gray-700 shadow-sm">Week
+        </button>
+        <button onclick="setMode('month')" id="mode-month"
+                class="px-4 py-2 rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-gray-600">Month
+        </button>
+    </div>
+    <button onclick="goToday()"
+            class="px-5 py-2.5 bg-primary-custom rounded-xl hover:opacity-90 transition-opacity shadow-sm">Today
     </button>
-    <button onclick="setMode('month')" id="mode-month"
-            class="px-4 py-2 rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-gray-600">Month
-    </button>
-</div>
-<button onclick="goToday()"
-        class="px-5 py-2.5 bg-primary-custom rounded-xl hover:opacity-90 transition-opacity shadow-sm">Today
-</button>
 }
 
 @section SidebarExtra {
-<div class="flex-1 overflow-hidden flex flex-col">
-    <div class="flex items-center justify-between px-4 mb-4">
-        <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">My Subjects</h4>
+    <div class="flex-1 overflow-hidden flex flex-col">
+        <div class="flex items-center justify-between px-4 mb-4">
+            <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">My Subjects</h4>
+        </div>
+        <div id="subject-list" class="space-y-1 overflow-y-auto flex-1"></div>
     </div>
-    <div id="subject-list" class="space-y-1 overflow-y-auto flex-1"></div>
-</div>
 }
 
 <div class="px-8 pt-8">
@@ -69,34 +71,52 @@ Layout = "_Layout";
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div class="flex flex-wrap gap-2">
                     <div class="w-24">
-                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Lecture</label>
-                        <input type="text" name="gW" placeholder="No." class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
+                        <label
+                            class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Lecture</label>
+                        <input type="text" name="gW" placeholder="No."
+                               class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
                     </div>
                     <div class="w-24">
-                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Exercise</label>
-                        <input type="text" name="gC" placeholder="No." class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
+                        <label
+                            class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Exercise</label>
+                        <input type="text" name="gC" placeholder="No."
+                               class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
                     </div>
                     <div class="w-24">
-                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Laboratory</label>
-                        <input type="text" name="gL" placeholder="No." class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
+                        <label
+                            class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Laboratory</label>
+                        <input type="text" name="gL" placeholder="No."
+                               class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
                     </div>
                     <div class="w-24">
-                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Spec. Lab</label>
-                        <input type="text" name="gPs" placeholder="No." class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
+                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Spec.
+                            Lab</label>
+                        <input type="text" name="gPs" placeholder="No."
+                               class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
                     </div>
                     <div class="w-24">
-                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Project</label>
-                        <input type="text" name="gP" placeholder="No." class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
+                        <label
+                            class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Project</label>
+                        <input type="text" name="gP" placeholder="No."
+                               class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
                     </div>
                     <div class="w-24">
-                        <label class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Seminar</label>
-                        <input type="text" name="gS" placeholder="No." class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
+                        <label
+                            class="block text-[10px] text-center font-bold text-gray-400 mb-1 uppercase">Seminar</label>
+                        <input type="text" name="gS" placeholder="No."
+                               class="w-full px-2 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm text-center focus:ring-2 focus:ring-blue-500/20"/>
                     </div>
                 </div>
-                <button type="submit"
-                        class="px-10 py-2 bg-primary-custom text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all">
-                    Apply Schedule
-                </button>
+                <div class="flex flex-wrap gap-2">
+                </div>
+                <div class="flex gap-3"> <button type="submit" class="px-10 py-2 bg-primary-custom text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-all">
+                        Apply Schedule
+                    </button>
+        
+                    <button type="button" onclick="exportTimetableToPDF()" class="px-6 py-2 bg-gray-600 text-white font-bold rounded-xl shadow-lg hover:bg-gray-700 transition-all flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Pobierz PDF
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -120,181 +140,185 @@ Layout = "_Layout";
 </div>
 
 @section Scripts {
-<script>
-    const STORAGE_KEY = 'scheduler_cache';
-    const TTL = 3600000;
+    <script>
+        const STORAGE_KEY = 'scheduler_cache';
+        const TTL = 3600000;
 
-    // Stałe sloty godzinowe w JS zamiast pobierania z C# Modelu
-    const timeSlotsConfig = [
-        "08:30 – 09:15", "09:15 – 10:00", "10:15 – 11:00", "11:00 – 11:45",
-        "12:00 – 12:45", "12:45 – 13:30", "14:00 – 14:45", "14:45 – 15:30",
-        "16:00 – 16:45", "16:45 – 17:30", "17:40 – 18:25", "18:25 – 19:10"
-    ];
+        // Stałe sloty godzinowe w JS zamiast pobierania z C# Modelu
+        const timeSlotsConfig = [
+            "08:30 – 09:15", "09:15 – 10:00", "10:15 – 11:00", "11:00 – 11:45",
+            "12:00 – 12:45", "12:45 – 13:30", "14:00 – 14:45", "14:45 – 15:30",
+            "16:00 – 16:45", "16:45 – 17:30", "17:40 – 18:25", "18:25 – 19:10"
+        ];
 
-    const state = {
-        viewMode: 'week',
-        currentDate: new Date(),
-        lessons: [],
-        subjects: [],
-        timeSlots: timeSlotsConfig,
-        enabledSubjectIds: []
-    };
+        const state = {
+            viewMode: 'week',
+            currentDate: new Date(),
+            lessons: [],
+            subjects: [],
+            timeSlots: timeSlotsConfig,
+            enabledSubjectIds: []
+        };
 
-    // Ładowanie słowników filtrów z API
-    async function loadFiltersDropdowns() {
-        try {
-            const response = await fetch('/api/scheduler/filters');
-            if (!response.ok) throw new Error("Nie udało się pobrać słowników.");
-            const data = await response.json();
+        // Ładowanie słowników filtrów z API
+        async function loadFiltersDropdowns() {
+            try {
+                const response = await fetch('/api/scheduler/filters');
+                if (!response.ok) throw new Error("Nie udało się pobrać słowników.");
+                const data = await response.json();
 
-            const fieldSelect = document.getElementById('field-select');
-            const semesterSelect = document.getElementById('semester-select');
+                const fieldSelect = document.getElementById('field-select');
+                const semesterSelect = document.getElementById('semester-select');
 
-            const savedField = localStorage.getItem('filter_fieldId');
-            const savedSem = localStorage.getItem('filter_semId');
+                const savedField = localStorage.getItem('filter_fieldId');
+                const savedSem = localStorage.getItem('filter_semId');
 
-            data.fieldsOfStudy.forEach(f => {
-                const opt = new Option(f.name, f.id, false, f.id.toString() === savedField);
-                fieldSelect.add(opt);
-            });
-
-            data.semesters.forEach(s => {
-                const opt = new Option(s.name, s.id, false, s.id.toString() === savedSem);
-                semesterSelect.add(opt);
-            });
-        } catch (err) {
-            console.error("Błąd ładowania list rozwijanych:", err);
-        }
-    }
-
-    // Pobieranie właściwych lekcji planu
-    async function fetchScheduleData(queryString = "") {
-        try {
-            const response = await fetch(`/api/scheduler${queryString}`);
-            if (!response.ok) throw new Error("Błąd sieciowy API");
-            const data = await response.json();
-
-            state.lessons = data.lessons || [];
-            state.subjects = data.subjects || [];
-
-            const savedSubjects = localStorage.getItem('selectedSubjectIds');
-            state.enabledSubjectIds = savedSubjects ?
-                JSON.parse(savedSubjects) : state.subjects.map(s => parseInt(s.id));
-
-            saveToCache(state.lessons, state.subjects);
-            render();
-        } catch (err) {
-            console.error("Problem przy pobieraniu danych planu:", err);
-            const cachedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            if (cachedData) {
-                state.lessons = cachedData.lessons;
-                state.subjects = cachedData.subjects;
-                render();
-            }
-        }
-    }
-
-    async function applyFilters(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const params = new URLSearchParams(formData);
-
-        params.forEach((value, key) => {
-            localStorage.setItem(`filter_${key}`, value);
-        });
-
-        await fetchScheduleData(`?${params.toString()}`);
-    }
-
-    function saveToCache(lessons, subjects) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            lessons, subjects, timestamp: Date.now()
-        }));
-    }
-
-    function initPersistence() {
-        const filterFields = ['fieldId', 'semId', 'gW', 'gC', 'gL', 'gPs', 'gP', 'gS'];
-        const params = new URLSearchParams();
-
-        filterFields.forEach(name => {
-            const val = localStorage.getItem(`filter_${name}`);
-            const element = document.querySelector(`[name="${name}"]`);
-            if (val !== null) {
-                params.set(name, val);
-                if (element) element.value = val;
-            }
-        });
-
-        filterFields.forEach(name => {
-            const element = document.querySelector(`[name="${name}"]`);
-            if (element) {
-                element.addEventListener('input', () => {
-                    localStorage.setItem(`filter_${name}`, element.value);
+                data.fieldsOfStudy.forEach(f => {
+                    const opt = new Option(f.name, f.id, false, f.id.toString() === savedField);
+                    fieldSelect.add(opt);
                 });
+
+                data.semesters.forEach(s => {
+                    const opt = new Option(s.name, s.id, false, s.id.toString() === savedSem);
+                    semesterSelect.add(opt);
+                });
+            } catch (err) {
+                console.error("Błąd ładowania list rozwijanych:", err);
             }
-        });
-
-        const queryStr = params.toString() ? `?${params.toString()}` : "";
-        fetchScheduleData(queryStr);
-    }
-
-    function toggleSubject(id) {
-        const numericId = parseInt(id);
-        const index = state.enabledSubjectIds.indexOf(numericId);
-        if (index > -1) {
-            state.enabledSubjectIds.splice(index, 1);
-        } else {
-            state.enabledSubjectIds.push(numericId);
         }
-        localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
-        render();
-    }
 
-    function setMode(mode) {
-        state.viewMode = mode;
-        document.getElementById('mode-week').classList.toggle('bg-white', mode === 'week');
-        document.getElementById('mode-month').classList.toggle('bg-white', mode === 'month');
-        render();
-    }
+        // Pobieranie właściwych lekcji planu
+        async function fetchScheduleData(queryString = "") {
+            try {
+                const response = await fetch(`/api/scheduler${queryString}`);
+                if (!response.ok) throw new Error("Błąd sieciowy API");
+                const data = await response.json();
 
-    // ... Reszta Twoich niezmienionych funkcji renderujących (navigateDate, goToday, renderHeader, renderSidebar, showLessonDetails, renderTimetable, renderMonth)
-    function navigateDate(dir) {
-        if (state.viewMode === 'week') {
-            state.currentDate.setDate(state.currentDate.getDate() + (dir * 7));
-        } else {
-            state.currentDate.setMonth(state.currentDate.getMonth() + dir);
+                state.lessons = data.lessons || [];
+                state.subjects = data.subjects || [];
+
+                const savedSubjects = localStorage.getItem('selectedSubjectIds');
+                state.enabledSubjectIds = savedSubjects ?
+                    JSON.parse(savedSubjects) : state.subjects.map(s => parseInt(s.id));
+
+                saveToCache(state.lessons, state.subjects);
+                render();
+            } catch (err) {
+                console.error("Problem przy pobieraniu danych planu:", err);
+                const cachedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (cachedData) {
+                    state.lessons = cachedData.lessons;
+                    state.subjects = cachedData.subjects;
+                    render();
+                }
+            }
         }
-        render();
-    }
 
-    function goToday() {
-        state.currentDate = new Date();
-        render();
-    }
+        async function applyFilters(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const params = new URLSearchParams(formData);
 
-    function renderHeader() {
-        const display = document.getElementById('current-date-display');
-        const options = state.viewMode === 'week' ? { month: 'short', day: 'numeric', year: 'numeric' } : {month: 'long', year: 'numeric'};
-        display.innerText = state.viewMode === 'week' ? `Week of ${state.currentDate.toLocaleDateString(undefined, options)}` : state.currentDate.toLocaleDateString(undefined, options);
-    }
+            params.forEach((value, key) => {
+                localStorage.setItem(`filter_${key}`, value);
+            });
 
-    function renderSidebar() {
-        const list = document.getElementById('subject-list');
-        if (!list) return;
-        list.innerHTML = state.subjects.map(s => {
-            const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
-            return `
+            await fetchScheduleData(`?${params.toString()}`);
+        }
+
+        function saveToCache(lessons, subjects) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                lessons, subjects, timestamp: Date.now()
+            }));
+        }
+
+        function initPersistence() {
+            const filterFields = ['fieldId', 'semId', 'gW', 'gC', 'gL', 'gPs', 'gP', 'gS'];
+            const params = new URLSearchParams();
+
+            filterFields.forEach(name => {
+                const val = localStorage.getItem(`filter_${name}`);
+                const element = document.querySelector(`[name="${name}"]`);
+                if (val !== null) {
+                    params.set(name, val);
+                    if (element) element.value = val;
+                }
+            });
+
+            filterFields.forEach(name => {
+                const element = document.querySelector(`[name="${name}"]`);
+                if (element) {
+                    element.addEventListener('input', () => {
+                        localStorage.setItem(`filter_${name}`, element.value);
+                    });
+                }
+            });
+
+            const queryStr = params.toString() ? `?${params.toString()}` : "";
+            fetchScheduleData(queryStr);
+        }
+
+        function toggleSubject(id) {
+            const numericId = parseInt(id);
+            const index = state.enabledSubjectIds.indexOf(numericId);
+            if (index > -1) {
+                state.enabledSubjectIds.splice(index, 1);
+            } else {
+                state.enabledSubjectIds.push(numericId);
+            }
+            localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
+            render();
+        }
+
+        function setMode(mode) {
+            state.viewMode = mode;
+            document.getElementById('mode-week').classList.toggle('bg-white', mode === 'week');
+            document.getElementById('mode-month').classList.toggle('bg-white', mode === 'month');
+            render();
+        }
+
+        // ... Reszta Twoich niezmienionych funkcji renderujących (navigateDate, goToday, renderHeader, renderSidebar, showLessonDetails, renderTimetable, renderMonth)
+        function navigateDate(dir) {
+            if (state.viewMode === 'week') {
+                state.currentDate.setDate(state.currentDate.getDate() + (dir * 7));
+            } else {
+                state.currentDate.setMonth(state.currentDate.getMonth() + dir);
+            }
+            render();
+        }
+
+        function goToday() {
+            state.currentDate = new Date();
+            render();
+        }
+
+        function renderHeader() {
+            const display = document.getElementById('current-date-display');
+            const options = state.viewMode === 'week' ? {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            } : {month: 'long', year: 'numeric'};
+            display.innerText = state.viewMode === 'week' ? `Week of ${state.currentDate.toLocaleDateString(undefined, options)}` : state.currentDate.toLocaleDateString(undefined, options);
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('subject-list');
+            if (!list) return;
+            list.innerHTML = state.subjects.map(s => {
+                const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
+                return `
                 <div onclick="toggleSubject('${s.id}')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sidebar-accent/50 cursor-pointer transition-colors ${isActive ? '' : 'opacity-40 grayscale'}">
                     <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${s.color}"></div>
                     <span class="text-sm font-medium">${s.name}</span>
                 </div>`;
-        }).join('');
-    }
+            }).join('');
+        }
 
-    function showLessonDetails(dayIdx, slotIdx) {
-        const filteredLessons = state.lessons.filter(l => l.day === dayIdx && l.startSlot === slotIdx && state.enabledSubjectIds.includes(l.subjectId));
-        const content = document.getElementById('modal-content');
-        content.innerHTML = filteredLessons.map(l => `
+        function showLessonDetails(dayIdx, slotIdx) {
+            const filteredLessons = state.lessons.filter(l => l.day === dayIdx && l.startSlot === slotIdx && state.enabledSubjectIds.includes(l.subjectId));
+            const content = document.getElementById('modal-content');
+            content.innerHTML = filteredLessons.map(l => `
                 <div class="p-4 rounded-xl border-l-4 shadow-sm bg-gray-50 dark:bg-gray-800/30" style="border-left-color: ${l.color}">
                     <div class="font-bold text-lg">${l.subject}</div>
                     <div class="grid grid-cols-1 gap-2 mt-3">
@@ -304,36 +328,45 @@ Layout = "_Layout";
                     </div>
                 </div>
             `).join('');
-        document.getElementById('lesson-modal').classList.remove('hidden');
-        lucide.createIcons();
-    }
-
-    function closeModal() { document.getElementById('lesson-modal').classList.add('hidden'); }
-    function handleOutsideClick(e) { if (e.target.id === 'lesson-modal') closeModal(); }
-
-    function renderTimetable(container) {
-        const weekStart = new Date(state.currentDate);
-        weekStart.setDate(weekStart.getDate() - (weekStart.getDay() === 0 ? 6 : weekStart.getDay() - 1));
-        let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden">`;
-        html += `<div class="timetable-grid border-b border-border sticky top-0 bg-card z-20"><div class="p-5 border-r border-border"></div>`;
-        for (let i = 0; i < 5; i++) {
-            const d = new Date(weekStart); d.setDate(d.getDate() + i);
-            html += `<div class="p-5 text-center border-r border-border last:border-r-0">
-                    <div class="font-medium">${d.toLocaleDateString(undefined, {weekday: 'long'})}</div>
-                    <div class="text-sm text-gray-500">${d.toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</div>
-                </div>`;
+            document.getElementById('lesson-modal').classList.remove('hidden');
+            lucide.createIcons();
         }
-        html += `</div>`;
-        state.timeSlots.forEach((time, slotIdx) => {
-            html += `<div class="timetable-grid">
+
+        function closeModal() {
+            document.getElementById('lesson-modal').classList.add('hidden');
+        }
+
+        function handleOutsideClick(e) {
+            if (e.target.id === 'lesson-modal') closeModal();
+        }
+
+        function renderTimetable(container) {
+            const weekStart = new Date(state.currentDate);
+            weekStart.setDate(weekStart.getDate() - (weekStart.getDay() === 0 ? 6 : weekStart.getDay() - 1));
+            let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden">`;
+            html += `<div class="timetable-grid border-b border-border sticky top-0 bg-card z-20"><div class="p-5 border-r border-border"></div>`;
+            for (let i = 0; i < 5; i++) {
+                const d = new Date(weekStart);
+                d.setDate(d.getDate() + i);
+                html += `<div class="p-5 text-center border-r border-border last:border-r-0">
+                    <div class="font-medium">${d.toLocaleDateString(undefined, {weekday: 'long'})}</div>
+                    <div class="text-sm text-gray-500">${d.toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric'
+                })}</div>
+                </div>`;
+            }
+            html += `</div>`;
+            state.timeSlots.forEach((time, slotIdx) => {
+                html += `<div class="timetable-grid">
                     <div class="border-r border-border px-5 py-4 text-xs text-gray-500 flex items-center bg-card sticky left-0">${time.split(' – ')[0]}</div>`;
-            for (let dayIdx = 0; dayIdx < 5; dayIdx++) {
-                html += `<div class="border-r border-border last:border-r-0 relative time-slot">`;
-                const filteredLessons = state.lessons.filter(l => l.day === dayIdx && l.startSlot === slotIdx && state.enabledSubjectIds.includes(l.subjectId));
-                if (filteredLessons.length > 0) {
-                    const l = filteredLessons[0];
-                    const count = filteredLessons.length;
-                    html += `
+                for (let dayIdx = 0; dayIdx < 5; dayIdx++) {
+                    html += `<div class="border-r border-border last:border-r-0 relative time-slot">`;
+                    const filteredLessons = state.lessons.filter(l => l.day === dayIdx && l.startSlot === slotIdx && state.enabledSubjectIds.includes(l.subjectId));
+                    if (filteredLessons.length > 0) {
+                        const l = filteredLessons[0];
+                        const count = filteredLessons.length;
+                        html += `
                     <div onclick="showLessonDetails(${dayIdx}, ${slotIdx})" 
                         class="absolute inset-x-2 top-2 z-10 p-3 rounded-xl border-l-4 shadow-sm bg-opacity-10 cursor-pointer hover:scale-[1.02] transition-transform" 
                              style="background-color: ${l.color}20; border-color: ${l.color}40; border-left-color: ${l.color}; height: ${l.duration * 60 - 10}px">
@@ -342,48 +375,89 @@ Layout = "_Layout";
                             </div>
                             <div class="text-xs text-gray-500">${l.teacher} - ${l.room}</div>
                         </div>`;
+                    }
+                    html += `</div>`;
                 }
                 html += `</div>`;
-            }
-            html += `</div>`;
-        });
-        html += `</div></div>`;
-        container.innerHTML = html;
-    }
+            });
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
 
-    function renderMonth(container) {
-        const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden"><div class="grid grid-cols-7 border-b border-border">`;
-        weekDays.forEach(wd => html += `<div class="p-5 text-center font-medium text-gray-500 border-r border-border last:border-r-0">${wd}</div>`);
-        html += `</div><div class="grid grid-cols-7">`;
-        const start = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
-        start.setDate(start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1));
-        for (let i = 0; i < 35; i++) {
-            const d = new Date(start); d.setDate(d.getDate() + i);
-            const isCurrentMonth = d.getMonth() === state.currentDate.getMonth();
-            html += `<div class="min-h-[120px] p-4 border-r border-b border-border ${!isCurrentMonth ? 'bg-gray-50 opacity-50' : ''}">
+        function renderMonth(container) {
+            const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+            let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden"><div class="grid grid-cols-7 border-b border-border">`;
+            weekDays.forEach(wd => html += `<div class="p-5 text-center font-medium text-gray-500 border-r border-border last:border-r-0">${wd}</div>`);
+            html += `</div><div class="grid grid-cols-7">`;
+            const start = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
+            start.setDate(start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1));
+            for (let i = 0; i < 35; i++) {
+                const d = new Date(start);
+                d.setDate(d.getDate() + i);
+                const isCurrentMonth = d.getMonth() === state.currentDate.getMonth();
+                html += `<div class="min-h-[120px] p-4 border-r border-b border-border ${!isCurrentMonth ? 'bg-gray-50 opacity-50' : ''}">
                     <div class="w-8 h-8 flex items-center justify-center font-medium mb-2">${d.getDate()}</div>
                 </div>`;
+            }
+            container.innerHTML = html + `</div></div></div>`;
         }
-        container.innerHTML = html + `</div></div></div>`;
-    }
 
-    function render() {
-        renderHeader();
-        renderSidebar();
-        const container = document.getElementById('timetable-container');
-        if (!container) return;
-        if (state.viewMode === 'month') renderMonth(container);
-        else renderTimetable(container);
-        lucide.createIcons();
-    }
+        function render() {
+            renderHeader();
+            renderSidebar();
+            const container = document.getElementById('timetable-container');
+            if (!container) return;
+            if (state.viewMode === 'month') renderMonth(container);
+            else renderTimetable(container);
+            lucide.createIcons();
+        }
 
-    // Cykl startowy
-    async function initApp() {
-        await loadFiltersDropdowns();
-        initPersistence();
-    }
+        // Cykl startowy
+        async function initApp() {
+            await loadFiltersDropdowns();
+            initPersistence();
+        }
 
-    document.addEventListener("DOMContentLoaded", initApp);
-</script>
+        document.addEventListener("DOMContentLoaded", initApp);
+
+        function exportTimetableToPDF() {
+            const element = document.getElementById('timetable-container');
+
+            if (!element || element.innerText.trim() === "") {
+                alert("Brak danych do wygenerowania planu! Najpierw zastosuj filtry.");
+                return;
+            }
+
+            // 1. Dodajemy tymczasową klasę CSS, która drastycznie zmniejsza komponent na potrzeby wydruku
+            // Zmniejszamy paddingi, czcionki i wysokość slotów lekcyjnych
+            element.classList.add('print-scale-portrait');
+
+            const opt = {
+                margin:       [10, 10, 10, 10], // Marginesy 1cm z każdej strony
+                filename:     `Plan_Zajec_${state.viewMode}_${new Date().toISOString().slice(0,10)}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  {
+                    scale: 2,
+                    useCORS: true,
+                    scrollY: 0
+                },
+                jsPDF:        {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait' // WYMUSZONY PION
+                }
+            };
+
+            // 2. Generujemy PDF, a po zakończeniu (obietnica .then) sprzątamy style, 
+            // żeby użytkownik na ekranie nie dostał zawału od mikroskopijnego planu
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.classList.remove('print-scale-portrait');
+            }).catch((err) => {
+                console.error(err);
+                element.classList.remove('print-scale-portrait');
+            });
+        }
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 }
