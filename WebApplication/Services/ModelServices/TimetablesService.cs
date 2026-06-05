@@ -22,7 +22,9 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
                 GroupName = t.Group != null ? t.Group.Name : string.Empty,
                 RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
                 SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
-                TeacherName = t.Teacher != null ? t.Teacher.FirstName : string.Empty
+                TeacherName = t.Teacher != null 
+                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}" 
+                    : string.Empty
             })
             .ToListAsync();
     }
@@ -46,7 +48,9 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
                 GroupName = t.Group != null ? t.Group.Name : string.Empty,
                 RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
                 SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
-                TeacherName = t.Teacher != null ? t.Teacher.FirstName : string.Empty
+                TeacherName = t.Teacher != null 
+                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}" 
+                    : string.Empty
             })
             .FirstOrDefaultAsync();
     }
@@ -146,8 +150,13 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
 
     public async Task<IEnumerable<Teacher>> GetAllTeachersAsync()
     {
+        // Tutaj mapujemy dane bezpośrednio pod listę rozwijaną w formularzu modalnym
         return await context.Teachers
-            .Select(t => new Teacher { Id = t.Id, FirstName = t.FirstName })
+            .Select(t => new Teacher 
+            { 
+                Id = t.Id, 
+                FirstName = $"{(string.IsNullOrEmpty(t.AcademicTitle) ? "" : t.AcademicTitle + " ")}{t.FirstName.Substring(0, 1)}. {t.LastName}" 
+            })
             .ToListAsync();
     }
 }
