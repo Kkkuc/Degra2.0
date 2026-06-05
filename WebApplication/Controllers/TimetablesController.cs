@@ -1,173 +1,96 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.DTOs.Timetable;
-using WebApplication.Models.enums;
 using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
-public class TimetablesController(ITimetablesService timetablesService) : Controller
+[ApiController]
+[Route("api/[controller]")]
+public class TimetablesController(ITimetablesService timetablesService) : ControllerBase
 {
     // GET: Timetables
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TimetableListDto>>> Index()
     {
         var data = await timetablesService.GetAllWithRelationsAsync();
-        return View(data);
+        return Ok(data);
     }
 
     // GET: Timetables/Details/5
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<TimetableDetailsDto>> Details(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var timetable = await timetablesService.GetByIdWithRelationsAsync(id.Value);
+        var timetable = await timetablesService.GetByIdWithRelationsAsync(id);
         if (timetable == null)
         {
-            return NotFound();
+            return NotFound(new { Message = $"Timetable with ID {id} not found." });
         }
 
-        return View(timetable);
+        return Ok(timetable);
     }
 
     // GET: Timetables/Create
-    public async Task<IActionResult> Create()
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] TimetableCreateDto timetableDto)
     {
-        var groups = await timetablesService.GetAllGroupsAsync();
-        var rooms = await timetablesService.GetAllRoomsAsync();
-        var subjects = await timetablesService.GetAllSubjectsAsync();
-        var teachers = await timetablesService.GetAllTeachersAsync();
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-        ViewData["GroupId"] = new SelectList(groups, "Id", "Name");
-        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber");
-        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name");
-        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName");
-        return View();
+        await timetablesService.CreateAsync(timetableDto);
+        return StatusCode(StatusCodes.Status201Created, new { Message = "Timetable created successfully." });
     }
 
     // POST: Timetables/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(TimetableCreateDto timetableDto)
-    {
-        if (ModelState.IsValid)
-        {
-            await timetablesService.CreateAsync(timetableDto);
-            return RedirectToAction(nameof(Index));
-        }
-        var groups = await timetablesService.GetAllGroupsAsync();
-        var rooms = await timetablesService.GetAllRoomsAsync();
-        var subjects = await timetablesService.GetAllSubjectsAsync();
-        var teachers = await timetablesService.GetAllTeachersAsync();
-
-        ViewData["GroupId"] = new SelectList(groups, "Id", "Name", timetableDto.GroupId);
-        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetableDto.RoomId);
-        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetableDto.SubjectId);
-        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetableDto.TeacherId);
-        return View(timetableDto);
-    }
 
     // GET: Timetables/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Edit(int id, [FromBody] TimetableEditDto timetableDto)
     {
-        if (id == null)
+        if (id != timetableDto.Id)
         {
-            return NotFound();
+            return BadRequest(new { Message = "ID mismatch." });
         }
 
-        var timetable = await timetablesService.GetByIdAsync(id.Value);
-        if (timetable == null)
+        if (!ModelState.IsValid)
         {
-            return NotFound();
+            return BadRequest(ModelState);
         }
-        var groups = await timetablesService.GetAllGroupsAsync();
-        var rooms = await timetablesService.GetAllRoomsAsync();
-        var subjects = await timetablesService.GetAllSubjectsAsync();
-        var teachers = await timetablesService.GetAllTeachersAsync();
 
-        ViewData["GroupId"] = new SelectList(groups, "Id", "Name", timetable.GroupId);
-        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetable.RoomId);
-        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetable.SubjectId);
-        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetable.TeacherId);
-        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
-        ViewData["DayOfWeek"] = new SelectList(Enum.GetValues<DayOfWeek>());
-        ViewData["WeekCycle"] = new SelectList(Enum.GetValues<WeekCycle>());
-        return View(timetable);
+        try
+        {
+            await timetablesService.UpdateAsync(timetableDto);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!await timetablesService.ExistsAsync(timetableDto.Id))
+            {
+                return NotFound(new { Message = "Timetable not found." });
+            }
+            throw;
+        }
+
+        return NoContent();
     }
 
     // POST: Timetables/Edit/5
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, TimetableEditDto timetableDto)
-    {
-        if (id != timetableDto.Id)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
-            {
-               
-               await timetablesService.UpdateAsync(timetableDto);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await timetablesService.ExistsAsync(timetableDto.Id))
-                {
-                    return NotFound();
-                }
-                throw;
-            }
-            return RedirectToAction(nameof(Index));
-        }
-        var groups = await timetablesService.GetAllGroupsAsync();
-        var rooms = await timetablesService.GetAllRoomsAsync();
-        var subjects = await timetablesService.GetAllSubjectsAsync();
-        var teachers = await timetablesService.GetAllTeachersAsync();
-
-        // ZMIANA: Przypisanie wybranych wartości z obiektu DTO
-        ViewData["GroupId"] = new SelectList(groups, "Id", "Name", timetableDto.GroupId);
-        ViewData["RoomId"] = new SelectList(rooms, "Id", "RoomNumber", timetableDto.RoomId);
-        ViewData["SubjectId"] = new SelectList(subjects, "Id", "Name", timetableDto.SubjectId);
-        ViewData["TeacherId"] = new SelectList(teachers, "Id", "FirstName", timetableDto.TeacherId);
-        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
-        ViewData["DayOfWeek"] = new SelectList(Enum.GetValues<DayOfWeek>());
-        ViewData["WeekCycle"] = new SelectList(Enum.GetValues<WeekCycle>());
-        return View(timetableDto);
-    }
 
     // GET: Timetables/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null)
+        if (!await timetablesService.ExistsAsync(id))
         {
-            return NotFound();
+            return NotFound(new { Message = "Timetable not found." });
         }
 
-        var timetable = await timetablesService.GetByIdWithRelationsAsync(id.Value);
-        if (timetable == null)
-        {
-            return NotFound();
-        }
-
-        return View(timetable);
-    }
-
-    // POST: Timetables/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
         await timetablesService.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
+        return NoContent();
     }
 }

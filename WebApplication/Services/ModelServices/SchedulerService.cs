@@ -20,27 +20,19 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
         if (filter.SemId.HasValue) query = query.Where(t => t.Group != null && t.Group.SemesterId == filter.SemId);
 
         // 2. Filtrowanie po grupach dziekańskich i typach zajęć
-        var hasGroupFilters = !string.IsNullOrEmpty(filter.Gw) || !string.IsNullOrEmpty(filter.Gc) ||
-                              !string.IsNullOrEmpty(filter.Gl) || !string.IsNullOrEmpty(filter.Gps) ||
-                              !string.IsNullOrEmpty(filter.Gp) || !string.IsNullOrEmpty(filter.Gs);
 
-        if (hasGroupFilters)
+        if (!string.IsNullOrEmpty(filter.Gw) || !string.IsNullOrEmpty(filter.Gc) ||
+            !string.IsNullOrEmpty(filter.Gl) || !string.IsNullOrEmpty(filter.Gps) ||
+            !string.IsNullOrEmpty(filter.Gp) || !string.IsNullOrEmpty(filter.Gs))
         {
-            query = query.Where(t =>
-                t.Group != null && ((!string.IsNullOrEmpty(filter.Gw) && t.Group.ClassType == ClassType.Lecture &&
-                                     t.Group.Name == "grupa " + filter.Gw) ||
-                                    (!string.IsNullOrEmpty(filter.Gc) && t.Group.ClassType == ClassType.Exercise &&
-                                     t.Group.Name == "grupa " + filter.Gc) ||
-                                    (!string.IsNullOrEmpty(filter.Gl) && t.Group.ClassType == ClassType.Laboratory &&
-                                     t.Group.Name == "grupa " + filter.Gl) ||
-                                    (!string.IsNullOrEmpty(filter.Gps) &&
-                                     t.Group.ClassType == ClassType.SpecialisedLaboratory &&
-                                     t.Group.Name == "grupa " + filter.Gps) ||
-                                    (!string.IsNullOrEmpty(filter.Gp) && t.Group.ClassType == ClassType.Project &&
-                                     t.Group.Name == "grupa " + filter.Gp) ||
-                                    (!string.IsNullOrEmpty(filter.Gs) && t.Group.ClassType == ClassType.Seminar &&
-                                     t.Group.Name == "grupa " + filter.Gs))
-            );
+            query = query.Where(t => t.Group != null && (
+                (!string.IsNullOrEmpty(filter.Gw) && t.Group.ClassType == ClassType.Lecture && t.Group.Name.Contains(filter.Gw)) ||
+                (!string.IsNullOrEmpty(filter.Gc) && t.Group.ClassType == ClassType.Exercise && t.Group.Name.Contains(filter.Gc)) ||
+                (!string.IsNullOrEmpty(filter.Gl) && t.Group.ClassType == ClassType.Laboratory && t.Group.Name.Contains(filter.Gl)) ||
+                (!string.IsNullOrEmpty(filter.Gps) && t.Group.ClassType == ClassType.SpecialisedLaboratory && t.Group.Name.Contains(filter.Gps)) ||
+                (!string.IsNullOrEmpty(filter.Gp) && t.Group.ClassType == ClassType.Project && t.Group.Name.Contains(filter.Gp)) ||
+                (!string.IsNullOrEmpty(filter.Gs) && t.Group.ClassType == ClassType.Seminar && t.Group.Name.Contains(filter.Gs))
+            ));
         }
 
         // 3. Projekcja i pobranie zoptymalizowanych surowych danych
