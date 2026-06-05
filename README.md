@@ -1,122 +1,85 @@
-# 🐳 Jak postawić bazę ORACLE
-
-## 1. Instalacja Dockera
-
-Zainstaluj Dockera, najlepiej **Docker Desktop**.
+# Degra 2.0 — Deployment & Configuration Guide
 
 ---
 
-## 2. Uruchomienie bazy Oracle w projekcie
+## Getting Started
 
-W projekcie uruchom taki skrypt w terminalu:
+### 1. Clone the Repository
+
+Run the following commands to clone the repository and navigate into the project directory:
 
 ```bash
-docker run -d --name LocalHostDegra -p 1521:1521 -e ORACLE_PWD=mikus_haslo container-registry.oracle.com/database/free:latest
-```
-
----
-
-## 3. Zmiana konfiguracji aplikacji
-
-Zmień chwilowo w `appsettings.json`:
+git clone git@github.com:Kkkuc/Degra2.0.git
+cd Degra2.0
 
 ```
-User Id: DEGRA_ADMIN → SYSTEM
-```
 
----
+### 2. Build and Run the Containers
 
-## 4. Połączenie z bazą Oracle (Rider / środowisko) podpowiedz chata wierzę że nie potrzebujecie ale umieszczam
-
-Oto co musisz zmienić w tym oknie:
-
-### 1. 📥 Pobierz sterowniki (Driver)
-
-Zauważ napis **"Oracle Not downloaded"** obok ikony Oracle.
-
-Kliknij niebieski napis **Download** po prawej stronie. Rider sam pobierze potrzebne pliki JAR, aby móc połączyć się z bazą. Bez tego przycisk **"Test Connection"** nie zadziała.
-
----
-
-### 2. 🔄 Zmień SID na Service Name
-
-Wersja Oracle 23c Free (ta z Dockera) używa domyślnie **Service Name** zamiast SID.
-
-- Zmień `Connection type` z **SID** na **Service Name**
-- W polu, gdzie teraz masz wpisane `XE`, wpisz:
-
-```
-FREEPDB1
-```
-
-(To bardzo ważne – FREEPDB1 to domyślna nazwa bazy użytkownika w tym obrazie Dockera. XE było używane w starszych wersjach)
-
----
-
-### 3. 🔐 Zweryfikuj User i Password
-
-- **User:** SYSTEM (dużymi literami)
-- **Password:** mikus_haslo (to samo co w docker run)
-
----
-
-### 4. 🧪 Jak sprawdzić czy działa "Test Connection"?
-
-Upewnij się że:
-
-- kontener działa (`Running`)
-- wpisz:
+To build the application images and start both the web application and the database services simultaneously, execute:
 
 ```bash
-docker ps
+docker compose up --build
+
 ```
 
-Jeśli chcesz:
+---
 
+## Accessing the Application
+
+Once the containers are up and running, you can connect to the services using the details below:
+
+| Service | Access Link / Address | Notes |
+| --- | --- | --- |
+| **Web Application** | [http://localhost](http://localhost) | Port `80` maps to the internal port `8080` of the container. |
+| **Oracle Database** | `localhost:1521` | Accessible externally for database tools/clients. |
+
+---
+
+## Stopping the Services
+
+Depending on whether you want to preserve your data, choose one of the following options:
+
+* **To stop containers (preserving data):**
 ```bash
-docker logs oracle23c
-```
-
-Jeśli widzisz:
+docker compose down
 
 ```
-DATABASE IS READY TO USE!
-```
 
-kliknij **Test Connection**.
 
-koniec chata
-
----
-
-## 5. 🧱 Utworzenie użytkownika bazy
-
-W konsoli SQL (console query):
-
-```sql
-CREATE USER DEGRA_ADMIN IDENTIFIED BY mikus_haslo;
-GRANT CONNECT, RESOURCE, DBA TO DEGRA_ADMIN;
-ALTER USER DEGRA_ADMIN QUOTA UNLIMITED ON USERS;
-```
-
----
-
-## 6. 🔁 Finalna zmiana konfiguracji
-
-Wróć do:
-
-```
-DEGRA_ADMIN
-```
-
-i uruchom:
-
+* **To stop containers and delete all data volumes:**
 ```bash
-dotnet ef database update
+docker compose down -v
+
 ```
+
+
 
 ---
 
-## 7. 💬 Uwagi końcowe
+## Configuration & Environment Variables
 
-Jeśli chcemy zrobić to tak, żeby każdy miał wspólną bazę danych, to jest to bezsensu, ale można, trochę dodatkowej roboty :)
+### Web Application (`web-app`)
+
+| Environment Variable | Value / Description |
+| --- | --- |
+| `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `ConnectionStrings__DefaultConnection` | `User Id=system;Password=system_password;Data Source=db:1521/FREEPDB1;` |
+
+### Database (`db`)
+
+| Parameter | Configuration Details |
+| --- | --- |
+| `ORACLE_PWD` | `system_password` *(Sets the password for the administrative users: SYS, SYSTEM, and PDBADMIN)* |
+| **Volume Mapping** | `oracle-data` is mapped to `/opt/oracle/oradata` to ensure database persistence across container restarts. |
+
+---
+
+## Docker Deployment Details
+
+### Multi-Stage Dockerfile
+
+The application utilizes a multi-stage build process to guarantee that the final production image remains lightweight and secure:
+
+> 🛠️ **Build Stage:** Uses `mcr.microsoft.com/dotnet/sdk:10.0` to restore dependencies, build the solution, and publish the release binaries.
+> 🚀 **Final Stage:** Uses `mcr.microsoft.com/dotnet/aspnet:10.0` as the runtime environment, copying only the published output from the build stage to minimize image size.
