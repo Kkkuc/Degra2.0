@@ -9,23 +9,22 @@ namespace WebApplication.Controllers;
 [Authorize(Roles = "Moderator")]
 public class AdminController(IAdminService adminService, ITimetablesService timetablesService) : Controller
 {
-    private async Task PopulateRolesBagAsync(object? selectedValue = null)
+    private async Task LoadViewDataAsync(object? selectedRoleId = null)
     {
         var roles = await adminService.GetRolesDropdownListAsync();
-        ViewBag.Roles = new SelectList(roles, "Key", "Value", selectedValue);
+        ViewBag.Roles = new SelectList(roles, "Key", "Value", selectedRoleId);
+        
+        ViewBag.SubjectId = new SelectList(await timetablesService.GetAllSubjectsAsync(), "Id", "Name");
+        ViewBag.TeacherId = new SelectList(await timetablesService.GetAllTeachersAsync(), "Id", "FirstName");
+        ViewBag.RoomId = new SelectList(await timetablesService.GetAllRoomsAsync(), "Id", "RoomNumber");
+        ViewBag.GroupId = new SelectList(await timetablesService.GetAllGroupsAsync(), "Id", "Name");
     }
     
     
     public async Task<IActionResult> Index()
     {
         var data = await adminService.GetUsersForIndexAsync();
-        await PopulateRolesBagAsync();
-        
-        ViewBag.SubjectId = new SelectList(await timetablesService.GetAllSubjectsAsync(), "Id", "Name");
-        ViewBag.TeacherId = new SelectList(await timetablesService.GetAllTeachersAsync(), "Id", "FirstName");
-        ViewBag.RoomId = new SelectList(await timetablesService.GetAllRoomsAsync(), "Id", "RoomNumber");
-        ViewBag.GroupId = new SelectList(await timetablesService.GetAllGroupsAsync(), "Id", "Name");
-        
+        await LoadViewDataAsync();
         return View(data);
     }
 
@@ -43,12 +42,9 @@ public class AdminController(IAdminService adminService, ITimetablesService time
                 ModelState.AddModelError(string.Empty, "Użytkownik o takiej nazwie już istnieje.");
             }
             
-            await PopulateRolesBagAsync(dto.RoleId);
-            ViewBag.SubjectId = new SelectList(await timetablesService.GetAllSubjectsAsync(), "Id", "Name");
-            ViewBag.TeacherId = new SelectList(await timetablesService.GetAllTeachersAsync(), "Id", "FirstName");
-            ViewBag.RoomId = new SelectList(await timetablesService.GetAllRoomsAsync(), "Id", "RoomNumber");
-            ViewBag.GroupId = new SelectList(await timetablesService.GetAllGroupsAsync(), "Id", "Name");
-
+            // Dzięki wspólnej metodzie, nie musisz kopiować ViewBag-ów
+            await LoadViewDataAsync(dto.RoleId);
+            
             var data = await adminService.GetUsersForIndexAsync();
             return View(nameof(Index), data);
         }

@@ -34,8 +34,10 @@
 @if (User.IsInRole("Moderator"))
 {
     <li>
-        <a asp-controller="Admin" asp-action="Index" style="color: purple; font-weight: bold;">
-            Panel Administratora (Zarządzaj Użytkownikami)
+        <a asp-controller="Admin" 
+           asp-action="Index" 
+           class="block px-4 py-2 text-purple-700 font-bold hover:bg-purple-50 transition-colors">
+            Panel Administratora
         </a>
     </li>
 }

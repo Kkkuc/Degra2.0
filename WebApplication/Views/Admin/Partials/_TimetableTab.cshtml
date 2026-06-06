@@ -1,0 +1,52 @@
+@using WebApplication.Models.enums
+<div id="tab-timetable" class="tab-content">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Wpisy w planie zajęć</h2>
+        <button onclick="openCreateModal()"
+                class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm text-sm">
+            + Dodaj Nowe Zajęcia
+        </button>
+    </div>
+
+    <div class="bg-card border border-border rounded-2xl shadow-sm overflow-x-auto">
+        <table class="w-full border-collapse min-w-[800px]">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Przedmiot</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Prowadzący</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Sala</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Grupa</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Typ</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Dzień</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Cykl Tygodniowy</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Czas</th>
+                    <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
+                </tr>
+            </thead>
+            <tbody id="timetable-rows" class="divide-y divide-border"></tbody>
+        </table>
+    </div>
+</div>
+
+<div style="background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; max-width: 450px;">
+    <form asp-controller="Admin" asp-action="GenerateMonthlyStats" method="get" target="_blank">
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+                <label style="font-size: 13px; font-weight: bold;">Rok:</label>
+                <input type="number" name="rok" value="@DateTime.Now.Year" min="2024" max="2030" style="width: 100%; padding: 6px;" />
+            </div>
+            <div style="flex: 1;">
+                <label style="font-size: 13px; font-weight: bold;">Miesiąc:</label>
+                <select name="miesiac" style="width: 100%; padding: 6px;">
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" selected="@(i == DateTime.Now.Month)">@i (@(new DateTime(2000, i, 1).ToString("MMMM")))</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 10px 15px; cursor: pointer; width: 100%; border-radius: 4px; font-weight: bold;">
+            Wygeneruj Raport Zmian
+        </button>
+    </form>
+</div>
