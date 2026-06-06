@@ -10,13 +10,10 @@
     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Panel Administratora</h1>
 
     <div class="flex border-b border-border mb-6">
-        <button onclick="switchTab('tab-timetable')" id="btn-tab-timetable"
-                class="px-6 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-colors focus:outline-none">
-            Zarządzanie Planem (Timetables)
-        </button>
-        <button onclick="switchTab('tab-users')" id="btn-tab-users"
-                class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors focus:outline-none">
-            Użytkownicy
+        <button onclick="switchTab('tab-timetable')" id="btn-tab-timetable" class="...">Zarządzanie Planem</button>
+        <button onclick="switchTab('tab-users')" id="btn-tab-users" class="...">Użytkownicy</button>
+        <button onclick="switchTab('tab-reports')" id="btn-tab-reports" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">
+            Raporty
         </button>
     </div>
 
@@ -29,9 +26,10 @@
 
     <partial name="Partials/_TimetableTab" />
     <partial name="Partials/_UsersTab" model="Model" />
+    <partial name="Partials/_ReportsTab" />
+    <partial name="Partials/_CrudModal" />
 </div>
 
-<partial name="Partials/_CrudModal" />
 
 @section Scripts {
     <script src="~/js/admin-panel.js" asp-append-version="true"></script>

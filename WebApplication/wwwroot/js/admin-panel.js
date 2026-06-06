@@ -16,16 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById(tabId).classList.remove('hidden');
-    const btnTimetable = document.getElementById('btn-tab-timetable');
-    const btnUsers = document.getElementById('btn-tab-users');
 
-    if (tabId === 'tab-timetable') {
-        btnTimetable.className = "px-6 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-colors focus:outline-none";
-        btnUsers.className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors focus:outline-none";
-    } else {
-        btnTimetable.className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors focus:outline-none";
-        btnUsers.className = "px-6 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-colors focus:outline-none";
-    }
+    const tabs = ['tab-timetable', 'tab-users', 'tab-reports'];
+    tabs.forEach(id => {
+        const btn = document.getElementById(`btn-${id}`);
+        if (id === tabId) {
+            btn.className = "px-6 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-colors focus:outline-none";
+        } else {
+            btn.className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors focus:outline-none";
+        }
+    });
 }
 
 async function fetchLessons() {
