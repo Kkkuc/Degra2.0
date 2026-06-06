@@ -7,20 +7,13 @@ using WebApplication.Services.Interfaces;
 using WebApplication.Services.ModelServices;
 
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
-/*
-builder.Services.Scan(scan => scan
-    .FromApplicationDependencies()
-    .AddClasses(classes => classes.Where(c => c.Name.EndsWith("Service")))
-    .AsMatchingInterface()
-    .WithScopedLifetime());
-*/
+
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
-//webscraper xml file old degra
 builder.Services.AddHttpClient<IScraperService, ScraperService>();
 //builder.Services.AddScoped<TimetableCrawler>();
 builder.Services.AddScoped<IAcademicYearService, AcademicYearService>();
