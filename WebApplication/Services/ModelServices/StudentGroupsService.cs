@@ -1,58 +1,97 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs.Student;
+using WebApplication.DTOs.StudentGroup;
 using WebApplication.Models;
+using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Services;
+namespace WebApplication.Services.ModelServices;
 
 public class StudentGroupsService(AppDbContext context) : IStudentGroupsService
 {
-    public async Task<IEnumerable<StudentGroup>> GetAllWithRelationsAsync()
+    public async Task<IEnumerable<StudentGroupDto>> GetAllWithRelationsAsync()
     {
         return await context.StudentGroups
-            .Include(s => s.Group)
-            .Include(s => s.Student)
+            .Select(sg => new StudentGroupDto(
+                sg.StudentId,
+                sg.Student != null ? sg.Student.FirstName + " " + sg.Student.LastName : "Brak",
+                sg.GroupId,
+                sg.Group != null ? sg.Group.Name : "Brak"
+            ))
             .ToListAsync();
     }
 
-    public async Task<StudentGroup?> GetByStudentIdWithRelationsAsync(int studentId)
+    public async Task<StudentGroupDto?> GetByStudentIdWithRelationsAsync(int studentId)
     {
         return await context.StudentGroups
-            .Include(s => s.Group)
-            .Include(s => s.Student)
-            .FirstOrDefaultAsync(m => m.StudentId == studentId);
+            .Where(sg => sg.StudentId == studentId)
+            .Select(sg => new StudentGroupDto(
+                sg.StudentId,
+                sg.Student != null ? sg.Student.FirstName + " " + sg.Student.LastName : "Brak",
+                sg.GroupId,
+                sg.Group != null ? sg.Group.Name : "Brak"
+            ))
+            .FirstOrDefaultAsync();
     }
 
-    // POPRAWKA: Używamy FirstOrDefaultAsync zamiast FindAsync, 
-    // ponieważ FindAsync wymaga kompletnego klucza złożonego.
-    public async Task<StudentGroup?> GetByStudentIdAsync(int studentId)
+    public async Task<StudentGroupFormDto?> GetFormByStudentIdAsync(int studentId)
     {
         return await context.StudentGroups
-            .FirstOrDefaultAsync(m => m.StudentId == studentId);
+            .Where(sg => sg.StudentId == studentId)
+            .Select(sg => new StudentGroupFormDto
+            {
+                StudentId = sg.StudentId,
+                GroupId = sg.GroupId
+            })
+            .FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(StudentGroup studentGroup)
+    public async Task CreateAsync(StudentGroupFormDto dto)
     {
-        context.Add(studentGroup);
+        var studentGroup = new StudentGroup
+        {
+            StudentId = dto.StudentId,
+            GroupId = dto.GroupId
+        };
+
+        context.StudentGroups.Add(studentGroup);
         await context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(StudentGroup studentGroup)
-    {
-        context.Update(studentGroup);
-        await context.SaveChangesAsync();
-    }
-
-    // POPRAWKA: Bezpieczne pobieranie encji przed usunięciem
-    public async Task DeleteAsync(int studentId)
+    public async Task<bool> UpdateAsync(int originalStudentId, StudentGroupFormDto dto)
     {
         var studentGroup = await context.StudentGroups
-            .FirstOrDefaultAsync(m => m.StudentId == studentId);
+            .FirstOrDefaultAsync(sg => sg.StudentId == originalStudentId);
             
-        if (studentGroup != null)
+        if (studentGroup == null)
         {
-            context.StudentGroups.Remove(studentGroup);
-            await context.SaveChangesAsync();
+            return false;
         }
+
+        // Jeśli klucz główny tabeli łączącej pozwala na modyfikację:
+        context.StudentGroups.Remove(studentGroup); // Najbezpieczniejsza opcja przy tabelach łączących to Re-create
+        
+        var updatedStudentGroup = new StudentGroup
+        {
+            StudentId = dto.StudentId,
+            GroupId = dto.GroupId
+        };
+        
+        context.StudentGroups.Add(updatedStudentGroup);
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(int studentId)
+    {
+        var studentGroup = await context.StudentGroups
+            .FirstOrDefaultAsync(sg => sg.StudentId == studentId);
+            
+        if (studentGroup == null) return false;
+
+        context.StudentGroups.Remove(studentGroup);
+        await context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> ExistsAsync(int studentId)
@@ -60,20 +99,19 @@ public class StudentGroupsService(AppDbContext context) : IStudentGroupsService
         return await context.StudentGroups.AnyAsync(e => e.StudentId == studentId);
     }
 
-    public async Task<IEnumerable<Group>> GetAllGroupsAsync()
+    public async Task<Dictionary<int, string>> GetGroupsDropdownAsync()
     {
-        return await context.Groups.ToListAsync();
+        return await context.Groups
+            .ToDictionaryAsync(g => g.Id, g => g.Name);
     }
 
-    public async Task<IEnumerable<StudentLookupItem>> GetStudentsLookupAsync()
+    public async Task<IEnumerable<StudentDto>> GetStudentsLookupAsync()
     {
         return await context.Students
-            .Select(s => new StudentLookupItem
-            {
-                Id = s.Id,
-                // Tutaj mapujesz na FullName, więc kontroler musi tego używać!
-                FullName = s.FirstName + " " + s.LastName 
-            })
+            .Select(s => new StudentDto(
+                s.Id,
+                s.FirstName + " " + s.LastName
+            ))
             .ToListAsync();
     }
 }

@@ -1,4 +1,4 @@
-@model IEnumerable<WebApplication.Models.Group>
+@model IEnumerable<WebApplication.DTOs.Group.GroupIndexDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -14,16 +14,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Semester)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FieldOfStudy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Specialization)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ClassType)
+                @Html.DisplayNameFor(model => model.SemesterName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
@@ -35,16 +26,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Semester.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FieldOfStudy.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Specialization.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ClassType)
+                @Html.DisplayFor(modelItem => item.SemesterName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)

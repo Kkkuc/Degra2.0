@@ -1,3 +1,5 @@
+using WebApplication.Models.enums;
+
 namespace WebApplication.DTOs.Group;
 
 public record GroupDetailsDto(

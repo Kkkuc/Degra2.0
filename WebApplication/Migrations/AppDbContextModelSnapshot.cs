@@ -581,8 +581,8 @@ namespace WebApplication.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("NUMBER(10)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("NUMBER(10)");
+                    b.Property<string>("StudentId")
+                        .HasColumnType("NVARCHAR2(20)");
 
                     b.Property<int?>("TeacherId")
                         .HasColumnType("NUMBER(10)");
@@ -779,7 +779,8 @@ namespace WebApplication.Migrations
 
                     b.HasOne("WebApplication.Models.Student", "Student")
                         .WithMany()
-                        .HasForeignKey("StudentId");
+                        .HasForeignKey("StudentId")
+                        .HasPrincipalKey("StudentID");
 
                     b.HasOne("WebApplication.Models.Teacher", "Teacher")
                         .WithMany()

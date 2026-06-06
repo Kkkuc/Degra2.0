@@ -1,4 +1,4 @@
-@model WebApplication.Models.StudentGroup
+@model WebApplication.DTOs.StudentGroup.StudentGroupDto
 
 @{
     ViewData["Title"] = "Delete";
@@ -13,16 +13,16 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Student)
+            @Html.DisplayNameFor(model => model.StudentFullName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Student.FirstName)
+            @Html.DisplayFor(model => model.StudentFullName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Group)
+            @Html.DisplayNameFor(model => model.GroupName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Group.Name)
+            @Html.DisplayFor(model => model.GroupName)
         </dd>
     </dl>
     

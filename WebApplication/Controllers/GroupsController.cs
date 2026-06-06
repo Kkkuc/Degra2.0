@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WebApplication.DTOs.Group;
 using WebApplication.Models;
 using WebApplication.Models.enums;
 using WebApplication.Services;
@@ -13,37 +14,26 @@ public class GroupsController(IGroupsService groupsService) : Controller
     // GET: Groups
     public async Task<IActionResult> Index()
     {
-        var data = await groupsService.GetAllWithRelationsAsync();
+        var data = await groupsService.GetAllForIndexAsync();
         return View(data);
     }
 
     // GET: Groups/Details/5
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var group = await groupsService.GetByIdWithRelationsAsync(id.Value);
+        var group = await groupsService.GetDetailsByIdAsync(id);
         if (group == null)
         {
             return NotFound();
         }
 
-        return View(group);
+        return View(group); 
     }
-
+    
     // GET: Groups/Create
     public async Task<IActionResult> Create()
     {
-        var fieldsOfStudies = await groupsService.GetAllFieldsOfStudyAsync();
-        var semesters = await groupsService.GetAllSemestersAsync();
-        var specializations = await groupsService.GetAllSpecializationsAsync();
-        ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name");
-        ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name");
-        ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name");
-        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
+        await PopulateDropdownsAsync();
         return View();
     }
 
@@ -52,48 +42,29 @@ public class GroupsController(IGroupsService groupsService) : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(
-        [Bind("Id,SemesterId,FieldOfStudyId,SpecializationId,ClassType,Name")]
-        Group @group)
+    public async Task<IActionResult> Create(GroupFormDto dto)
     {
         if (ModelState.IsValid)
         {
-            await groupsService.CreateAsync(group);
+            await groupsService.CreateAsync(dto);
             return RedirectToAction(nameof(Index));
         }
 
-        var fieldsOfStudies = await groupsService.GetAllFieldsOfStudyAsync();
-        var semesters = await groupsService.GetAllSemestersAsync();
-        var specializations = await groupsService.GetAllSpecializationsAsync();
-        ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name", group.FieldOfStudyId);
-        ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name", group.SemesterId);
-        ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name", group.SpecializationId);
-        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
-        return View(group);
+        await PopulateDropdownsAsync(dto);
+        return View(dto);
     }
 
     // GET: Groups/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null)
+        var groupForm = await groupsService.GetFormByIdAsync(id);
+        if (groupForm == null)
         {
             return NotFound();
         }
 
-        var group = await groupsService.GetByIdAsync(id.Value);
-        if (group == null)
-        {
-            return NotFound();
-        }
-
-        var fieldsOfStudies = await groupsService.GetAllFieldsOfStudyAsync();
-        var semesters = await groupsService.GetAllSemestersAsync();
-        var specializations = await groupsService.GetAllSpecializationsAsync();
-        ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name", group.FieldOfStudyId);
-        ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name", group.SemesterId);
-        ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name", group.SpecializationId);
-        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
-        return View(group);
+        await PopulateDropdownsAsync(groupForm);
+        return View(groupForm); 
     }
 
     // POST: Groups/Edit/5
@@ -101,59 +72,44 @@ public class GroupsController(IGroupsService groupsService) : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id,
-        [Bind("Id,SemesterId,FieldOfStudyId,SpecializationId,ClassType,Name")]
-        Group @group)
+    public async Task<IActionResult> Edit(int id, GroupFormDto dto)
     {
-        if (id != group.Id)
+        if (id != dto.Id)
         {
             return NotFound();
         }
 
         if (ModelState.IsValid)
         {
-            try
+            var success = await groupsService.UpdateAsync(dto);
+            if (!success)
             {
-                await groupsService.UpdateAsync(group);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await groupsService.ExistsAsync(group.Id))
+                if (!await groupsService.ExistsAsync(dto.Id))
                 {
                     return NotFound();
                 }
-
-                throw;
+                ModelState.AddModelError(string.Empty, "Wystąpił błąd podczas aktualizacji grupy.");
             }
-
-            return RedirectToAction(nameof(Index));
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        var fieldsOfStudies = await groupsService.GetAllFieldsOfStudyAsync();
-        var semesters = await groupsService.GetAllSemestersAsync();
-        var specializations = await groupsService.GetAllSpecializationsAsync();
-        ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Id", "Name", group.FieldOfStudyId);
-        ViewData["SemesterId"] = new SelectList(semesters, "Id", "Name", group.SemesterId);
-        ViewData["SpecializationId"] = new SelectList(specializations, "Id", "Name", group.SpecializationId);
-        ViewData["ClassType"] = new SelectList(Enum.GetValues<ClassType>());
-        return View(group);
+        await PopulateDropdownsAsync(dto);
+        return View(dto);
     }
 
     // GET: Groups/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var group = await groupsService.GetByIdWithRelationsAsync(id.Value);
+        var group = await groupsService.GetDetailsByIdAsync(id);
         if (group == null)
         {
             return NotFound();
         }
 
-        return View(group);
+        return View(group); 
     }
 
     // POST: Groups/Delete/5
@@ -161,7 +117,28 @@ public class GroupsController(IGroupsService groupsService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await groupsService.DeleteAsync(id);
+        var success = await groupsService.DeleteAsync(id);
+        if (!success)
+        {
+            return NotFound();
+        }
+        
         return RedirectToAction(nameof(Index));
+    }
+    
+    private async Task PopulateDropdownsAsync(GroupFormDto? dto = null)
+    {
+        var fieldsOfStudies = await groupsService.GetFieldsOfStudyDropdownListAsync();
+        var semesters = await groupsService.GetSemestersDropdownListAsync();
+        var specializations = await groupsService.GetSpecializationsDropdownListAsync();
+
+        ViewData["FieldOfStudyId"] = new SelectList(fieldsOfStudies, "Key", "Value", dto?.FieldOfStudyId);
+        ViewData["SemesterId"] = new SelectList(semesters, "Key", "Value", dto?.SemesterId);
+        ViewData["SpecializationId"] = new SelectList(specializations, "Key", "Value", dto?.SpecializationId);
+        
+        // Dla enuma przekazujemy wybraną wartość, jeśli obiekt dto istnieje
+        ViewData["ClassType"] = dto != null 
+            ? new SelectList(Enum.GetValues<ClassType>(), dto.ClassType)
+            : new SelectList(Enum.GetValues<ClassType>());
     }
 }

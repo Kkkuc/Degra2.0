@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Models;
-using WebApplication.Services;
+using WebApplication.DTOs.Semester;
 using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
@@ -12,19 +10,14 @@ public class SemestersController(ISemestersService semestersService) : Controlle
     // GET: Semesters
     public async Task<IActionResult> Index()
     {
-        var data = await semestersService.GetAllWithAcademicYearAsync();
+        var data = await semestersService.GetAllForIndexAsync();
         return View(data);
     }
 
     // GET: Semesters/Details/5
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var semester = await semestersService.GetByIdWithAcademicYearAsync(id.Value);
+        var semester = await semestersService.GetDetailsByIdAsync(id);
         if (semester == null)
         {
             return NotFound();
@@ -36,93 +29,73 @@ public class SemestersController(ISemestersService semestersService) : Controlle
     // GET: Semesters/Create
     public async Task<IActionResult> Create()
     {
-        var academicYears = await semestersService.GetAllAcademicYearsAsync();
-        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name");
+        await PopulateAcademicYearsDropdownAsync();
         return View();
     }
 
     // POST: Semesters/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,AcademicYearId,Name,StartDate,EndDate")] Semester semester)
+    public async Task<IActionResult> Create(SemesterFormDto dto)
     {
         if (ModelState.IsValid)
         {
-            await semestersService.CreateAsync(semester);
+            await semestersService.CreateAsync(dto);
             return RedirectToAction(nameof(Index));
         }
 
-        var academicYears = await semestersService.GetAllAcademicYearsAsync();
-        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name", semester.AcademicYearId);
-        return View(semester);
+        await PopulateAcademicYearsDropdownAsync(dto.AcademicYearId);
+        return View(dto);
     }
 
     // GET: Semesters/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var semester = await semestersService.GetByIdAsync(id.Value);
+        var semester = await semestersService.GetFormByIdAsync(id);
         if (semester == null)
         {
             return NotFound();
         }
 
-        var academicYears = await semestersService.GetAllAcademicYearsAsync();
-        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name", semester.AcademicYearId);
+        await PopulateAcademicYearsDropdownAsync(semester.AcademicYearId);
         return View(semester);
     }
 
     // POST: Semesters/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,AcademicYearId,Name,StartDate,EndDate")] Semester semester)
+    public async Task<IActionResult> Edit(int id, SemesterFormDto dto)
     {
-        if (id != semester.Id)
+        if (id != dto.Id)
         {
             return NotFound();
         }
 
         if (ModelState.IsValid)
         {
-            try
+            var success = await semestersService.UpdateAsync(dto);
+            if (!success)
             {
-                await semestersService.UpdateAsync(semester);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await semestersService.ExistsAsync(semester.Id))
+                if (!await semestersService.ExistsAsync(dto.Id))
                 {
                     return NotFound();
                 }
-
-                throw;
+                ModelState.AddModelError(string.Empty, "Wystąpił nieoczekiwany błąd podczas zapisu.");
             }
-
-            return RedirectToAction(nameof(Index));
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        var academicYears = await semestersService.GetAllAcademicYearsAsync();
-        ViewData["AcademicYearId"] = new SelectList(academicYears, "Id", "Name", semester.AcademicYearId);
-        return View(semester);
+        await PopulateAcademicYearsDropdownAsync(dto.AcademicYearId);
+        return View(dto);
     }
 
     // GET: Semesters/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var semester = await semestersService.GetByIdWithAcademicYearAsync(id.Value);
+        var semester = await semestersService.GetDetailsByIdAsync(id);
         if (semester == null)
         {
             return NotFound();
@@ -136,7 +109,18 @@ public class SemestersController(ISemestersService semestersService) : Controlle
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await semestersService.DeleteAsync(id);
+        var success = await semestersService.DeleteAsync(id);
+        if (!success)
+        {
+            return NotFound();
+        }
+
         return RedirectToAction(nameof(Index));
+    }
+    
+    private async Task PopulateAcademicYearsDropdownAsync(int? selectedId = null)
+    {
+        var academicYears = await semestersService.GetAcademicYearsDropdownAsync();
+        ViewData["AcademicYearId"] = new SelectList(academicYears, "Key", "Value", selectedId);
     }
 }

@@ -1,43 +1,77 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs.Subject;
 using WebApplication.Models;
+using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Services;
+namespace WebApplication.Services.ModelServices;
 
 public class SubjectsService(AppDbContext context) : ISubjectsService
 {
-    public async Task<IEnumerable<Subject>> GetAllAsync()
+    public async Task<IEnumerable<SubjectIndexDto>> GetAllForIndexAsync()
     {
-        return await context.Subjects.ToListAsync();
+        var rand = new Random();
+        return await context.Subjects
+            .Select(s => new SubjectIndexDto(s.Id, s.Name))
+            .ToListAsync();
     }
 
-    public async Task<Subject?> GetByIdAsync(int id)
+    public async Task<SubjectDetailsDto?> GetDetailsByIdAsync(int id)
     {
-        return await context.Subjects.FirstOrDefaultAsync(m => m.Id == id);
+        return await context.Subjects
+            .Where(s => s.Id == id)
+            .Select(s => new SubjectDetailsDto(s.Id, s.Name, s.Abbreviation, s.Code))
+            .FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(Subject subject)
+    public async Task<SubjectFormDto?> GetFormByIdAsync(int id)
     {
-        context.Add(subject);
-        await context.SaveChangesAsync();
+        return await context.Subjects
+            .Where(s => s.Id == id)
+            .Select(s => new SubjectFormDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Abbreviation = s.Abbreviation,
+                Code = s.Code
+            })
+            .FirstOrDefaultAsync();
     }
 
-    public async Task UpdateAsync(Subject subject)
+    public async Task CreateAsync(SubjectFormDto dto)
     {
-        context.Update(subject);
-        await context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(int id)
-    {
-        var subject = await context.Subjects.FindAsync(id);
-        if (subject != null)
+        var subject = new Subject
         {
-            context.Subjects.Remove(subject);
-            await context.SaveChangesAsync();
-        }
+            Name = dto.Name,
+            Abbreviation = dto.Abbreviation,
+            Code = dto.Code
+        };
+
+        context.Subjects.Add(subject);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<bool> UpdateAsync(SubjectFormDto dto)
+    {
+        var subject = await context.Subjects.FirstOrDefaultAsync(s => s.Id == dto.Id);
+        if (subject == null) return false;
+
+        subject.Name = dto.Name;
+        subject.Abbreviation = dto.Abbreviation;
+        subject.Code = dto.Code;
+
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var subject = await context.Subjects.FirstOrDefaultAsync(s => s.Id == id);
+        if (subject == null) return false;
+
+        context.Subjects.Remove(subject);
+        await context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> ExistsAsync(int id)

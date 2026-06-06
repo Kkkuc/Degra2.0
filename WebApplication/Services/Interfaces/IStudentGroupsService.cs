@@ -1,21 +1,18 @@
-using WebApplication.Models;
+using WebApplication.DTOs.Student;
+using WebApplication.DTOs.StudentGroup;
 
-namespace WebApplication.Services;
-
-// Prosta struktura pomocnicza do ładnego wyświetlania studenta w dropdownie
-public class StudentLookupItem { public int Id { get; set; } public string FullName { get; set; } = string.Empty; }
+namespace WebApplication.Services.Interfaces;
 
 public interface IStudentGroupsService
 {
-    Task<IEnumerable<StudentGroup>> GetAllWithRelationsAsync();
-    Task<StudentGroup?> GetByStudentIdWithRelationsAsync(int studentId);
-    Task<StudentGroup?> GetByStudentIdAsync(int studentId);
-    Task CreateAsync(StudentGroup studentGroup);
-    Task UpdateAsync(StudentGroup studentGroup);
-    Task DeleteAsync(int studentId);
+    Task<IEnumerable<StudentGroupDto>> GetAllWithRelationsAsync();
+    Task<StudentGroupDto?> GetByStudentIdWithRelationsAsync(int studentId);
+    Task<StudentGroupFormDto?> GetFormByStudentIdAsync(int studentId);
+    Task CreateAsync(StudentGroupFormDto dto);
+    Task<bool> UpdateAsync(int originalStudentId, StudentGroupFormDto dto);
+    Task<bool> DeleteAsync(int studentId);
     Task<bool> ExistsAsync(int studentId);
-
-    // Metody ładujące dane do SelectListów
-    Task<IEnumerable<Group>> GetAllGroupsAsync();
-    Task<IEnumerable<StudentLookupItem>> GetStudentsLookupAsync();
+    
+    Task<Dictionary<int, string>> GetGroupsDropdownAsync();
+    Task<IEnumerable<StudentDto>> GetStudentsLookupAsync();
 }

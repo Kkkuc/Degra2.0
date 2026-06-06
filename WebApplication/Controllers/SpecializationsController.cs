@@ -1,8 +1,8 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApplication.DTOs.Specialization;
 using WebApplication.Models;
-using WebApplication.Services;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers
 {
@@ -41,14 +41,14 @@ namespace WebApplication.Controllers
         // POST: Specializations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Specialization specialization)
+        public async Task<IActionResult> Create(SpecializationDto dto)
         {
             if (!ModelState.IsValid)
             {
-                return View(specialization);
+                return View(dto);
             }
 
-            await specializationsService.CreateAsync(specialization);
+            await specializationsService.CreateAsync(dto);
             return RedirectToAction(nameof(Index));
         }
 
@@ -72,27 +72,28 @@ namespace WebApplication.Controllers
         // POST: Specializations/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Specialization specialization)
+        public async Task<IActionResult> Edit(int id, SpecializationDto dto)
         {
-            if (id != specialization.Id) return NotFound();
+            if (id != dto.Id)
+            {
+                return NotFound();
+            }
 
             if (!ModelState.IsValid)
             {
-                return View(specialization);
+                return View(dto);
             }
 
-            try
+            var success = await specializationsService.UpdateAsync(dto);
+            if (!success)
             {
-                await specializationsService.UpdateAsync(specialization);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await specializationsService.ExistsAsync(specialization.Id))
+                if (!await specializationsService.ExistsAsync(dto.Id))
                 {
                     return NotFound();
                 }
-
-                throw;
+            
+                ModelState.AddModelError(string.Empty, "Wystąpił nieoczekiwany błąd podczas aktualizacji.");
+                return View(dto);
             }
 
             return RedirectToAction(nameof(Index));
@@ -120,7 +121,12 @@ namespace WebApplication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await specializationsService.DeleteAsync(id);
+            var success = await specializationsService.DeleteAsync(id);
+            if (!success)
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Index));
         }
     }

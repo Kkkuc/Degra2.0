@@ -1,58 +1,125 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs.Timetable;
 using WebApplication.Models;
+using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Services;
+namespace WebApplication.Services.ModelServices;
 
 public class TimetablesService(AppDbContext context) : ITimetablesService
 {
-    public async Task<IEnumerable<Timetable>> GetAllWithRelationsAsync()
+    public async Task<IEnumerable<TimetableListDto>> GetAllWithRelationsAsync()
     {
         return await context.Timetables
-            .Include(t => t.Group)
-            .Include(t => t.Room)
-            .Include(t => t.Subject)
-            .Include(t => t.Teacher)
+            .Select(t => new TimetableListDto
+            {
+                Id = t.Id,
+                ClassType = t.ClassType,
+                DayOfWeek = t.DayOfWeek,
+                StartTime = t.StartTime,
+                EndTime = t.EndTime,
+                WeekCycle = t.WeekCycle,
+                GroupName = t.Group != null ? t.Group.Name : string.Empty,
+                RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
+                SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
+                TeacherName = t.Teacher != null 
+                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}" 
+                    : string.Empty
+            })
             .ToListAsync();
     }
 
-    public async Task<Timetable?> GetByIdWithRelationsAsync(int id)
+    public async Task<TimetableDetailsDto?> GetByIdWithRelationsAsync(int id)
     {
         return await context.Timetables
-            .Include(t => t.Group)
-            .Include(t => t.Room)
-            .Include(t => t.Subject)
-            .Include(t => t.Teacher)
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .Where(m => m.Id == id)
+            .Select(t => new TimetableDetailsDto
+            {
+                Id = t.Id,
+                SubjectId = t.SubjectId,
+                TeacherId = t.TeacherId,
+                RoomId = t.RoomId,
+                GroupId = t.GroupId,
+                ClassType = t.ClassType,
+                DayOfWeek = t.DayOfWeek,
+                StartTime = t.StartTime,
+                EndTime = t.EndTime,
+                WeekCycle = t.WeekCycle,
+                GroupName = t.Group != null ? t.Group.Name : string.Empty,
+                RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
+                SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
+                TeacherName = t.Teacher != null 
+                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}" 
+                    : string.Empty
+            })
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<Timetable?> GetByIdAsync(int id)
+    public async Task<TimetableEditDto?> GetByIdAsync(int id)
     {
-        return await context.Timetables.FindAsync(id);
+        return await context.Timetables
+            .Where(t => t.Id == id)
+            .Select(t => new TimetableEditDto
+            {
+                Id = t.Id,
+                SubjectId = t.SubjectId,
+                TeacherId = t.TeacherId,
+                RoomId = t.RoomId,
+                GroupId = t.GroupId,
+                ClassType = t.ClassType,
+                DayOfWeek = t.DayOfWeek,
+                StartTime = t.StartTime,
+                EndTime = t.EndTime,
+                WeekCycle = t.WeekCycle
+            })
+            .FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(Timetable timetable)
+    public async Task CreateAsync(TimetableCreateDto dto)
     {
+        var timetable = new Timetable
+        {
+            SubjectId = dto.SubjectId,
+            TeacherId = dto.TeacherId,
+            RoomId = dto.RoomId,
+            GroupId = dto.GroupId,
+            ClassType = dto.ClassType,
+            DayOfWeek = dto.DayOfWeek,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            WeekCycle = dto.WeekCycle
+        };
+
         context.Add(timetable);
         await context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(Timetable timetable)
+    public async Task UpdateAsync(TimetableEditDto dto)
     {
+        // Mapowanie DTO -> Encja bazy danych
+        var timetable = new Timetable
+        {
+            Id = dto.Id,
+            SubjectId = dto.SubjectId,
+            TeacherId = dto.TeacherId,
+            RoomId = dto.RoomId,
+            GroupId = dto.GroupId,
+            ClassType = dto.ClassType,
+            DayOfWeek = dto.DayOfWeek,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            WeekCycle = dto.WeekCycle
+        };
+
         context.Update(timetable);
         await context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
     {
-        var timetable = await context.Timetables.FindAsync(id);
-        if (timetable != null)
-        {
-            context.Timetables.Remove(timetable);
-            await context.SaveChangesAsync();
-        }
+        var timetable = new Timetable { Id = id };
+        context.Timetables.Entry(timetable).State = EntityState.Deleted;
+        await context.SaveChangesAsync();
     }
 
     public async Task<bool> ExistsAsync(int id)
@@ -62,21 +129,34 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
 
     public async Task<IEnumerable<Group>> GetAllGroupsAsync()
     {
-        return await context.Groups.ToListAsync();
+        return await context.Groups
+            .Select(g => new Group { Id = g.Id, Name = g.Name })
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Room>> GetAllRoomsAsync()
     {
-        return await context.Rooms.ToListAsync();
+        return await context.Rooms
+            .Select(r => new Room { Id = r.Id, RoomNumber = r.RoomNumber })
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Subject>> GetAllSubjectsAsync()
     {
-        return await context.Subjects.ToListAsync();
+        return await context.Subjects
+            .Select(s => new Subject { Id = s.Id, Name = s.Name })
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Teacher>> GetAllTeachersAsync()
     {
-        return await context.Teachers.ToListAsync();
+        // Tutaj mapujemy dane bezpośrednio pod listę rozwijaną w formularzu modalnym
+        return await context.Teachers
+            .Select(t => new Teacher 
+            { 
+                Id = t.Id, 
+                FirstName = $"{(string.IsNullOrEmpty(t.AcademicTitle) ? "" : t.AcademicTitle + " ")}{t.FirstName.Substring(0, 1)}. {t.LastName}" 
+            })
+            .ToListAsync();
     }
 }

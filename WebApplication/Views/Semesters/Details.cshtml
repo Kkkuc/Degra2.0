@@ -1,4 +1,4 @@
-@model WebApplication.Models.Semester
+@model WebApplication.DTOs.Semester.SemesterDetailsDto
 
 @{
     ViewData["Title"] = "Details";
@@ -12,10 +12,10 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AcademicYear)
+            @Html.DisplayNameFor(model => model.AcademicYearName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AcademicYear.Name)
+            @Html.DisplayFor(model => model.AcademicYearName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -38,6 +38,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

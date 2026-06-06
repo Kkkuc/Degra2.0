@@ -20,7 +20,6 @@ builder.Services.AddControllersWithViews()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
-builder.Services.AddControllersWithViews();
 //webscraper xml file old degra
 builder.Services.AddHttpClient<IScraperService, ScraperService>();
 //builder.Services.AddScoped<TimetableCrawler>();
@@ -31,6 +30,7 @@ builder.Services.AddScoped<IFieldsOfStudiesService, FieldsOfStudiesService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IRoomsService, RoomsService>();
 builder.Services.AddScoped<IScheduleChangesService, ScheduleChangesService>();
+builder.Services.AddScoped<ISchedulerService, SchedulerService>();
 builder.Services.AddScoped<ISemestersService, SemestersService>();
 builder.Services.AddScoped<ISpecializationsService, SpecializationsService>();
 builder.Services.AddScoped<IStudentGroupsService, StudentGroupsService>();
@@ -38,6 +38,8 @@ builder.Services.AddScoped<IStudentsService, StudentsService>();
 builder.Services.AddScoped<ISubjectsService, SubjectsService>();
 builder.Services.AddScoped<ITeachersService, TeachersService>();
 builder.Services.AddScoped<ITimetablesService, TimetablesService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -72,6 +74,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Scheduler}/{action=Index}/{id?}");

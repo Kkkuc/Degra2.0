@@ -1,8 +1,6 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Models;
-using WebApplication.Services;
+using WebApplication.DTOs.Subject;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
@@ -11,19 +9,14 @@ public class SubjectsController(ISubjectsService subjectsService) : Controller
     // GET: Subjects
     public async Task<IActionResult> Index()
     {
-        var data = await subjectsService.GetAllAsync();
+        var data = await subjectsService.GetAllForIndexAsync();
         return View(data);
     }
 
     // GET: Subjects/Details/5
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var subject = await subjectsService.GetByIdAsync(id.Value);
+        var subject = await subjectsService.GetDetailsByIdAsync(id);
         if (subject == null)
         {
             return NotFound();
@@ -39,77 +32,65 @@ public class SubjectsController(ISubjectsService subjectsService) : Controller
     }
 
     // POST: Subjects/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Name,Abbreviation,Code")] Subject subject)
+    public async Task<IActionResult> Create(SubjectFormDto dto)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await subjectsService.CreateAsync(subject);
-            return RedirectToAction(nameof(Index));
+            return View(dto);
         }
-        return View(subject);
+
+        await subjectsService.CreateAsync(dto);
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: Subjects/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var subject = await subjectsService.GetByIdAsync(id.Value);
+        var subject = await subjectsService.GetFormByIdAsync(id);
         if (subject == null)
         {
             return NotFound();
         }
+
         return View(subject);
     }
 
     // POST: Subjects/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Abbreviation,Code")] Subject subject)
+    public async Task<IActionResult> Edit(int id, SubjectFormDto dto)
     {
-        if (id != subject.Id)
+        if (id != dto.Id)
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            try
-            {
-                await subjectsService.UpdateAsync(subject);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await subjectsService.ExistsAsync(subject.Id))
-                {
-                    return NotFound();
-                }
+            return View(dto);
+        }
 
-                throw;
-            }
+        var success = await subjectsService.UpdateAsync(dto);
+        if (success)
+        {
             return RedirectToAction(nameof(Index));
         }
-        return View(subject);
+
+        if (!await subjectsService.ExistsAsync(dto.Id))
+        {
+            return NotFound();
+        }
+
+        ModelState.AddModelError(string.Empty, "Wystąpił nieoczekiwany błąd podczas zapisu zmian.");
+        return View(dto);
     }
 
     // GET: Subjects/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var subject = await subjectsService.GetByIdAsync(id.Value);
+        var subject = await subjectsService.GetDetailsByIdAsync(id);
         if (subject == null)
         {
             return NotFound();
@@ -123,7 +104,12 @@ public class SubjectsController(ISubjectsService subjectsService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await subjectsService.DeleteAsync(id);
+        var success = await subjectsService.DeleteAsync(id);
+        if (!success)
+        {
+            return NotFound();
+        }
+
         return RedirectToAction(nameof(Index));
     }
 }

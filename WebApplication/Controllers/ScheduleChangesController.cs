@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Models;
-using WebApplication.Services;
+using WebApplication.DTOs.ScheduleChange;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
@@ -11,19 +10,14 @@ public class ScheduleChangesController(IScheduleChangesService scheduleService) 
     // GET: ScheduleChanges
     public async Task<IActionResult> Index()
     {
-        var data = await scheduleService.GetAllWithRelationsAsync();
+        var data = await scheduleService.GetAllForIndexAsync();
         return View(data);
     }
 
     // GET: ScheduleChanges/Details/5
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var scheduleChange = await scheduleService.GetByIdWithRelationsAsync(id.Value);
+        var scheduleChange = await scheduleService.GetDetailsByIdAsync(id);
         if (scheduleChange == null)
         {
             return NotFound();
@@ -35,117 +29,65 @@ public class ScheduleChangesController(IScheduleChangesService scheduleService) 
     // GET: ScheduleChanges/Create
     public async Task<IActionResult> Create()
     {
-        var allNewRooms = await scheduleService.GetAllRoomsAsync();
-        var allNewTeachers = await scheduleService.GetTeachersLookupAsync();
-        var allTimetables = await scheduleService.GetTimetablesLookupAsync();
-        
-        ViewData["NewRoomId"] = new SelectList(allNewRooms, "Id", "RoomNumber");
-        ViewData["NewTeacherId"] = new SelectList(allNewTeachers, "Id", "FullName");
-        ViewData["TimetableId"] = new SelectList(allTimetables, "Id", "Text");
+        await PopulateDropdownsAsync();
         return View();
     }
 
     // POST: ScheduleChanges/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(
-        [Bind("Id,TimetableId,ChangeDate,NewRoomId,NewTeacherId,NewStartTime,NewEndTime")]
-        ScheduleChange scheduleChange)
+    public async Task<IActionResult> Create(ScheduleChangeFormDto dto)
     {
         if (ModelState.IsValid)
         {
-            await scheduleService.CreateAsync(scheduleChange);
+            await scheduleService.CreateAsync(dto);
             return RedirectToAction(nameof(Index));
         }
 
-        var allNewRooms = await scheduleService.GetAllRoomsAsync();
-        var allNewTeachers = await scheduleService.GetTeachersLookupAsync();
-        var allTimetables = await scheduleService.GetTimetablesLookupAsync();
-
-        ViewData["NewRoomId"] = new SelectList(allNewRooms, "Id", "RoomNumber", scheduleChange.NewRoomId);
-        ViewData["NewTeacherId"] = new SelectList(allNewTeachers, "Id", "FullName", scheduleChange.NewTeacherId);
-        ViewData["TimetableId"] = new SelectList(allTimetables, "Id", "Text", scheduleChange.TimetableId);
-        return View(scheduleChange);
+        await PopulateDropdownsAsync(dto);
+        return View(dto);
     }
 
     // GET: ScheduleChanges/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
+        var scheduleChange = await scheduleService.GetFormByIdAsync(id);
+        if (scheduleChange == null) return NotFound();
 
-        var scheduleChange = await scheduleService.GetByIdAsync(id.Value);
-        if (scheduleChange == null)
-        {
-            return NotFound();
-        }
-
-        var allNewRooms = await scheduleService.GetAllRoomsAsync();
-        var allNewTeachers = await scheduleService.GetTeachersLookupAsync();
-        var allTimetables = await scheduleService.GetTimetablesLookupAsync();
-
-        ViewData["NewRoomId"] = new SelectList(allNewRooms, "Id", "RoomNumber", scheduleChange.NewRoomId);
-        ViewData["NewTeacherId"] = new SelectList(allNewTeachers, "Id", "FullName", scheduleChange.NewTeacherId);
-        ViewData["TimetableId"] = new SelectList(allTimetables, "Id", "Text", scheduleChange.TimetableId);
+        await PopulateDropdownsAsync(scheduleChange);
         return View(scheduleChange);
     }
 
     // POST: ScheduleChanges/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id,
-        [Bind("Id,TimetableId,ChangeDate,NewRoomId,NewTeacherId,NewStartTime,NewEndTime")]
-        ScheduleChange scheduleChange)
+    public async Task<IActionResult> Edit(int id, ScheduleChangeFormDto dto)
     {
-        if (id != scheduleChange.Id)
-        {
-            return NotFound();
-        }
+        if (id != dto.Id) return NotFound();
 
         if (ModelState.IsValid)
         {
-            try
+            var success = await scheduleService.UpdateAsync(dto);
+            if (!success)
             {
-                await scheduleService.UpdateAsync(scheduleChange);
+                if (!await scheduleService.ExistsAsync(dto.Id)) return NotFound();
+                ModelState.AddModelError(string.Empty, "Wystąpił błąd zapisu zmian planu.");
             }
-            catch (DbUpdateConcurrencyException)
+            else
             {
-                if (!await scheduleService.ExistsAsync(scheduleChange.Id))
-                {
-                    return NotFound();
-                }
-
-                throw;
+                return RedirectToAction(nameof(Index));
             }
-
-            return RedirectToAction(nameof(Index));
         }
 
-        var allNewRooms = await scheduleService.GetAllRoomsAsync();
-        var allNewTeachers = await scheduleService.GetTeachersLookupAsync();
-        var allTimetables = await scheduleService.GetTimetablesLookupAsync();
-
-        ViewData["NewRoomId"] = new SelectList(allNewRooms, "Id", "RoomNumber", scheduleChange.NewRoomId);
-        ViewData["NewTeacherId"] = new SelectList(allNewTeachers, "Id", "FullName", scheduleChange.NewTeacherId);
-        ViewData["TimetableId"] = new SelectList(allTimetables, "Id", "Text", scheduleChange.TimetableId);
-        return View(scheduleChange);
+        await PopulateDropdownsAsync(dto);
+        return View(dto);
     }
 
     // GET: ScheduleChanges/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var scheduleChange = await scheduleService.GetByIdWithRelationsAsync(id.Value);
-        if (scheduleChange == null)
-        {
-            return NotFound();
-        }
+        var scheduleChange = await scheduleService.GetDetailsByIdAsync(id);
+        if (scheduleChange == null) return NotFound();
 
         return View(scheduleChange);
     }
@@ -155,7 +97,20 @@ public class ScheduleChangesController(IScheduleChangesService scheduleService) 
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await scheduleService.DeleteAsync(id);
+        var success = await scheduleService.DeleteAsync(id);
+        if (!success) return NotFound();
+
         return RedirectToAction(nameof(Index));
+    }
+    
+    private async Task PopulateDropdownsAsync(ScheduleChangeFormDto? dto = null)
+    {
+        var rooms = await scheduleService.GetRoomsDropdownAsync();
+        var teachers = await scheduleService.GetTeachersDropdownAsync();
+        var timetables = await scheduleService.GetTimetablesDropdownAsync();
+
+        ViewData["NewRoomId"] = new SelectList(rooms, "Key", "Value", dto?.NewRoomId);
+        ViewData["NewTeacherId"] = new SelectList(teachers, "Key", "Value", dto?.NewTeacherId);
+        ViewData["TimetableId"] = new SelectList(timetables, "Key", "Value", dto?.TimetableId);
     }
 }

@@ -1,4 +1,4 @@
-@model IEnumerable<WebApplication.Models.Timetable>
+@model IEnumerable<WebApplication.DTOs.Timetable.TimetableListDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -14,16 +14,16 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Subject)
+                @Html.DisplayNameFor(model => model.SubjectName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Teacher)
+                @Html.DisplayNameFor(model => model.TeacherName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Room)
+                @Html.DisplayNameFor(model => model.RoomNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Group)
+                @Html.DisplayNameFor(model => model.GroupName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ClassType)
@@ -47,16 +47,16 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Subject.Name)
+                @Html.DisplayFor(modelItem => item.SubjectName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Teacher.FirstName)
+                @Html.DisplayFor(modelItem => item.TeacherName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Room.RoomNumber)
+                @Html.DisplayFor(modelItem => item.RoomNumber)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Group.Name)
+                @Html.DisplayFor(modelItem => item.GroupName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ClassType)

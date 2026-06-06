@@ -14,7 +14,7 @@ public class User
 
     public int RoleId { get; set; }
     [ForeignKey("RoleId")] public virtual Role? Role { get; set; }
-    public int? StudentId { get; set; }
+    public string? StudentId { get; set; }
     [ForeignKey("StudentId")] public virtual Student? Student { get; set; }
     public int? TeacherId { get; set; }
     [ForeignKey("TeacherId")] public virtual Teacher? Teacher { get; set; }

@@ -1,4 +1,4 @@
-@model IEnumerable<WebApplication.Models.ScheduleChange>
+@model IEnumerable<WebApplication.DTOs.ScheduleChange.ScheduleChangeIndexDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -14,22 +14,13 @@
     <thead>
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.OriginalEntry.FullDisplayInfo)
+            @Html.DisplayNameFor(model => model.OriginalEntryText)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.ChangeDate)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.NewRoom)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NewTeacher)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NewStartTime)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.NewEndTime)
         </th>
         <th></th>
     </tr>
@@ -39,22 +30,13 @@
     {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.OriginalEntry.FullDisplayInfo)
+                @Html.DisplayFor(modelItem => item.OriginalEntryText)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ChangeDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NewRoom.RoomNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NewTeacher.FirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NewStartTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NewEndTime)
+                @Html.DisplayFor(modelItem => item.NewRoom)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

@@ -1,4 +1,4 @@
-@model WebApplication.Models.Group
+@model WebApplication.DTOs.Group.GroupDetailsDto
 
 @{
     ViewData["Title"] = "Details";
@@ -12,28 +12,28 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Semester)
+            @Html.DisplayNameFor(model => model.SemesterName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Semester.Name)
+            @Html.DisplayFor(model => model.SemesterName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FieldOfStudy)
+            @Html.DisplayNameFor(model => model.FieldOfStudyName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FieldOfStudy.Name)
+            @Html.DisplayFor(model => model.FieldOfStudyName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Specialization)
+            @Html.DisplayNameFor(model => model.SpecializationName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Specialization.Name)
+            @Html.DisplayFor(model => model.SpecializationName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ClassType)
+            @Html.DisplayNameFor(model => model.ClassTypeDisplay)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ClassType)
+            @Html.DisplayFor(model => model.ClassTypeDisplay)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)

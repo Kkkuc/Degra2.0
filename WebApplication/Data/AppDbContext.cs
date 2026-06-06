@@ -53,10 +53,14 @@ namespace WebApplication.Data
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "User" },
                 new Role { Id = 2, Name = "Moderator" });
-            
 
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Student)      
+                .WithMany()                      
+                .HasForeignKey(u => u.StudentId) 
+                .HasPrincipalKey(s => s.StudentID);
 
-             modelBuilder.Entity<Timetable>()
+            modelBuilder.Entity<Timetable>()
                 .Property(t => t.WeekCycle)
                 .HasConversion<string>();
 

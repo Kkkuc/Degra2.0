@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApplication.Models;
-using WebApplication.Services;
+using WebApplication.DTOs.Student;
+using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
@@ -15,14 +14,9 @@ public class StudentsController(IStudentsService studentsService) : Controller
     }
 
     // GET: Students/Details/5
-    public async Task<IActionResult> Details(int? id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var student = await studentsService.GetByIdAsync(id.Value);
+        var student = await studentsService.GetDetailsByIdAsync(id);
         if (student == null)
         {
             return NotFound();
@@ -38,77 +32,65 @@ public class StudentsController(IStudentsService studentsService) : Controller
     }
 
     // POST: Students/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,StudentID,FirstName,LastName")] Student student)
+    public async Task<IActionResult> Create(StudentFormDto dto)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await studentsService.CreateAsync(student);
-            return RedirectToAction(nameof(Index));
+            return View(dto);
         }
-        return View(student);
+
+        await studentsService.CreateAsync(dto);
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: Students/Edit/5
-    public async Task<IActionResult> Edit(int? id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var student = await studentsService.GetByIdAsync(id.Value);
+        var student = await studentsService.GetFormByIdAsync(id);
         if (student == null)
         {
             return NotFound();
         }
+
         return View(student);
     }
 
     // POST: Students/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,StudentID,FirstName,LastName")] Student student)
+    public async Task<IActionResult> Edit(int id, StudentFormDto dto)
     {
-        if (id != student.Id)
+        if (id != dto.Id)
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            try
-            {
-                await studentsService.UpdateAsync(student);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await studentsService.ExistsAsync(student.Id))
-                {
-                    return NotFound();
-                }
+            return View(dto);
+        }
 
-                throw;
-            }
+        var success = await studentsService.UpdateAsync(dto);
+        if (success)
+        {
             return RedirectToAction(nameof(Index));
         }
-        return View(student);
+
+        if (!await studentsService.ExistsAsync(dto.Id))
+        {
+            return NotFound();
+        }
+
+        ModelState.AddModelError(string.Empty, "Wystąpił nieoczekiwany błąd podczas zapisu zmian.");
+        return View(dto);
     }
 
     // GET: Students/Delete/5
-    public async Task<IActionResult> Delete(int? id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var student = await studentsService.GetByIdAsync(id.Value);
+        var student = await studentsService.GetByIdAsync(id);
         if (student == null)
         {
             return NotFound();
@@ -122,7 +104,12 @@ public class StudentsController(IStudentsService studentsService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await studentsService.DeleteAsync(id);
+        var success = await studentsService.DeleteAsync(id);
+        if (!success)
+        {
+            return NotFound();
+        }
+
         return RedirectToAction(nameof(Index));
     }
 }

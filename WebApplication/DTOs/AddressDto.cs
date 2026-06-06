@@ -4,7 +4,7 @@ namespace WebApplication.DTOs;
 
 public class AddressDto
 {
-    [Required(ErrorMessage = "Ulica jest wymagana")]
+    [Required(ErrorMessage = "Street is required")]
     public string Street { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Numer domu jest wymagany")]
