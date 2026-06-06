@@ -22,8 +22,8 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
                 GroupName = t.Group != null ? t.Group.Name : string.Empty,
                 RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
                 SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
-                TeacherName = t.Teacher != null 
-                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}" 
+                TeacherName = t.Teacher != null
+                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}"
                     : string.Empty
             })
             .ToListAsync();
@@ -48,8 +48,8 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
                 GroupName = t.Group != null ? t.Group.Name : string.Empty,
                 RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
                 SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
-                TeacherName = t.Teacher != null 
-                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}" 
+                TeacherName = t.Teacher != null
+                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}"
                     : string.Empty
             })
             .FirstOrDefaultAsync();
@@ -152,10 +152,65 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     {
         // Tutaj mapujemy dane bezpośrednio pod listę rozwijaną w formularzu modalnym
         return await context.Teachers
-            .Select(t => new Teacher 
-            { 
-                Id = t.Id, 
-                FirstName = $"{(string.IsNullOrEmpty(t.AcademicTitle) ? "" : t.AcademicTitle + " ")}{t.FirstName.Substring(0, 1)}. {t.LastName}" 
+            .Select(t => new Teacher
+            {
+                Id = t.Id,
+                FirstName =
+                    $"{(string.IsNullOrEmpty(t.AcademicTitle) ? "" : t.AcademicTitle + " ")}{t.FirstName.Substring(0, 1)}. {t.LastName}"
+            })
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<TimetableListDto>> GetFilteredAsync(TimetableFilterDto filter)
+    {
+        var query = context.Timetables.AsQueryable();
+
+        if (filter.SubjectId.HasValue)
+        {
+            query = query.Where(t => t.SubjectId == filter.SubjectId);
+        }
+        if (filter.TeacherId.HasValue)
+        {
+            query = query.Where(t => t.TeacherId == filter.TeacherId);
+        }
+        if (filter.RoomId.HasValue)
+        {
+            query = query.Where(t => t.RoomId == filter.RoomId);
+        }
+        if (filter.GroupId.HasValue)
+        {
+            query = query.Where(t => t.GroupId == filter.GroupId);
+        }
+        if (filter.ClassType.HasValue)
+        {
+            query = query.Where(t => t.ClassType == filter.ClassType.Value);
+        }
+        if (filter.DayOfWeek.HasValue)
+        {
+            query = query.Where(t => t.DayOfWeek == filter.DayOfWeek.Value);
+        }
+        if (filter.WeekCycle.HasValue)
+        {
+            query = query.Where(t => t.WeekCycle == filter.WeekCycle.Value);
+        }
+
+        return await query
+            .OrderBy(t => t.DayOfWeek)
+            .ThenBy(t => t.StartTime)
+            .Select(t => new TimetableListDto
+            {
+                Id = t.Id,
+                ClassType = t.ClassType,
+                DayOfWeek = t.DayOfWeek,
+                StartTime = t.StartTime,
+                EndTime = t.EndTime,
+                WeekCycle = t.WeekCycle,
+                GroupName = t.Group != null ? t.Group.Name : string.Empty,
+                RoomNumber = t.Room != null ? t.Room.RoomNumber : string.Empty,
+                SubjectName = t.Subject != null ? t.Subject.Name : string.Empty,
+                TeacherName = t.Teacher != null
+                    ? $"{(string.IsNullOrEmpty(t.Teacher.AcademicTitle) ? "" : t.Teacher.AcademicTitle + " ")}{t.Teacher.FirstName.Substring(0, 1)}. {t.Teacher.LastName}"
+                    : string.Empty
             })
             .ToListAsync();
     }

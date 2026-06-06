@@ -1,4 +1,58 @@
+@using WebApplication.Models.enums
 <div id="tab-timetable" class="tab-content">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
+        
+        <select id="filter-subject" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <option value="">Przedmiot</option>
+            @foreach (var s in (SelectList)ViewBag.SubjectId) { <option value="@s.Value">@s.Text</option> }
+        </select>
+
+        <select id="filter-teacher" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <option value="">Prowadzący</option>
+            @foreach (var t in (SelectList)ViewBag.TeacherId) { <option value="@t.Value">@t.Text</option> }
+        </select>
+
+        <select id="filter-room" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <option value="">Sala</option>
+            @foreach (var r in (SelectList)ViewBag.RoomId) { <option value="@r.Value">@r.Text</option> }
+        </select>
+
+        <select id="filter-group" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <option value="">Grupa</option>
+            @foreach (var g in (SelectList)ViewBag.GroupId) { <option value="@g.Value">@g.Text</option> }
+        </select>
+
+        <select id="filter-classType" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <option value="">Typ zajęć</option>
+            @foreach (var i in Html.GetEnumSelectList<ClassType>()) { <option value="@i.Value">@i.Text</option> }
+        </select>
+
+        <select id="filter-dayOfWeek" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <option value="">Dzień</option>
+            @{
+                var daysMap = new Dictionary<int, string> {
+                    { 1, "Poniedziałek" }, { 2, "Wtorek" }, { 3, "Środa" }, 
+                    { 4, "Czwartek" }, { 5, "Piątek" }, { 6, "Sobota" }, { 0, "Niedziela" }
+                };
+            }
+            @foreach (var day in daysMap)
+            {
+                <option value="@day.Key">@day.Value</option>
+            }
+        </select>
+
+        <select id="filter-weekCycle" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <option value="">Cykl</option>
+            @foreach (var i in Html.GetEnumSelectList<WeekCycle>()) { <option value="@i.Value">@i.Text</option> }
+        </select>
+
+        <button onclick="applyFilters()"
+                class="w-full bg-blue-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors">
+            Filtruj
+        </button>
+    </div>
+    
+    
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Wpisy w planie zajęć</h2>
         <button onclick="openCreateModal()"
@@ -10,17 +64,17 @@
     <div class="bg-card border border-border rounded-2xl shadow-sm overflow-x-auto">
         <table class="w-full border-collapse min-w-[800px]">
             <thead>
-                <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Przedmiot</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Prowadzący</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Sala</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Grupa</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Typ</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Dzień</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Cykl Tygodniowy</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Czas</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
-                </tr>
+            <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Przedmiot</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Prowadzący</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Sala</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Grupa</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Typ</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Dzień</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Cykl Tygodniowy</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Czas</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
+            </tr>
             </thead>
             <tbody id="timetable-rows" class="divide-y divide-border"></tbody>
         </table>

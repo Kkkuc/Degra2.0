@@ -17,6 +17,13 @@ public class TimetablesController(ITimetablesService timetablesService) : Contro
         return Ok(data);
     }
 
+    [HttpPost("filter")]
+    public async Task<ActionResult<IEnumerable<TimetableListDto>>> Filter([FromBody] TimetableFilterDto filter)
+    {
+        var data = await timetablesService.GetFilteredAsync(filter);
+        return Ok(data);
+    }
+    
     // GET: Timetables/Details/5
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TimetableDetailsDto>> Details(int id)

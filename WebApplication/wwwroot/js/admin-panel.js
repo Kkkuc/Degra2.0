@@ -37,6 +37,35 @@ async function fetchLessons() {
     } catch (err) { console.error(err); }
 }
 
+function getFilterValue(id) {
+    const val = document.getElementById(id).value;
+    return val === "" ? null : parseInt(val);
+}
+
+async function applyFilters() {
+    const filter = {
+        subjectId: getFilterValue('filter-subject'),
+        teacherId: getFilterValue('filter-teacher'),
+        roomId: getFilterValue('filter-room'),
+        groupId: getFilterValue('filter-group'),
+        classType: getFilterValue('filter-classType'),
+        dayOfWeek: getFilterValue('filter-dayOfWeek'),
+        weekCycle: getFilterValue('filter-weekCycle')
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/filter`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(filter)
+        });
+
+        if (!response.ok) throw new Error("Błąd filtrowania.");
+        allLessons = await response.json();
+        renderTable();
+    } catch (err) { console.error(err); }
+}
+
 function renderTable() {
     const tbody = document.getElementById('timetable-rows');
     tbody.innerHTML = allLessons.map(l => `

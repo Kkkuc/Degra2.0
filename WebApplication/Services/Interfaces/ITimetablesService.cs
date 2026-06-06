@@ -18,4 +18,5 @@ public interface ITimetablesService
     Task<IEnumerable<Room>> GetAllRoomsAsync();
     Task<IEnumerable<Subject>> GetAllSubjectsAsync();
     Task<IEnumerable<Teacher>> GetAllTeachersAsync();
+    Task<IEnumerable<TimetableListDto>> GetFilteredAsync(TimetableFilterDto filter);
 }
