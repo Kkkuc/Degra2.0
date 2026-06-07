@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication.DTOs.Account;
 using WebApplication.Services.Interfaces;
@@ -62,5 +63,19 @@ public class AccountController(IAccountService accountService) : Controller
     public IActionResult AccessDenied()
     {
         return View();
+    }
+    [HttpGet]
+    public IActionResult LoginWithGoogle()
+    {
+        var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleCallback", "Account") };
+
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+    [HttpGet]
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult GoogleCallback()
+    {
+        return RedirectToAction("Index", "Scheduler");
     }
 }

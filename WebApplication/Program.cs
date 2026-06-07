@@ -5,6 +5,7 @@ using WebApplication.Services;
 using System.Text.Json.Serialization;
 using WebApplication.Services.Interfaces;
 using WebApplication.Services.ModelServices;
+using System.Security.Claims;
 
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
@@ -37,17 +38,66 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.Cookie.IsEssential = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+})
+.AddGoogle(options =>
+{
+    options.ClientId = "597549856575-hnmt5tg33ajlnhbuv937tiktpn3u2gfi.apps.googleusercontent.com";
+    options.ClientSecret = "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";
+
+    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
     {
-        options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-        options.Cookie.IsEssential = true;
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Strict;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    });
+        OnTicketReceived = async context =>
+        {
+            var googleEmail = context.Principal?.FindFirst(ClaimTypes.Email)?.Value;
+
+            if (string.IsNullOrEmpty(googleEmail))
+            {
+                context.Response.Redirect("/Account/Login?error=BladGoogle");
+                context.HandleResponse();
+                return;
+            }
+
+            var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+            var dbUser = await dbContext.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == googleEmail);
+
+            if (dbUser != null)
+            {
+                var lokalneClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, dbUser.Id.ToString()),
+                    new Claim(ClaimTypes.Name, dbUser.Username),
+                    new Claim(ClaimTypes.Email, dbUser.Email),
+                    new Claim(ClaimTypes.Role, dbUser.Role.Name)
+                };
+
+                var identity = new ClaimsIdentity(lokalneClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+                context.Principal = new ClaimsPrincipal(identity);
+            }
+            else
+            {
+                context.Principal = null;
+                
+                context.Response.Redirect("/Account/Login?error=BrakKontaWSystemie");
+                context.HandleResponse(); 
+            }
+        }
+    };
+});
 
 builder.Services.AddAuthorization();
 

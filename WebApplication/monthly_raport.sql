@@ -48,3 +48,5 @@ end;
 /
 --testy
 insert into "Students"("Id", "StudentID", "FirstName", "LastName") values (3, 22334, 'Karol', 'Siemano');
+/
+select * from "Users";
