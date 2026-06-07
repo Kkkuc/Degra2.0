@@ -18,8 +18,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (adminData && adminData.dataset.isInvalid === "true") {
         switchTab('tab-users');
     }
-    //fetchLessons();
     renderTable();
+});
+
+document.getElementById('filter-subject-input').addEventListener('input', function(e) {
+    const input = e.target;
+    const list = document.getElementById('subjects-list');
+    const hiddenId = document.getElementById('filter-subject-id');
+
+
+    const option = Array.from(list.options).find(opt => opt.value === input.value);
+
+    if (option) {
+        hiddenId.value = option.getAttribute('data-id');
+    } else {
+        hiddenId.value = ""; 
+    }
 });
 
 function switchTab(tabId) {
@@ -55,11 +69,11 @@ function getFilterValue(id) {
 
 async function applyFilters() {
     const filter = {
-        subjectId: getFilterValue('filter-subject'),
-        teacherId: getFilterValue('filter-teacher'),
-        roomId: getFilterValue('filter-room'),
-        groupId: getFilterValue('filter-group'),
-        classType: getFilterValue('filter-classType'),
+        subjectId: document.getElementById('filter-subject-id').value || null,
+        teacherId: document.getElementById('filter-teacher-id').value || null,
+        roomId: document.getElementById('filter-room-id').value || null,
+        groupId: document.getElementById('filter-group-id').value || null,
+        classType: getFilterValue('filter-classType'), 
         dayOfWeek: getFilterValue('filter-dayOfWeek'),
         weekCycle: getFilterValue('filter-weekCycle')
     };
@@ -194,4 +208,13 @@ async function deleteLesson(id) {
     } catch (err) {
         console.error(err);
     }
+}
+
+function handleSearch(listId, hiddenId, val) {
+    const list = document.getElementById(listId);
+    const hidden = document.getElementById(hiddenId);
+    
+    const option = Array.from(list.options).find(opt => opt.value === val);
+
+    hidden.value = option ? option.getAttribute('data-id') : "";
 }

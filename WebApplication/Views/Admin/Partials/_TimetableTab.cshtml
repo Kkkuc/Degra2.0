@@ -3,41 +3,51 @@
     <div
         class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
 
-        <select id="filter-subject"
-                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <option value="">Przedmiot</option>
+        <input list="subjects-list" id="filter-subject-input"
+               placeholder="Szukaj przedmiotu..."
+               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        <datalist id="subjects-list">
             @foreach (var s in (SelectList)ViewBag.SubjectId)
             {
-                <option value="@s.Value">@s.Text</option>
+                <option value="@s.Text" data-id="@s.Value"></option>
             }
-        </select>
+        </datalist>
+        <input type="hidden" id="filter-subject-id">
 
-        <select id="filter-teacher"
-                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <option value="">Prowadzący</option>
+
+        <input list="teachers-list" id="filter-teacher-input" placeholder="Wpisz nazwisko..."
+               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
+               oninput="handleSearch('teachers-list', 'filter-teacher-id', this.value)">
+        <datalist id="teachers-list">
             @foreach (var t in (SelectList)ViewBag.TeacherId)
             {
-                <option value="@t.Value">@t.Text</option>
+                <option value="@t.Text" data-id="@t.Value"></option>
             }
-        </select>
+        </datalist>
+        <input type="hidden" id="filter-teacher-id">
 
-        <select id="filter-room"
-                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <option value="">Sala</option>
+
+        <input list="rooms-list" id="filter-room-input" placeholder="Szukaj sali..."
+               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
+               oninput="handleSearch('rooms-list', 'filter-room-id', this.value)">
+        <datalist id="rooms-list">
             @foreach (var r in (SelectList)ViewBag.RoomId)
             {
-                <option value="@r.Value">@r.Text</option>
+                <option value="@r.Text" data-id="@r.Value"></option>
             }
-        </select>
+        </datalist>
+        <input type="hidden" id="filter-room-id">
 
-        <select id="filter-group"
-                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <option value="">Grupa</option>
+        <input list="groups-list" id="filter-group-input" placeholder="Szukaj grupy..."
+               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
+               oninput="handleSearch('groups-list', 'filter-group-id', this.value)">
+        <datalist id="groups-list">
             @foreach (var g in (SelectList)ViewBag.GroupId)
             {
-                <option value="@g.Value">@g.Text</option>
+                <option value="@g.Text" data-id="@g.Value"></option>
             }
-        </select>
+        </datalist>
+        <input type="hidden" id="filter-group-id">
 
         <select id="filter-classType"
                 class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
