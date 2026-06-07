@@ -31,17 +31,6 @@
     Layout = "_Layout";
 }
 
-@if (User.IsInRole("Moderator"))
-{
-    <li>
-        <a asp-controller="Admin" 
-           asp-action="Index" 
-           class="block px-4 py-2 text-purple-700 font-bold hover:bg-purple-50 transition-colors">
-            Panel Administratora
-        </a>
-    </li>
-}
-
 @section HeaderLeft {
     <div class="flex items-center gap-2">
         <button onclick="navigateDate(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
