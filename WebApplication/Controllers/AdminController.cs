@@ -14,10 +14,17 @@ public class AdminController(IAdminService adminService, ITimetablesService time
         var roles = await adminService.GetRolesDropdownListAsync();
         ViewBag.Roles = new SelectList(roles, "Key", "Value", selectedRoleId);
         
-        ViewBag.SubjectId = new SelectList(await timetablesService.GetAllSubjectsAsync(), "Id", "Name");
-        ViewBag.TeacherId = new SelectList(await timetablesService.GetAllTeachersAsync(), "Id", "FirstName");
-        ViewBag.RoomId = new SelectList(await timetablesService.GetAllRoomsAsync(), "Id", "RoomNumber");
-        ViewBag.GroupId = new SelectList(await timetablesService.GetAllGroupsAsync(), "Id", "Name");
+        var subjects = await timetablesService.GetAllSubjectsAsync();
+        ViewBag.SubjectId = new SelectList(subjects.OrderBy(s => s.Name), "Id", "Name");
+        
+        var teachers = await timetablesService.GetAllTeachersAsync();
+        ViewBag.TeacherId = new SelectList(teachers.OrderBy(t => t.LastName).ThenBy(t => t.FirstName).ThenBy(t => t.AcademicTitle), "Id", "FullDisplayName");
+        
+        var rooms = await timetablesService.GetAllRoomsAsync();
+        ViewBag.RoomId = new SelectList(rooms.OrderBy(r => r.RoomNumber), "Id", "RoomNumber");
+        
+        var groups = await timetablesService.GetAllGroupsAsync();
+        ViewBag.GroupId = new SelectList(groups.OrderBy(g => g.Name), "Id", "Name");
     }
     
     

@@ -1,8 +1,16 @@
 const API_URL = '/api/Timetables';
-let allLessons = [];
+let allLessons = null;
 
 const classTypes = {0: "Wykład", 1: "Laboratorium", 2: "Ćwiczenia", 3: "Projekt"};
-const daysOfWeek = {0: "Niedziela", 1: "Poniedziałek", 2: "Wtorek", 3: "Środa", 4: "Czwartek", 5: "Piątek", 6: "Sobota"};
+const daysOfWeek = {
+    0: "Niedziela",
+    1: "Poniedziałek",
+    2: "Wtorek",
+    3: "Środa",
+    4: "Czwartek",
+    5: "Piątek",
+    6: "Sobota"
+};
 const weekCycles = {0: "Co tydzień", 1: "Tydzień Parzysty", 2: "Tydzień Nieparzysty"};
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -10,7 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (adminData && adminData.dataset.isInvalid === "true") {
         switchTab('tab-users');
     }
-    fetchLessons();
+    //fetchLessons();
+    renderTable();
 });
 
 function switchTab(tabId) {
@@ -34,7 +43,9 @@ async function fetchLessons() {
         if (!response.ok) throw new Error("Błąd API.");
         allLessons = await response.json();
         renderTable();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 function getFilterValue(id) {
@@ -56,18 +67,33 @@ async function applyFilters() {
     try {
         const response = await fetch(`${API_URL}/filter`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(filter)
         });
 
         if (!response.ok) throw new Error("Błąd filtrowania.");
         allLessons = await response.json();
         renderTable();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 function renderTable() {
     const tbody = document.getElementById('timetable-rows');
+    if (allLessons === null) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-500">
+            Wybierz filtry i kliknij "Filtruj", aby wyświetlić dostępne zajęcia.
+        </td></tr>`;
+        return;
+    }
+    
+    if (allLessons.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-500">
+            Brak zajęć dla wybranych filtrów.
+        </td></tr>`;
+        return;
+    }
     tbody.innerHTML = allLessons.map(l => `
         <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
             <td class="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100">${l.subjectName}</td>
@@ -113,9 +139,15 @@ async function handleFormSubmit(e) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
         });
-        if (response.ok) { closeCrudModal(); fetchLessons(); }
-        else { alert("Wystąpił błąd podczas zapisu danych."); }
-    } catch (err) { console.error(err); }
+        if (response.ok) {
+            closeCrudModal();
+            fetchLessons();
+        } else {
+            alert("Wystąpił błąd podczas zapisu danych.");
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 function openCreateModal() {
@@ -142,10 +174,14 @@ async function openEditModal(id) {
         document.getElementById('form-startTime').value = l.startTime.substring(0, 5);
         document.getElementById('form-endTime').value = l.endTime.substring(0, 5);
         document.getElementById('crud-modal').classList.remove('hidden');
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-function closeCrudModal() { document.getElementById('crud-modal').classList.add('hidden'); }
+function closeCrudModal() {
+    document.getElementById('crud-modal').classList.add('hidden');
+}
 
 async function deleteLesson(id) {
     if (!confirm("Usunąć ten wpis z planu zajęć?")) return;
@@ -155,5 +191,7 @@ async function deleteLesson(id) {
             allLessons = allLessons.filter(l => l.id !== id);
             renderTable();
         }
-    } catch (err) { console.error(err); }
+    } catch (err) {
+        console.error(err);
+    }
 }

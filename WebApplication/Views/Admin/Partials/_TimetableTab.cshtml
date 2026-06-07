@@ -1,37 +1,60 @@
 @using WebApplication.Models.enums
 <div id="tab-timetable" class="tab-content">
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
-        
-        <select id="filter-subject" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div
+        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
+
+        <select id="filter-subject"
+                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <option value="">Przedmiot</option>
-            @foreach (var s in (SelectList)ViewBag.SubjectId) { <option value="@s.Value">@s.Text</option> }
+            @foreach (var s in (SelectList)ViewBag.SubjectId)
+            {
+                <option value="@s.Value">@s.Text</option>
+            }
         </select>
 
-        <select id="filter-teacher" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        <select id="filter-teacher"
+                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <option value="">Prowadzący</option>
-            @foreach (var t in (SelectList)ViewBag.TeacherId) { <option value="@t.Value">@t.Text</option> }
+            @foreach (var t in (SelectList)ViewBag.TeacherId)
+            {
+                <option value="@t.Value">@t.Text</option>
+            }
         </select>
 
-        <select id="filter-room" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        <select id="filter-room"
+                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <option value="">Sala</option>
-            @foreach (var r in (SelectList)ViewBag.RoomId) { <option value="@r.Value">@r.Text</option> }
+            @foreach (var r in (SelectList)ViewBag.RoomId)
+            {
+                <option value="@r.Value">@r.Text</option>
+            }
         </select>
 
-        <select id="filter-group" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        <select id="filter-group"
+                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <option value="">Grupa</option>
-            @foreach (var g in (SelectList)ViewBag.GroupId) { <option value="@g.Value">@g.Text</option> }
+            @foreach (var g in (SelectList)ViewBag.GroupId)
+            {
+                <option value="@g.Value">@g.Text</option>
+            }
         </select>
 
-        <select id="filter-classType" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        <select id="filter-classType"
+                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <option value="">Typ zajęć</option>
-            @foreach (var i in Html.GetEnumSelectList<ClassType>()) { <option value="@i.Value">@i.Text</option> }
+            @foreach (var i in Html.GetEnumSelectList<ClassType>())
+            {
+                <option value="@i.Value">@i.Text</option>
+            }
         </select>
 
-        <select id="filter-dayOfWeek" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        <select id="filter-dayOfWeek"
+                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <option value="">Dzień</option>
             @{
-                var daysMap = new Dictionary<int, string> {
-                    { 1, "Poniedziałek" }, { 2, "Wtorek" }, { 3, "Środa" }, 
+                var daysMap = new Dictionary<int, string>
+                {
+                    { 1, "Poniedziałek" }, { 2, "Wtorek" }, { 3, "Środa" },
                     { 4, "Czwartek" }, { 5, "Piątek" }, { 6, "Sobota" }, { 0, "Niedziela" }
                 };
             }
@@ -41,9 +64,13 @@
             }
         </select>
 
-        <select id="filter-weekCycle" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        <select id="filter-weekCycle"
+                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <option value="">Cykl</option>
-            @foreach (var i in Html.GetEnumSelectList<WeekCycle>()) { <option value="@i.Value">@i.Text</option> }
+            @foreach (var i in Html.GetEnumSelectList<WeekCycle>())
+            {
+                <option value="@i.Value">@i.Text</option>
+            }
         </select>
 
         <button onclick="applyFilters()"
@@ -51,8 +78,8 @@
             Filtruj
         </button>
     </div>
-    
-    
+
+
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Wpisy w planie zajęć</h2>
         <button onclick="openCreateModal()"

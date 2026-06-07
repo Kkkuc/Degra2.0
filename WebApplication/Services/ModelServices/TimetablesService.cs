@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+using WebApplication.DTOs.Teacher;
 using WebApplication.DTOs.Timetable;
 using WebApplication.Models;
 using WebApplication.Services.Interfaces;
@@ -148,16 +149,20 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Teacher>> GetAllTeachersAsync()
+    public async Task<IEnumerable<TeacherDropdownDto>> GetAllTeachersAsync()
     {
-        // Tutaj mapujemy dane bezpośrednio pod listę rozwijaną w formularzu modalnym
         return await context.Teachers
-            .Select(t => new Teacher
+            .Select(t => new TeacherDropdownDto
             {
                 Id = t.Id,
-                FirstName =
-                    $"{(string.IsNullOrEmpty(t.AcademicTitle) ? "" : t.AcademicTitle + " ")}{t.FirstName.Substring(0, 1)}. {t.LastName}"
+                AcademicTitle = (string.IsNullOrWhiteSpace(t.AcademicTitle) || 
+                                 t.AcademicTitle.Trim().Equals("None", StringComparison.OrdinalIgnoreCase)) 
+                    ? string.Empty
+                    : t.AcademicTitle.Trim(),
+                FirstName = t.FirstName,
+                LastName = t.LastName
             })
+            .OrderBy(t => t.LastName) 
             .ToListAsync();
     }
 
@@ -195,8 +200,12 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
         }
 
         return await query
-            .OrderBy(t => t.DayOfWeek)
-            .ThenBy(t => t.StartTime)
+            .OrderBy(t => t.DayOfWeek)           
+            .ThenBy(t => t.StartTime)         
+            .ThenBy(t => t.Subject!.Name)          
+            .ThenBy(t => t.Teacher!.LastName) 
+            .ThenBy(t => t.Room!.RoomNumber)       
+            .ThenBy(t => t.Group!.Name)
             .Select(t => new TimetableListDto
             {
                 Id = t.Id,

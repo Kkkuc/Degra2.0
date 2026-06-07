@@ -1,3 +1,4 @@
+using WebApplication.DTOs.Teacher;
 using WebApplication.DTOs.Timetable;
 using WebApplication.Models;
 
@@ -17,6 +18,6 @@ public interface ITimetablesService
     Task<IEnumerable<Group>> GetAllGroupsAsync();
     Task<IEnumerable<Room>> GetAllRoomsAsync();
     Task<IEnumerable<Subject>> GetAllSubjectsAsync();
-    Task<IEnumerable<Teacher>> GetAllTeachersAsync();
+    Task<IEnumerable<TeacherDropdownDto>> GetAllTeachersAsync();
     Task<IEnumerable<TimetableListDto>> GetFilteredAsync(TimetableFilterDto filter);
 }

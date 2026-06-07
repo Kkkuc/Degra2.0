@@ -9,10 +9,17 @@
 <div class="px-8 pt-6">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Panel Administratora</h1>
 
-    <div class="flex border-b border-border mb-6">
-        <button onclick="switchTab('tab-timetable')" id="btn-tab-timetable" class="...">Zarządzanie Planem</button>
-        <button onclick="switchTab('tab-users')" id="btn-tab-users" class="...">Użytkownicy</button>
-        <button onclick="switchTab('tab-reports')" id="btn-tab-reports" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">
+    <div class="flex space-x-6 border-b border-gray-200 dark:border-gray-700">
+        <button id="btn-tab-timetable" onclick="switchTab('tab-timetable')"
+                class="px-6 py-3 font-semibold text-sm border-b-2 border-blue-600 text-blue-600 transition-colors focus:outline-none">
+            Zarządzanie Planem
+        </button>
+        <button id="btn-tab-users" onclick="switchTab('tab-users')"
+                class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors focus:outline-none">
+            Użytkownicy
+        </button>
+        <button id="btn-tab-reports" onclick="switchTab('tab-reports')"
+                class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors focus:outline-none">
             Raporty
         </button>
     </div>
@@ -24,10 +31,10 @@
         </div>
     }
 
-    <partial name="Partials/_TimetableTab" />
-    <partial name="Partials/_UsersTab" model="Model" />
-    <partial name="Partials/_ReportsTab" />
-    <partial name="Partials/_CrudModal" />
+    <partial name="Partials/_TimetableTab"/>
+    <partial name="Partials/_UsersTab" model="Model"/>
+    <partial name="Partials/_ReportsTab"/>
+    <partial name="Partials/_CrudModal"/>
 </div>
 
 
