@@ -1,53 +1,67 @@
 @using WebApplication.Models.enums
-<div id="tab-timetable" class="tab-content">
+@{
+    ViewData["Title"] = "Zarządzanie Planem";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="px-8 pt-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Panel Administratora</h1>
+
+    <partial name="Partials/_AdminNav"/>
+
     <div
         class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
 
-        <input list="subjects-list" id="filter-subject-input"
-               placeholder="Szukaj przedmiotu..."
-               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-        <datalist id="subjects-list">
-            @foreach (var s in (SelectList)ViewBag.SubjectId)
-            {
-                <option value="@s.Text" data-id="@s.Value"></option>
-            }
-        </datalist>
-        <input type="hidden" id="filter-subject-id">
+        <div class="w-full">
+            <input list="subjects-list" id="filter-subject-input" placeholder="Szukaj przedmiotu..."
+                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <datalist id="subjects-list">
+                @foreach (var s in (SelectList)ViewBag.SubjectId)
+                {
+                    <option value="@s.Text" data-id="@s.Value"></option>
+                }
+            </datalist>
+            <input type="hidden" id="filter-subject-id">
+        </div>
 
+        <div class="w-full">
+            <input list="teachers-list" id="filter-teacher-input" placeholder="Wpisz nazwisko..."
+                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
+                   oninput="handleSearch('teachers-list', 'filter-teacher-id', this.value)">
+            <datalist id="teachers-list">
+                @foreach (var t in (SelectList)ViewBag.TeacherId)
+                {
+                    <option value="@t.Text" data-id="@t.Value"></option>
+                }
+            </datalist>
+            <input type="hidden" id="filter-teacher-id">
+        </div>
 
-        <input list="teachers-list" id="filter-teacher-input" placeholder="Wpisz nazwisko..."
-               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
-               oninput="handleSearch('teachers-list', 'filter-teacher-id', this.value)">
-        <datalist id="teachers-list">
-            @foreach (var t in (SelectList)ViewBag.TeacherId)
-            {
-                <option value="@t.Text" data-id="@t.Value"></option>
-            }
-        </datalist>
-        <input type="hidden" id="filter-teacher-id">
+        <div class="w-full">
+            <input list="rooms-list" id="filter-room-input" placeholder="Szukaj sali..."
+                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
+                   oninput="handleSearch('rooms-list', 'filter-room-id', this.value)">
+            <datalist id="rooms-list">
+                @foreach (var r in (SelectList)ViewBag.RoomId)
+                {
+                    <option value="@r.Text" data-id="@r.Value"></option>
+                }
+            </datalist>
+            <input type="hidden" id="filter-room-id">
+        </div>
 
-
-        <input list="rooms-list" id="filter-room-input" placeholder="Szukaj sali..."
-               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
-               oninput="handleSearch('rooms-list', 'filter-room-id', this.value)">
-        <datalist id="rooms-list">
-            @foreach (var r in (SelectList)ViewBag.RoomId)
-            {
-                <option value="@r.Text" data-id="@r.Value"></option>
-            }
-        </datalist>
-        <input type="hidden" id="filter-room-id">
-
-        <input list="groups-list" id="filter-group-input" placeholder="Szukaj grupy..."
-               class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
-               oninput="handleSearch('groups-list', 'filter-group-id', this.value)">
-        <datalist id="groups-list">
-            @foreach (var g in (SelectList)ViewBag.GroupId)
-            {
-                <option value="@g.Text" data-id="@g.Value"></option>
-            }
-        </datalist>
-        <input type="hidden" id="filter-group-id">
+        <div class="w-full">
+            <input list="groups-list" id="filter-group-input" placeholder="Szukaj grupy..."
+                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
+                   oninput="handleSearch('groups-list', 'filter-group-id', this.value)">
+            <datalist id="groups-list">
+                @foreach (var g in (SelectList)ViewBag.GroupId)
+                {
+                    <option value="@g.Text" data-id="@g.Value"></option>
+                }
+            </datalist>
+            <input type="hidden" id="filter-group-id">
+        </div>
 
         <select id="filter-classType"
                 class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
@@ -89,7 +103,6 @@
         </button>
     </div>
 
-
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Wpisy w planie zajęć</h2>
         <button onclick="openCreateModal()"
@@ -117,3 +130,9 @@
         </table>
     </div>
 </div>
+
+<partial name="Partials/_CrudModal"/>
+
+@section Scripts {
+    <script src="~/js/admin-timetable.js" asp-append-version="true"></script>
+}

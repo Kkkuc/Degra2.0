@@ -9,29 +9,48 @@ namespace WebApplication.Controllers;
 [Authorize(Roles = "Moderator")]
 public class AdminController(IAdminService adminService, ITimetablesService timetablesService) : Controller
 {
-    private async Task LoadViewDataAsync(object? selectedRoleId = null)
+    private async Task LoadViewDataAsync()
     {
-        var roles = await adminService.GetRolesDropdownListAsync();
-        ViewBag.Roles = new SelectList(roles, "Key", "Value", selectedRoleId);
-        
         var subjects = await timetablesService.GetAllSubjectsAsync();
         ViewBag.SubjectId = new SelectList(subjects.OrderBy(s => s.Name), "Id", "Name");
-        
+
         var teachers = await timetablesService.GetAllTeachersAsync();
-        ViewBag.TeacherId = new SelectList(teachers.OrderBy(t => t.LastName).ThenBy(t => t.FirstName).ThenBy(t => t.AcademicTitle), "Id", "FullDisplayName");
-        
+        ViewBag.TeacherId =
+            new SelectList(teachers.OrderBy(t => t.LastName).ThenBy(t => t.FirstName).ThenBy(t => t.AcademicTitle),
+                "Id", "FullDisplayName");
+
         var rooms = await timetablesService.GetAllRoomsAsync();
         ViewBag.RoomId = new SelectList(rooms.OrderBy(r => r.RoomNumber), "Id", "RoomNumber");
-        
+
         var groups = await timetablesService.GetAllGroupsAsync();
         ViewBag.GroupId = new SelectList(groups.OrderBy(g => g.Name), "Id", "Name");
     }
-    
-    
+
+    private async Task LoadRolesAsync(object? selectedRoleId = null)
+    {
+        var roles = await adminService.GetRolesDropdownListAsync();
+        ViewBag.Roles = new SelectList(roles, "Key", "Value", selectedRoleId);
+    }
+
     public async Task<IActionResult> Index()
     {
-        var data = await adminService.GetUsersForIndexAsync();
         await LoadViewDataAsync();
+        return View();
+    }
+
+    public async Task<IActionResult> Timetable()
+    {
+        await LoadViewDataAsync();
+        return View();
+    }
+
+    public IActionResult Reports() => View();
+
+    public async Task<IActionResult> Users(object? selectedRoleId = null)
+    {
+        await LoadRolesAsync(selectedRoleId);
+        
+        var data = await adminService.GetUsersForIndexAsync();
         return View(data);
     }
 
@@ -49,11 +68,11 @@ public class AdminController(IAdminService adminService, ITimetablesService time
                 ModelState.AddModelError(string.Empty, "Użytkownik o takiej nazwie już istnieje.");
             }
             
-            // Dzięki wspólnej metodzie, nie musisz kopiować ViewBag-ów
-            await LoadViewDataAsync(dto.RoleId);
-            
+            await LoadViewDataAsync();
+            await LoadRolesAsync(dto.RoleId);
+
             var data = await adminService.GetUsersForIndexAsync();
-            return View(nameof(Index), data);
+            return View(nameof(Users), data);
         }
 
         await adminService.CreateAccountAsync(dto);
@@ -76,4 +95,6 @@ public class AdminController(IAdminService adminService, ITimetablesService time
             return RedirectToAction(nameof(Index));
         }
     }
+
+    
 }

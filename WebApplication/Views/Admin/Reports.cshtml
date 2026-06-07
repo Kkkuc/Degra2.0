@@ -1,13 +1,19 @@
-<div id="tab-reports" class="tab-content hidden">
+@{
+    ViewData["Title"] = "Raporty";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="px-8 pt-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Panel Administratora</h1>
+    <partial name="Partials/_AdminNav" />
+
     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-border shadow-sm max-w-lg">
         <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4">Generowanie raportów</h2>
-        
         <form asp-controller="Admin" asp-action="GenerateMonthlyStats" method="get" target="_blank" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400">Rok:</label>
-                    <input type="number" name="rok" value="@DateTime.Now.Year" min="2024" max="2030" 
-                           class="w-full bg-gray-100 dark:bg-gray-900 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                    <input type="number" name="rok" value="@DateTime.Now.Year" min="2024" max="2030" class="w-full bg-gray-100 dark:bg-gray-900 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-400">Miesiąc:</label>
@@ -19,10 +25,7 @@
                     </select>
                 </div>
             </div>
-            <button type="submit" 
-                    class="w-full py-2.5 bg-red-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-red-700 transition-colors">
-                Wygeneruj Raport Zmian (PDF)
-            </button>
+            <button type="submit" class="w-full py-2.5 bg-red-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-red-700">Wygeneruj Raport (PDF)</button>
         </form>
     </div>
 </div>
