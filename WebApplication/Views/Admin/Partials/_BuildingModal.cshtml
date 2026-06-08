@@ -1,0 +1,55 @@
+<div id="crud-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-card w-full max-w-2xl rounded-2xl shadow-2xl border border-border m-4 p-6">
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-border">
+            <h3 id="modal-title" class="font-bold text-xl">Dodaj budynek</h3>
+            <button type="button" onclick="closeCrudModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+        </div>
+
+        <form id="building-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+            <input type="hidden" id="form-id" />
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-gray-400">Nazwa</label>
+                <input id="form-name" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-gray-400">Wydział</label>
+                <select id="form-facultyId" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Wybierz wydział</option>
+                    @foreach (var faculty in (SelectList)ViewBag.Faculties)
+                    {
+                        <option value="@faculty.Value">@faculty.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400">Ulica</label>
+                    <input id="form-street" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400">Numer domu</label>
+                    <input id="form-houseNumber" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400">Miasto</label>
+                    <input id="form-city" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-400">Kod pocztowy</label>
+                    <input id="form-postalCode" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-border">
+                <button type="button" onclick="closeCrudModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl text-sm font-medium">Anuluj</button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-blue-700">Zapisz</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebApplication.DTOs.Admin;
+using WebApplication.DTOs.Building;
 using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
@@ -31,10 +32,17 @@ public class AdminController(IAdminService adminService, ITimetablesService time
         var roles = await adminService.GetRolesDropdownListAsync();
         ViewBag.Roles = new SelectList(roles, "Key", "Value", selectedRoleId);
     }
+
+    private async Task LoadBuildingDataAsync(object? selectedFacultyId = null)
+    {
+        var faculties = await buildingsService.GetFacultyDropdownListAsync();
+        ViewBag.Faculties = new SelectList(faculties, "Key", "Value", selectedFacultyId);
+    }
+
     public async Task<IActionResult> Buildings()
     {
-        var buildings = await buildingsService.GetAllForIndexAsync();
-        return View(buildings);
+        await LoadBuildingDataAsync();
+        return View();
     }
 
     public async Task<IActionResult> Index()
@@ -99,6 +107,61 @@ public class AdminController(IAdminService adminService, ITimetablesService time
             TempData["ErrorMessage"] = "Wystąpił błąd podczas generowania raportu.";
             return RedirectToAction(nameof(Index));
         }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> BuildingsData(string? search, int? facultyId)
+    {
+        var buildings = await buildingsService.GetAllForAdminAsync(search, facultyId);
+        return Json(buildings);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> BuildingData(int id)
+    {
+        var building = await buildingsService.GetFormByIdAsync(id);
+        if (building == null)
+        {
+            return NotFound();
+        }
+
+        return Json(building);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateBuilding([FromBody] BuildingFormDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await buildingsService.CreateAsync(dto);
+        return Ok();
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateBuilding(int id, [FromBody] BuildingFormDto dto)
+    {
+        if (id != dto.Id)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var success = await buildingsService.UpdateAsync(dto);
+        return success ? Ok() : NotFound();
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteBuilding(int id)
+    {
+        await buildingsService.DeleteAsync(id);
+        return Ok();
     }
 
     

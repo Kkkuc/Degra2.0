@@ -20,6 +20,46 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? search = null, int? facultyId = null)
+    {
+        var query = context.Buildings
+            .AsNoTracking()
+            .Include(b => b.Faculty)
+            .AsQueryable();
+
+        if (facultyId.HasValue)
+        {
+            query = query.Where(b => b.FacultyId == facultyId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var normalized = search.Trim().ToLower();
+            query = query.Where(b =>
+                b.Name.ToLower().Contains(normalized) ||
+                b.Street.ToLower().Contains(normalized) ||
+                b.HouseNumber.ToLower().Contains(normalized) ||
+                b.City.ToLower().Contains(normalized) ||
+                b.PostalCode.ToLower().Contains(normalized) ||
+                b.Faculty!.Name.ToLower().Contains(normalized) ||
+                b.Faculty!.Abbreviation.ToLower().Contains(normalized));
+        }
+
+        return await query
+            .OrderBy(b => b.Name)
+            .Select(b => new BuildingAdminItemDto(
+                b.Id,
+                b.Name,
+                b.FacultyId,
+                b.Faculty!.Name,
+                b.Faculty!.Abbreviation,
+                b.Street,
+                b.HouseNumber,
+                b.City,
+                b.PostalCode))
+            .ToListAsync();
+    }
+
     public async Task<BuildingDetailsDto?> GetDetailsByIdAsync(int id)
     {
         return await context.Buildings

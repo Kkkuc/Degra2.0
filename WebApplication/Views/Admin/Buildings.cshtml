@@ -1,4 +1,3 @@
-@model IEnumerable<WebApplication.DTOs.Building.BuildingIndexDto>
 @{
     ViewData["Title"] = "Zarządzanie Budynkami";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,41 +8,56 @@
 
     <partial name="Partials/_AdminNav" />
 
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
+        <div class="w-full md:col-span-2">
+            <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Szukaj</label>
+            <input id="filter-building-input" type="text" placeholder="Szukaj nazwy, adresu lub wydziału..."
+                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+
+        <div class="w-full">
+            <label class="block text-xs font-bold uppercase text-gray-400 mb-1">Wydział</label>
+            <select id="filter-faculty-id" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                <option value="">Wszystkie wydziały</option>
+                @foreach (var faculty in (SelectList)ViewBag.Faculties)
+                {
+                    <option value="@faculty.Value">@faculty.Text</option>
+                }
+            </select>
+        </div>
+
+        <button onclick="loadBuildings()"
+                class="w-full bg-blue-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors">
+            Filtruj
+        </button>
+    </div>
+
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Zarządzanie budynkami</h2>
-        <a asp-action="CreateBuilding"
-           class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm text-sm">
+        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Lista budynków</h2>
+        <button onclick="openCreateModal()"
+                class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm text-sm">
             + Dodaj Nowy Budynek
-        </a>
+        </button>
     </div>
 
     <div class="bg-card border border-border rounded-2xl shadow-sm overflow-x-auto">
-        <table class="w-full border-collapse min-w-[600px]">
+        <table class="w-full border-collapse min-w-[900px]">
             <thead>
-                <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Nazwa Budynku</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Wydział</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
-                </tr>
+            <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Nazwa</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Adres</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Wydział</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
+            </tr>
             </thead>
-            <tbody class="divide-y divide-border">
-                @foreach (var b in Model)
-                {
-                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
-                        <td class="p-4 text-sm font-semibold text-gray-900 dark:text-gray-100">@b.Name</td>
-                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300">
-                                @b.FacultyAbbreviation
-                            </span>
-                        </td>
-                        <td class="p-4 text-sm text-right space-x-2">
-                            <a asp-action="EditBuilding" asp-route-id="@b.Id" class="text-blue-600 hover:underline font-medium">Edytuj</a>
-                            <span class="text-gray-300">|</span>
-                            <a asp-action="DeleteBuilding" asp-route-id="@b.Id" class="text-red-600 hover:underline font-medium" onclick="return confirm('Czy na pewno usunąć?')">Usuń</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
+            <tbody id="buildings-rows" class="divide-y divide-border"></tbody>
         </table>
     </div>
 </div>
+
+<partial name="Partials/_BuildingModal" />
+
+@section Scripts {
+    <script src="~/js/admin-ui.js" asp-append-version="true"></script>
+    <script src="~/js/admin-buildings.js" asp-append-version="true"></script>
+}
