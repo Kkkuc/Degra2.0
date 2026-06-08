@@ -11,7 +11,17 @@ namespace WebApplication.Controllers;
 public class FacultiesApiController(IFacultiesService facultiesService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await facultiesService.GetAllAsync());
+    public async Task<IActionResult> GetAll([FromQuery] string? search)
+    {
+        var data = await facultiesService.GetAllAsync();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            data = data.Where(f => 
+                f.Name.Contains(search, StringComparison.OrdinalIgnoreCase) || 
+                f.Abbreviation.Contains(search, StringComparison.OrdinalIgnoreCase));
+        }
+        return Ok(data);
+    }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)

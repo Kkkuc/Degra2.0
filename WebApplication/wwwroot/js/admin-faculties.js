@@ -3,21 +3,28 @@ let allFaculties = [];
 
 document.addEventListener("DOMContentLoaded", () => loadFaculties());
 
-async function loadFaculties() {
-    const response = await fetch(API_URL);
+async function loadFaculties(query = "") {
+    const url = query ? `${API_URL}?search=${encodeURIComponent(query)}` : API_URL;
+    const response = await fetch(url);
     allFaculties = await response.json();
     renderTable();
+}
+
+async function applyFilters() {
+    const query = document.getElementById("filter-faculty-input").value;
+    await loadFaculties(query);
 }
 
 function renderTable() {
     const tbody = document.getElementById("faculties-rows");
     tbody.innerHTML = allFaculties.map(f => `
-        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+        <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
             <td class="p-4 text-sm font-semibold">${f.abbreviation}</td>
-            <td class="p-4 text-sm">${f.name}</td>
-            <td class="p-4 text-sm text-right">
-                <button onclick="openEditModal(${f.id})" class="text-blue-600">Edytuj</button> |
-                <button onclick="deleteFaculty(${f.id})" class="text-red-600">Usuń</button>
+            <td class="p-4 text-sm text-gray-600 dark:text-gray-400">${f.name}</td>
+            <td class="p-4 text-sm text-right space-x-2">
+                <button onclick="openEditModal(${f.id})" class="text-blue-600 hover:underline">Edytuj</button>
+                <span class="text-gray-300">|</span>
+                <button onclick="deleteFaculty(${f.id})" class="text-red-600 hover:underline">Usuń</button>
             </td>
         </tr>
     `).join("");
