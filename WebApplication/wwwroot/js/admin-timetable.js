@@ -14,8 +14,11 @@ const daysOfWeek = {
 const weekCycles = {0: "Co tydzień", 1: "Tydzień Parzysty", 2: "Tydzień Nieparzysty"};
 
 document.addEventListener("DOMContentLoaded", () => {
+    setupModalInputs();
     renderTable();
 });
+
+
 document.getElementById('filter-subject-input').addEventListener('input', function(e) {
     const input = e.target;
     const list = document.getElementById('subjects-list');
@@ -30,19 +33,6 @@ document.getElementById('filter-subject-input').addEventListener('input', functi
         hiddenId.value = "";
     }
 });
-
-
-async function fetchLessons() {
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("Błąd API.");
-        allLessons = await response.json();
-        renderTable();
-    } catch (err) {
-        console.error(err);
-    }
-}
-
 function getFilterValue(id) {
     const val = document.getElementById(id).value;
     return val === "" ? null : parseInt(val);
@@ -66,7 +56,9 @@ async function applyFilters() {
             body: JSON.stringify(filter)
         });
 
-        if (!response.ok) throw new Error("Błąd filtrowania.");
+        if (!response.ok) {
+            throw new Error("Błąd filtrowania.");
+        }
         allLessons = await response.json();
         renderTable();
     } catch (err) {
@@ -136,7 +128,13 @@ async function handleFormSubmit(e) {
         });
         if (response.ok) {
             closeCrudModal();
-            fetchLessons();
+            const hasFilters = document.getElementById('filter-subject-id').value ||
+                document.getElementById('filter-teacher-id').value ||
+                document.getElementById('filter-classType').value;
+
+            if (hasFilters) {
+                await applyFilters(); 
+            } 
         } else {
             alert("Wystąpił błąd podczas zapisu danych.");
         }
@@ -149,6 +147,17 @@ function openCreateModal() {
     document.getElementById('modal-title').innerText = "Dodaj nowe zajęcia";
     document.getElementById('timetable-form').reset();
     document.getElementById('form-id').value = "";
+    const fieldsToClear = [
+        { input: 'form-subject-input', hidden: 'form-subjectId' },
+        { input: 'form-teacher-input', hidden: 'form-teacherId' },
+        { input: 'form-room-input', hidden: 'form-roomId' },
+        { input: 'form-group-input', hidden: 'form-groupId' }
+    ];
+
+    fieldsToClear.forEach(field => {
+        document.getElementById(field.input).value = "";
+        document.getElementById(field.hidden).value = "";
+    });
     document.getElementById('crud-modal').classList.remove('hidden');
 }
 
@@ -159,9 +168,13 @@ async function openEditModal(id) {
         const l = await response.json();
         document.getElementById('modal-title').innerText = "Edytuj zajęcia";
         document.getElementById('form-id').value = l.id;
+        document.getElementById('form-subject-input').value = l.subjectName;
         document.getElementById('form-subjectId').value = l.subjectId;
+        document.getElementById('form-teacher-input').value = l.teacherName;
         document.getElementById('form-teacherId').value = l.teacherId;
+        document.getElementById('form-room-input').value = l.roomNumber;
         document.getElementById('form-roomId').value = l.roomId;
+        document.getElementById('form-group-input').value = l.groupName;
         document.getElementById('form-groupId').value = l.groupId;
         document.getElementById('form-classType').value = l.classType;
         document.getElementById('form-dayOfWeek').value = l.dayOfWeek;
@@ -198,4 +211,22 @@ function handleSearch(listId, hiddenId, val) {
     const option = Array.from(list.options).find(opt => opt.value === val);
 
     hidden.value = option ? option.getAttribute('data-id') : "";
+}
+
+function setupModalInputs() {
+    const inputs = [
+        {input: 'form-subject-input', hidden: 'form-subjectId', list: 'subjects-list-modal'},
+        {input: 'form-teacher-input', hidden: 'form-teacherId', list: 'teachers-list-modal'},
+        {input: 'form-room-input', hidden: 'form-roomId', list: 'rooms-list-modal'},
+        {input: 'form-group-input', hidden: 'form-groupId', list: 'groups-list-modal'}
+    ];
+
+    inputs.forEach(item => {
+        document.getElementById(item.input).addEventListener('input', function() {
+            const list = document.getElementById(item.list);
+            const hidden = document.getElementById(item.hidden);
+            const option = Array.from(list.options).find(opt => opt.value === this.value);
+            hidden.value = option ? option.getAttribute('data-id') : "";
+        });
+    });
 }

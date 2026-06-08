@@ -7,25 +7,40 @@
         </div>
         <form id="timetable-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
             <input type="hidden" id="form-id"/>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Przedmiot</label>
-                    <select id="form-subjectId" required asp-items="ViewBag.SubjectId" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Prowadzący</label>
-                    <select id="form-teacherId" required asp-items="ViewBag.TeacherId" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"></select>
-                </div>
+            <div>
+                <label class="block text-xs font-bold uppercase text-gray-400">Przedmiot</label>
+                <input list="subjects-list-modal" id="form-subject-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
+                <datalist id="subjects-list-modal">
+                    @foreach (var s in (SelectList)ViewBag.SubjectId) { <option value="@s.Text" data-id="@s.Value"></option> }
+                </datalist>
+                <input type="hidden" id="form-subjectId" />
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Sala</label>
-                    <select id="form-roomId" required asp-items="ViewBag.RoomId" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Grupa</label>
-                    <select id="form-groupId" required asp-items="ViewBag.GroupId" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"></select>
-                </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-gray-400">Prowadzący</label>
+                <input list="teachers-list-modal" id="form-teacher-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
+                <datalist id="teachers-list-modal">
+                    @foreach (var t in (SelectList)ViewBag.TeacherId) { <option value="@t.Text" data-id="@t.Value"></option> }
+                </datalist>
+                <input type="hidden" id="form-teacherId" />
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-gray-400">Sala</label>
+                <input list="rooms-list-modal" id="form-room-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
+                <datalist id="rooms-list-modal">
+                    @foreach (var r in (SelectList)ViewBag.RoomId) { <option value="@r.Text" data-id="@r.Value"></option> }
+                </datalist>
+                <input type="hidden" id="form-roomId" />
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase text-gray-400">Grupa</label>
+                <input list="groups-list-modal" id="form-group-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
+                <datalist id="groups-list-modal">
+                    @foreach (var g in (SelectList)ViewBag.GroupId) { <option value="@g.Text" data-id="@g.Value"></option> }
+                </datalist>
+                <input type="hidden" id="form-groupId" />
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>

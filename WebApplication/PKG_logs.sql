@@ -1,8 +1,8 @@
 CREATE OR REPLACE PACKAGE LOG_Pkg IS
     -- Publiczne funkcje do parsowania Enumów (żeby triggery mogły z nich korzystać)
-    FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2;
+    /*FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2;
     FUNCTION ParseRoomType(p_val IN NUMBER) RETURN NVARCHAR2;
-    FUNCTION ParseWeekCycle(p_val IN NUMBER) RETURN NVARCHAR2;
+    FUNCTION ParseWeekCycle(p_val IN NUMBER) RETURN NVARCHAR2;*/
 
     -- Główna procedura zapisująca log
     PROCEDURE SaveLog(
@@ -15,7 +15,7 @@ END LOG_Pkg;
 /
 CREATE OR REPLACE PACKAGE BODY LOG_Pkg IS
 
-    FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2 IS
+  /*  FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2 IS
     BEGIN
         RETURN CASE p_val
             WHEN 0 THEN 'Lecture'
@@ -48,7 +48,7 @@ CREATE OR REPLACE PACKAGE BODY LOG_Pkg IS
             WHEN 2 THEN 'Odd'
             ELSE 'Nieznany cykl (' || TO_CHAR(p_val) || ')'
     END;
-    END ParseWeekCycle;
+    END ParseWeekCycle;*/
 
     PROCEDURE SaveLog(
         p_table_name IN NVARCHAR2,
@@ -150,9 +150,15 @@ AFTER INSERT OR UPDATE OR DELETE ON "Timetables"
 FOR EACH ROW
 DECLARE
     v_operation NVARCHAR2(20);
-    v_old_val NVARCHAR2(2000);
-    v_new_val NVARCHAR2(2000);
+    v_old_val NVARCHAR2(32767);
+    v_new_val NVARCHAR2(32767);
 
+    FUNCTION FormatInterval(p_int INTERVAL DAY TO SECOND) RETURN NVARCHAR2 IS
+    BEGIN
+        RETURN LPAD(EXTRACT(HOUR FROM p_int), 2, '0') || ':' ||
+               LPAD(EXTRACT(MINUTE FROM p_int), 2, '0');
+    END;
+    
 BEGIN
     v_old_val := '-';
     v_new_val := '-';
@@ -163,11 +169,11 @@ BEGIN
                      ', NauczycielID: ' || :NEW."TeacherId" || 
                      ', SalaID: ' || :NEW."RoomId" || 
                      ', GrupaID: ' || :NEW."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:NEW."ClassType") || 
-                     ', Dzien: ' || :NEW."DayOfWeek" || 
-                     ', Start: ' || :NEW."StartTime" || 
-                     ', Koniec: ' || :NEW."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:NEW."WeekCycle");
+                     ', TypZajec: ' || :NEW."ClassType" || 
+                     ', Dzien: ' || :NEW."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:NEW."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:NEW."EndTime") ||
+                     ', Cykl: ' || :NEW."WeekCycle";
                      
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
@@ -176,22 +182,22 @@ BEGIN
                      ', NauczycielID: ' || :OLD."TeacherId" || 
                      ', SalaID: ' || :OLD."RoomId" || 
                      ', GrupaID: ' || :OLD."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:OLD."ClassType") || 
-                     ', Dzien: ' || :OLD."DayOfWeek" || 
-                     ', Start: ' || :OLD."StartTime" || 
-                     ', Koniec: ' || :OLD."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:OLD."WeekCycle");
+                     ', TypZajec: ' ||:OLD."ClassType" || 
+                     ', Dzien: ' || :OLD."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:OLD."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:OLD."EndTime") ||
+                     ', Cykl: ' || :OLD."WeekCycle";
                      
         v_new_val := 'ID: ' || :NEW."Id" || 
                      ', PrzedmiotID: ' || :NEW."SubjectId" || 
                      ', NauczycielID: ' || :NEW."TeacherId" || 
                      ', SalaID: ' || :NEW."RoomId" || 
                      ', GrupaID: ' || :NEW."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:NEW."ClassType") || 
-                     ', Dzien: ' || :NEW."DayOfWeek" || 
-                     ', Start: ' || :NEW."StartTime" || 
-                     ', Koniec: ' || :NEW."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:NEW."WeekCycle");
+                     ', TypZajec: ' || :NEW."ClassType" || 
+                     ', Dzien: ' || :NEW."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:NEW."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:NEW."EndTime") ||
+                     ', Cykl: ' || :NEW."WeekCycle";
                      
     ELSIF DELETING THEN
         v_operation := 'DELETE';
@@ -200,11 +206,11 @@ BEGIN
                      ', NauczycielID: ' || :OLD."TeacherId" || 
                      ', SalaID: ' || :OLD."RoomId" || 
                      ', GrupaID: ' || :OLD."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:OLD."ClassType") || 
-                     ', Dzien: ' || :OLD."DayOfWeek" || 
-                     ', Start: ' || :OLD."StartTime" || 
-                     ', Koniec: ' || :OLD."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:OLD."WeekCycle");
+                     ', TypZajec: ' || :OLD."ClassType" || 
+                     ', Dzien: ' || :OLD."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:OLD."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:OLD."EndTime") ||
+                     ', Cykl: ' || :OLD."WeekCycle";
     END IF;
 
     LOG_pkg.SaveLog('TimeTables', v_operation, v_old_val, v_new_val);

@@ -7,7 +7,7 @@ using WebApplication.Services.Interfaces;
 namespace WebApplication.Controllers;
 
 [Authorize(Roles = "Moderator")]
-public class AdminController(IAdminService adminService, ITimetablesService timetablesService) : Controller
+public class AdminController(IAdminService adminService, ITimetablesService timetablesService, IBuildingsService buildingsService) : Controller
 {
     private async Task LoadViewDataAsync()
     {
@@ -30,6 +30,11 @@ public class AdminController(IAdminService adminService, ITimetablesService time
     {
         var roles = await adminService.GetRolesDropdownListAsync();
         ViewBag.Roles = new SelectList(roles, "Key", "Value", selectedRoleId);
+    }
+    public async Task<IActionResult> Buildings()
+    {
+        var buildings = await buildingsService.GetAllForIndexAsync();
+        return View(buildings);
     }
 
     public async Task<IActionResult> Index()
