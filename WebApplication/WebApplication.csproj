@@ -59,8 +59,4 @@
       <Folder Include="DTOs\Group\" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Include="wwwroot\js\admin-panel.js" />
-    </ItemGroup>
-
 </Project>

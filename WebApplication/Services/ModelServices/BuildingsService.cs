@@ -19,8 +19,9 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
             ))
             .ToListAsync();
     }
+    
 
-    public async Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? name = null, string? address = null, int? facultyId = null)
+    public async Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? name = null, int? addressId = null, int? facultyId = null)
     {
         var query = context.Buildings
             .AsNoTracking()
@@ -34,21 +35,13 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
 
         if (!string.IsNullOrWhiteSpace(name))
         {
-            var normalizedName = name.Trim().ToLower();
-            query = query.Where(b => b.Name.ToLower().Contains(normalizedName));
+            query = query.Where(b => b.Name.Contains(name));
         }
 
-        if (!string.IsNullOrWhiteSpace(address))
+        // Teraz filtrujemy bezpośrednio po ID adresu, co jest najdokładniejsze
+        if (addressId.HasValue)
         {
-            var normalizedAddress = NormalizeSearchTerm(address);
-            query = query.Where(b =>
-                ($"{b.Street} {b.HouseNumber}, {b.PostalCode} {b.City}")
-                    .ToLower()
-                    .Replace(" ", string.Empty)
-                    .Replace(",", string.Empty)
-                    .Replace("-", string.Empty)
-                    .Replace(".", string.Empty)
-                    .Contains(normalizedAddress));
+            query = query.Where(b => b.Id == addressId.Value);
         }
 
         return await query
@@ -82,9 +75,7 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
             .Select(b => new BuildingFilterOptionDto(
                 b.Id,
                 $"{b.Street} {b.HouseNumber}, {b.PostalCode} {b.City}"))
-            .GroupBy(option => option.Text, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.First())
-            .OrderBy(option => option.Text)
+            .DistinctBy(x => x.Text)
             .ToList();
 
         return new BuildingAdminMetadataDto(

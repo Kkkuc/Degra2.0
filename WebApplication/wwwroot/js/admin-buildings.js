@@ -4,22 +4,27 @@ let allBuildings = null;
 let metadataPromise = null;
 let cachedFaculties = [];
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", initializePage);
+
+function initializePage() {
     AdminUi.wireDatalistInput("filter-address-input", "filter-address-id", "addresses-list");
     AdminUi.wireDatalistInput("filter-faculty-input", "filter-faculty-id", "faculties-list");
-    metadataPromise = loadMetadata();
-    renderTable();
-});
+
+    loadMetadata();
+}
+
+async function applyFilters() {
+    await loadBuildings();
+}
+
 
 function getFilterPayload() {
     return {
-        name: document.getElementById("filter-building-input")?.value ?? "",
-        address: document.getElementById("filter-address-input")?.value ?? "",
+        name: document.getElementById("filter-name-input")?.value ?? "",
         addressId: AdminUi.getNullableIntValue("filter-address-id"),
         facultyId: AdminUi.getNullableIntValue("filter-faculty-id")
     };
 }
-
 function getAddressDisplay(building) {
     return `${building.street} ${building.houseNumber}, ${building.postalCode} ${building.city}`;
 }
@@ -150,52 +155,20 @@ async function loadBuildings() {
     const filters = getFilterPayload();
     const params = new URLSearchParams();
 
-    if (filters.name) {
-        params.set("name", filters.name);
-    }
-
-    if (filters.address) {
-        params.set("address", filters.address);
-    }
-
-    if (filters.addressId !== null) {
-        params.set("addressId", filters.addressId);
-    }
-
-    if (filters.facultyId !== null) {
-        params.set("facultyId", filters.facultyId);
-    }
+    if (filters.name) params.set("name", filters.name);
+    if (filters.addressId !== null) params.set("addressId", filters.addressId);
+    if (filters.facultyId !== null) params.set("facultyId", filters.facultyId);
 
     const tbody = document.getElementById("buildings-rows");
-    if (tbody) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" class="p-8 text-center text-gray-500">
-                    Ładowanie budynków...
-                </td>
-            </tr>
-        `;
-    }
+    tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center">Ładowanie...</td></tr>`;
 
     try {
-        const response = await fetch(`${API_URL}${params.toString() ? `?${params.toString()}` : ""}`);
-        if (!response.ok) {
-            throw new Error("Nie udało się pobrać budynków.");
-        }
-
+        const response = await fetch(`${API_URL}?${params.toString()}`);
+        if (!response.ok) throw new Error("Błąd ładowania");
         allBuildings = await response.json();
         renderTable();
     } catch (err) {
         console.error(err);
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="p-8 text-center text-red-500">
-                        Wystąpił błąd podczas ładowania budynków.
-                    </td>
-                </tr>
-            `;
-        }
     }
 }
 
@@ -268,14 +241,16 @@ async function handleFormSubmit(event) {
         });
 
         if (!response.ok) {
-            alert("Wystąpił błąd podczas zapisu budynku.");
+            const errorText = await response.text();
+            alert(`Wystąpił błąd: ${errorText || "Nie udało się zapisać."}`);
             return;
         }
 
         closeCrudModal();
-        await loadBuildings();
+        await loadBuildings(); // Odśwież listę
     } catch (err) {
-        console.error(err);
+        console.error("Błąd podczas zapisu:", err);
+        alert("Wystąpił nieoczekiwany błąd sieciowy.");
     }
 }
 

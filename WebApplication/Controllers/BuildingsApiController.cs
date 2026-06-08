@@ -17,17 +17,12 @@ public class BuildingsApiController(IBuildingsService buildingsService) : Contro
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetBuildings([FromQuery] string? name, [FromQuery] string? address, [FromQuery] int? addressId, [FromQuery] int? facultyId)
+    public async Task<IActionResult> GetBuildings(
+        [FromQuery] string? name,
+        [FromQuery] int? addressId,
+        [FromQuery] int? facultyId)
     {
-        if (addressId.HasValue)
-        {
-            var selectedAddress = await buildingsService.GetFormByIdAsync(addressId.Value);
-            address = selectedAddress == null
-                ? address
-                : $"{selectedAddress.AddressDto.Street} {selectedAddress.AddressDto.HouseNumber}, {selectedAddress.AddressDto.PostalCode} {selectedAddress.AddressDto.City}";
-        }
-
-        var buildings = await buildingsService.GetAllForAdminAsync(name, address, facultyId);
+        var buildings = await buildingsService.GetAllForAdminAsync(name, addressId, facultyId);
         return Ok(buildings);
     }
 

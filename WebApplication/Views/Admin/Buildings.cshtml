@@ -10,7 +10,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
         <div class="w-full md:col-span-2 lg:col-span-3">
-            <input list="buildings-list" id="filter-building-input" type="text" placeholder="Szukaj nazwy budynku..."
+            <input list="buildings-list" id="filter-name-input" type="text" placeholder="Szukaj nazwy budynku..."
                    class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <datalist id="buildings-list"></datalist>
         </div>
@@ -22,14 +22,14 @@
             <input type="hidden" id="filter-address-id">
         </div>
 
-        <div class="w-full lg:col-span-2">
-            <input list="faculties-list" id="filter-faculty-input" placeholder="Wpisz lub wybierz wydział..."
+        <div class="w-full lg:col-span-1">
+            <input list="faculties-list" id="filter-faculty-input" placeholder="Wybierz wydział..."
                    class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
             <datalist id="faculties-list"></datalist>
             <input type="hidden" id="filter-faculty-id">
         </div>
 
-        <button onclick="loadBuildings()"
+        <button onclick="applyFilters()"
                 class="w-full bg-blue-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors lg:col-span-1">
             Filtruj
         </button>
