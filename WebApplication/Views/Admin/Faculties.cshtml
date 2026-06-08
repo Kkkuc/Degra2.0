@@ -1,0 +1,31 @@
+@{ ViewData["Title"] = "Zarządzanie Wydziałami"; }
+
+<div class="px-8 pt-6">
+    <h1 class="text-2xl font-bold mb-6">Zarządzanie Wydziałami</h1>
+    <partial name="Partials/_AdminNav" />
+
+    <div class="flex justify-end mb-6">
+        <button onclick="openCreateModal()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700">
+            + Dodaj Nowy Wydział
+        </button>
+    </div>
+
+    <div class="bg-card border rounded-2xl overflow-x-auto">
+        <table class="w-full">
+            <thead>
+            <tr class="bg-gray-50 dark:bg-gray-800 border-b text-left">
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Skrót</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Nazwa</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
+            </tr>
+            </thead>
+            <tbody id="faculties-rows"></tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="Partials/_FacultyModal" />
+
+@section Scripts {
+    <script src="~/js/admin-faculties.js"></script>
+}

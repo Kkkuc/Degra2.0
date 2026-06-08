@@ -3,27 +3,33 @@
         var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     }
 
-    <a asp-action="Timetable" 
+    <a asp-action="Timetable"
        class="px-6 py-3 font-semibold text-sm border-b-2 transition-colors focus:outline-none 
        @(currentAction == "Timetable" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700")">
         Zarządzanie Planem
     </a>
 
-    <a asp-action="Users" 
+    <a asp-action="Users"
        class="px-6 py-3 font-semibold text-sm border-b-2 transition-colors focus:outline-none 
        @(currentAction == "Users" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700")">
         Użytkownicy
     </a>
 
-    <a asp-action="Reports" 
+    <a asp-action="Reports"
        class="px-6 py-3 font-semibold text-sm border-b-2 transition-colors focus:outline-none 
        @(currentAction == "Reports" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700")">
         Raporty
     </a>
-    
-    <a asp-action="Buildings" 
+
+    <a asp-action="Buildings"
        class="px-6 py-3 font-semibold text-sm border-b-2 transition-colors focus:outline-none 
        @(currentAction == "Buildings" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700")">
         Budynki
+    </a>
+
+    <a asp-action="Faculties"
+       class="px-6 py-3 font-semibold text-sm border-b-2 transition-colors focus:outline-none 
+        @(currentAction == "Faculties" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700")">
+        Wydziały
     </a>
 </div>

@@ -48,6 +48,11 @@ public class AdminController(IAdminService adminService, ITimetablesService time
         await LoadViewDataAsync();
         return View();
     }
+    
+    public IActionResult Faculties()
+    {
+        return View();
+    }
 
     public IActionResult Reports() => View();
 

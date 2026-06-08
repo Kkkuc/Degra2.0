@@ -46,6 +46,11 @@
       <_ContentIncludedByDefault Remove="Views\Timetables\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Timetables\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Timetables\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\FacultiesApi\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\FacultiesApi\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\FacultiesApi\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\FacultiesApi\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\FacultiesApi\Index.cshtml" />
     </ItemGroup>
 
     <ItemGroup>
