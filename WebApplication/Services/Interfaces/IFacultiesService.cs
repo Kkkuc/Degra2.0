@@ -5,7 +5,7 @@ namespace WebApplication.Services.Interfaces;
 
 public interface IFacultiesService
 {
-    Task<IEnumerable<FacultyDto>> GetAllAsync();
+    Task<IEnumerable<FacultyDto>> GetAllAsync(string? search = null);
     Task<FacultyDto?> GetByIdAsync(int id);
     Task CreateAsync(FacultyDto dto);
     Task<bool> UpdateAsync(FacultyDto dto);

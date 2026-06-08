@@ -13,14 +13,8 @@ public class FacultiesApiController(IFacultiesService facultiesService) : Contro
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string? search)
     {
-        var data = await facultiesService.GetAllAsync();
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            data = data.Where(f => 
-                f.Name.Contains(search, StringComparison.OrdinalIgnoreCase) || 
-                f.Abbreviation.Contains(search, StringComparison.OrdinalIgnoreCase));
-        }
-        return Ok(data);
+        // Jeśli wysyłamy zapytanie, serwis odfiltruje dane
+        return Ok(await facultiesService.GetAllAsync(search));
     }
 
     [HttpGet("{id:int}")]
