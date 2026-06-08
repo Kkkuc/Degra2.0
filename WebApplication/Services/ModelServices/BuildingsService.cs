@@ -20,7 +20,7 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? search = null, int? facultyId = null)
+    public async Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? name = null, string? address = null, int? facultyId = null)
     {
         var query = context.Buildings
             .AsNoTracking()
@@ -32,17 +32,23 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
             query = query.Where(b => b.FacultyId == facultyId.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(search))
+        if (!string.IsNullOrWhiteSpace(name))
         {
-            var normalized = search.Trim().ToLower();
+            var normalizedName = name.Trim().ToLower();
+            query = query.Where(b => b.Name.ToLower().Contains(normalizedName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(address))
+        {
+            var normalizedAddress = NormalizeSearchTerm(address);
             query = query.Where(b =>
-                b.Name.ToLower().Contains(normalized) ||
-                b.Street.ToLower().Contains(normalized) ||
-                b.HouseNumber.ToLower().Contains(normalized) ||
-                b.City.ToLower().Contains(normalized) ||
-                b.PostalCode.ToLower().Contains(normalized) ||
-                b.Faculty!.Name.ToLower().Contains(normalized) ||
-                b.Faculty!.Abbreviation.ToLower().Contains(normalized));
+                ($"{b.Street} {b.HouseNumber}, {b.PostalCode} {b.City}")
+                    .ToLower()
+                    .Replace(" ", string.Empty)
+                    .Replace(",", string.Empty)
+                    .Replace("-", string.Empty)
+                    .Replace(".", string.Empty)
+                    .Contains(normalizedAddress));
         }
 
         return await query
@@ -58,6 +64,44 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
                 b.City,
                 b.PostalCode))
             .ToListAsync();
+    }
+
+    public async Task<BuildingAdminMetadataDto> GetAdminMetadataAsync()
+    {
+        var buildings = await GetAllForAdminAsync();
+        var faculties = await GetFacultyDropdownListAsync();
+
+        var nameSuggestions = buildings
+            .Select(b => b.Name)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value)
+            .ToList();
+
+        var addressSuggestions = buildings
+            .Select(b => new BuildingFilterOptionDto(
+                b.Id,
+                $"{b.Street} {b.HouseNumber}, {b.PostalCode} {b.City}"))
+            .GroupBy(option => option.Text, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First())
+            .OrderBy(option => option.Text)
+            .ToList();
+
+        return new BuildingAdminMetadataDto(
+            faculties.Select(f => new BuildingFilterOptionDto(f.Key, f.Value)).ToList(),
+            nameSuggestions,
+            addressSuggestions);
+    }
+
+    private static string NormalizeSearchTerm(string value)
+    {
+        return value
+            .Trim()
+            .ToLower()
+            .Replace(" ", string.Empty)
+            .Replace(",", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace(".", string.Empty);
     }
 
     public async Task<BuildingDetailsDto?> GetDetailsByIdAsync(int id)
