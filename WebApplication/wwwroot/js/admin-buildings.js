@@ -28,14 +28,6 @@ function getFilterPayload() {
 function getAddressDisplay(building) {
     return `${building.street} ${building.houseNumber}, ${building.postalCode} ${building.city}`;
 }
-
-function clearDatalist(listId) {
-    const list = document.getElementById(listId);
-    if (list) {
-        list.innerHTML = "";
-    }
-}
-
 function addDatalistOptions(listId, values) {
     const list = document.getElementById(listId);
     if (!list) {

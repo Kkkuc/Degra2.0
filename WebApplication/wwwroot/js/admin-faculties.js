@@ -1,20 +1,64 @@
 ﻿const API_URL = "/api/faculties";
 let allFaculties = [];
 
-document.addEventListener("DOMContentLoaded", () => loadFaculties());
+// --- Inicjalizacja ---
+document.addEventListener("DOMContentLoaded", initializePage);
 
-async function loadFaculties(query = "") {
-    const url = query ? `${API_URL}?search=${encodeURIComponent(query)}` : API_URL;
-    const response = await fetch(url);
-    allFaculties = await response.json();
-    renderTable();
+function initializePage() {
+    loadFaculties();
 }
 
+// --- Logika API ---
+async function loadFaculties(query = "") {
+    const url = query ? `${API_URL}?search=${encodeURIComponent(query)}` : API_URL;
+    try {
+        const response = await fetch(url);
+        allFaculties = await response.json();
+        renderTable();
+    } catch (err) {
+        console.error("Błąd ładowania wydziałów:", err);
+    }
+}
+
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    const id = document.getElementById("form-id").value;
+    const payload = {
+        id: id ? parseInt(id) : 0,
+        name: document.getElementById("form-name").value,
+        abbreviation: document.getElementById("form-abbreviation").value
+    };
+
+    try {
+        await fetch(id ? `${API_URL}/${id}` : API_URL, {
+            method: id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        closeCrudModal();
+        loadFaculties();
+    } catch (err) {
+        console.error("Błąd zapisu:", err);
+    }
+}
+
+async function deleteFaculty(id) {
+    if (!confirm("Usunąć ten wydział?")) return;
+    try {
+        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        loadFaculties();
+    } catch (err) {
+        console.error("Błąd usuwania:", err);
+    }
+}
+
+// --- Filtrowanie ---
 async function applyFilters() {
     const query = document.getElementById("filter-faculty-input").value;
     await loadFaculties(query);
 }
 
+// --- Renderowanie ---
 function renderTable() {
     const tbody = document.getElementById("faculties-rows");
     tbody.innerHTML = allFaculties.map(f => `
@@ -30,31 +74,7 @@ function renderTable() {
     `).join("");
 }
 
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    const id = document.getElementById("form-id").value;
-    const payload = {
-        id: id ? parseInt(id) : 0,
-        name: document.getElementById("form-name").value,
-        abbreviation: document.getElementById("form-abbreviation").value
-    };
-
-    await fetch(id ? `${API_URL}/${id}` : API_URL, {
-        method: id ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    });
-
-    closeCrudModal();
-    loadFaculties();
-}
-
-async function deleteFaculty(id) {
-    if (!confirm("Usunąć ten wydział?")) return;
-    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    loadFaculties();
-}
-
+// --- Obsługa Modali ---
 function openCreateModal() {
     document.getElementById("modal-title").innerText = "Dodaj Wydział";
     document.getElementById("faculty-form").reset();
