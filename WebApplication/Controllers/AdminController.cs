@@ -7,7 +7,7 @@ using WebApplication.Services.Interfaces;
 namespace WebApplication.Controllers;
 
 [Authorize(Roles = "Moderator")]
-public class AdminController(IAdminService adminService, ITimetablesService timetablesService) : Controller
+public class AdminController(IAdminService adminService, ITimetablesService timetablesService, IFacultiesService facultiesService) : Controller
 {
     private async Task LoadViewDataAsync()
     {
@@ -49,8 +49,10 @@ public class AdminController(IAdminService adminService, ITimetablesService time
         return View();
     }
     
-    public IActionResult Faculties()
+    public async Task<IActionResult> Faculties()
     {
+        var faculties = await facultiesService.GetAllAsync();
+        ViewBag.Faculties = new SelectList(faculties.OrderBy(f => f.Name), "Id", "Name");
         return View();
     }
 
