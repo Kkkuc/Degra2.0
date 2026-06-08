@@ -1,14 +1,21 @@
-const API_URL = "/Admin";
+const API_URL = "/api/buildings";
 
-let allBuildings = [];
+let allBuildings = null;
+let metadataPromise = null;
+let cachedFaculties = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadBuildings();
+    AdminUi.wireDatalistInput("filter-address-input", "filter-address-id", "addresses-list");
+    AdminUi.wireDatalistInput("filter-faculty-input", "filter-faculty-id", "faculties-list");
+    metadataPromise = loadMetadata();
+    renderTable();
 });
 
 function getFilterPayload() {
     return {
-        search: document.getElementById("filter-building-input")?.value ?? "",
+        name: document.getElementById("filter-building-input")?.value ?? "",
+        address: document.getElementById("filter-address-input")?.value ?? "",
+        addressId: AdminUi.getNullableIntValue("filter-address-id"),
         facultyId: AdminUi.getNullableIntValue("filter-faculty-id")
     };
 }
@@ -17,9 +24,96 @@ function getAddressDisplay(building) {
     return `${building.street} ${building.houseNumber}, ${building.postalCode} ${building.city}`;
 }
 
+function clearDatalist(listId) {
+    const list = document.getElementById(listId);
+    if (list) {
+        list.innerHTML = "";
+    }
+}
+
+function addDatalistOptions(listId, values) {
+    const list = document.getElementById(listId);
+    if (!list) {
+        return;
+    }
+
+    list.innerHTML = values.map(value => `<option value="${value}"></option>`).join("");
+}
+
+function addOptionDatalist(listId, items) {
+    const list = document.getElementById(listId);
+    if (!list) {
+        return;
+    }
+
+    list.innerHTML = items.map(item => `<option value="${item.text}" data-id="${item.id}"></option>`).join("");
+}
+
+function addFacultyOptions(listId, faculties) {
+    const list = document.getElementById(listId);
+    if (!list) {
+        return;
+    }
+
+    list.innerHTML = faculties.map(faculty => `<option value="${faculty.text}" data-id="${faculty.id}"></option>`).join("");
+}
+
+function populateFacultySelect() {
+    const select = document.getElementById("form-facultyId");
+    if (!select) {
+        return;
+    }
+
+    const currentValue = select.value;
+    select.innerHTML = `<option value="">Wybierz wydział</option>` + cachedFaculties.map(faculty => `
+        <option value="${faculty.id}">${faculty.text}</option>
+    `).join("");
+
+    if (currentValue) {
+        select.value = currentValue;
+    }
+}
+
+async function loadMetadata() {
+    try {
+        const response = await fetch(`${API_URL}/metadata`);
+        if (!response.ok) {
+            return;
+        }
+
+        const metadata = await response.json();
+        cachedFaculties = metadata.faculties ?? [];
+        addDatalistOptions("buildings-list", metadata.nameSuggestions ?? []);
+        addOptionDatalist("addresses-list", metadata.addressSuggestions ?? []);
+        addFacultyOptions("faculties-list", cachedFaculties);
+        populateFacultySelect();
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function ensureMetadataLoaded() {
+    if (!metadataPromise) {
+        metadataPromise = loadMetadata();
+    }
+
+    await metadataPromise;
+}
+
 function renderTable() {
     const tbody = document.getElementById("buildings-rows");
     if (!tbody) {
+        return;
+    }
+
+    if (allBuildings === null) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="p-8 text-center text-gray-500">
+                    Wybierz filtry i kliknij "Filtruj", aby wyświetlić budynki.
+                </td>
+            </tr>
+        `;
         return;
     }
 
@@ -53,11 +147,19 @@ function renderTable() {
 }
 
 async function loadBuildings() {
-    const params = new URLSearchParams();
     const filters = getFilterPayload();
+    const params = new URLSearchParams();
 
-    if (filters.search) {
-        params.set("search", filters.search);
+    if (filters.name) {
+        params.set("name", filters.name);
+    }
+
+    if (filters.address) {
+        params.set("address", filters.address);
+    }
+
+    if (filters.addressId !== null) {
+        params.set("addressId", filters.addressId);
     }
 
     if (filters.facultyId !== null) {
@@ -76,7 +178,7 @@ async function loadBuildings() {
     }
 
     try {
-        const response = await fetch(`${API_URL}/BuildingsData${params.toString() ? `?${params.toString()}` : ""}`);
+        const response = await fetch(`${API_URL}${params.toString() ? `?${params.toString()}` : ""}`);
         if (!response.ok) {
             throw new Error("Nie udało się pobrać budynków.");
         }
@@ -100,9 +202,11 @@ async function loadBuildings() {
 function resetModal() {
     document.getElementById("building-form").reset();
     document.getElementById("form-id").value = "";
+    populateFacultySelect();
 }
 
-function openCreateModal() {
+async function openCreateModal() {
+    await ensureMetadataLoaded();
     document.getElementById("modal-title").innerText = "Dodaj budynek";
     resetModal();
     document.getElementById("crud-modal").classList.remove("hidden");
@@ -110,7 +214,8 @@ function openCreateModal() {
 
 async function openEditModal(id) {
     try {
-        const response = await fetch(`${API_URL}/BuildingData?id=${id}`);
+        await ensureMetadataLoaded();
+        const response = await fetch(`${API_URL}/${id}`);
         if (!response.ok) {
             return;
         }
@@ -156,7 +261,7 @@ async function handleFormSubmit(event) {
     const isEdit = payload.id > 0;
 
     try {
-        const response = await fetch(isEdit ? `${API_URL}/UpdateBuilding?id=${payload.id}` : `${API_URL}/CreateBuilding`, {
+        const response = await fetch(isEdit ? `${API_URL}/${payload.id}` : API_URL, {
             method: isEdit ? "PUT" : "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -180,7 +285,7 @@ async function deleteBuilding(id) {
     }
 
     try {
-        const response = await fetch(`${API_URL}/DeleteBuilding?id=${id}`, {
+        const response = await fetch(`${API_URL}/${id}`, {
             method: "DELETE"
         });
 

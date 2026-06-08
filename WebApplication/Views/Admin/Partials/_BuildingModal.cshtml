@@ -2,7 +2,7 @@
     <div class="bg-card w-full max-w-2xl rounded-2xl shadow-2xl border border-border m-4 p-6">
         <div class="flex justify-between items-center mb-4 pb-2 border-b border-border">
             <h3 id="modal-title" class="font-bold text-xl">Dodaj budynek</h3>
-            <button type="button" onclick="closeCrudModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+            <button type="button" onclick="closeCrudModal()" class="text-gray-500 hover:text-gray-700">×</button>
         </div>
 
         <form id="building-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
@@ -17,10 +17,6 @@
                 <label class="block text-xs font-bold uppercase text-gray-400">Wydział</label>
                 <select id="form-facultyId" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Wybierz wydział</option>
-                    @foreach (var faculty in (SelectList)ViewBag.Faculties)
-                    {
-                        <option value="@faculty.Value">@faculty.Text</option>
-                    }
                 </select>
             </div>
 

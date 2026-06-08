@@ -5,7 +5,8 @@ namespace WebApplication.Services.Interfaces;
 public interface IBuildingsService
 {
     Task<IEnumerable<BuildingIndexDto>> GetAllForIndexAsync(); 
-    Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? search = null, int? facultyId = null);
+    Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? name = null, string? address = null, int? facultyId = null);
+    Task<BuildingAdminMetadataDto> GetAdminMetadataAsync();
     Task<BuildingDetailsDto?> GetDetailsByIdAsync(int id);      
     Task<BuildingFormDto?> GetFormByIdAsync(int id);
     Task CreateAsync(BuildingFormDto dto);

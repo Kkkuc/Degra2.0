@@ -36,6 +36,16 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Views\Teachers\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Buildings\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Buildings\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Buildings\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Buildings\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Buildings\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Timetables\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Timetables\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Timetables\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Timetables\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Timetables\Index.cshtml" />
     </ItemGroup>
 
     <ItemGroup>
