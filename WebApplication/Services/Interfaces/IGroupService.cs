@@ -15,4 +15,11 @@ public interface IGroupsService
     Task<Dictionary<int, string>> GetFieldsOfStudyDropdownListAsync();
     Task<Dictionary<int, string>> GetSemestersDropdownListAsync();
     Task<Dictionary<int, string>> GetSpecializationsDropdownListAsync();
+    
+    Task<List<GroupAdminItemDto>> GetAllForAdminAsync(
+        GroupFilterDto filter);
+
+    Task<GroupAdminMetadataDto> GetAdminMetadataAsync();
+
+    Task<bool> IsValidForeignKeysAsync(GroupFormDto dto);
 }
