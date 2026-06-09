@@ -1,0 +1,26 @@
+services:
+  web-app:
+    image: degra-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=User Id=system;Password=system_password;Data Source=db:1521/FREEPDB1;
+    depends_on:
+      db:
+        condition: service_started
+
+  db:
+    image: container-registry.oracle.com/database/free:latest
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PWD=system_password
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+
+volumes:
+  oracle-data:
