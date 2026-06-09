@@ -1,134 +1,283 @@
 @using WebApplication.Models.enums
+
 @{
-    ViewData["Title"] = "Zarządzanie Planem";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Plan zajęć";
 }
 
-<div class="px-8 pt-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Panel Administratora</h1>
+<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <partial name="Partials/_AdminNav"/>
+    <partial name="Partials/_AdminNav" />
 
-    <div
-        class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
+    <div class="flex flex-col gap-6">
 
-        <div class="w-full">
-            <input list="subjects-list" id="filter-subject-input" placeholder="Szukaj przedmiotu..."
-                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <datalist id="subjects-list">
-                @foreach (var s in (SelectList)ViewBag.SubjectId)
-                {
-                    <option value="@s.Text" data-id="@s.Value"></option>
-                }
-            </datalist>
-            <input type="hidden" id="filter-subject-id">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Zajęcia
+                </h1>
+
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Zarządzanie wpisami planu zajęć, prowadzącymi, salami i grupami.
+                </p>
+            </div>
+
+            <button type="button"
+                    onclick="openCreateModal()"
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2
+                           text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700">
+                Dodaj zajęcia
+            </button>
         </div>
 
-        <div class="w-full">
-            <input list="teachers-list" id="filter-teacher-input" placeholder="Wpisz nazwisko..."
-                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <datalist id="teachers-list">
-                @foreach (var t in (SelectList)ViewBag.TeacherId)
-                {
-                    <option value="@t.Text" data-id="@t.Value"></option>
-                }
-            </datalist>
-            <input type="hidden" id="filter-teacher-id">
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm
+                    dark:border-gray-700 dark:bg-gray-900">
+
+            <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Filtry
+            </h2>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+                <div>
+                    <label for="filter-subject-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Przedmiot
+                    </label>
+
+                    <input list="subjects-list"
+                           id="filter-subject-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Szukaj przedmiotu..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="subjects-list">
+                        @foreach (var subject in (SelectList)ViewBag.SubjectId)
+                        {
+                            <option value="@subject.Text"
+                                    data-id="@subject.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="filter-subject-id" />
+                </div>
+
+                <div>
+                    <label for="filter-teacher-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Prowadzący
+                    </label>
+
+                    <input list="teachers-list"
+                           id="filter-teacher-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Szukaj prowadzącego..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="teachers-list">
+                        @foreach (var teacher in (SelectList)ViewBag.TeacherId)
+                        {
+                            <option value="@teacher.Text"
+                                    data-id="@teacher.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="filter-teacher-id" />
+                </div>
+
+                <div>
+                    <label for="filter-room-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Sala
+                    </label>
+
+                    <input list="rooms-list"
+                           id="filter-room-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Szukaj sali..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="rooms-list">
+                        @foreach (var room in (SelectList)ViewBag.RoomId)
+                        {
+                            <option value="@room.Text"
+                                    data-id="@room.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="filter-room-id" />
+                </div>
+
+                <div>
+                    <label for="filter-group-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Grupa
+                    </label>
+
+                    <input list="groups-list"
+                           id="filter-group-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Szukaj grupy..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="groups-list">
+                        @foreach (var group in (SelectList)ViewBag.GroupId)
+                        {
+                            <option value="@group.Text"
+                                    data-id="@group.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="filter-group-id" />
+                </div>
+
+                <div>
+                    <label for="filter-classType"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Typ zajęć
+                    </label>
+
+                    <select id="filter-classType"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+
+                        <option value="">Wszystkie typy</option>
+
+                        @foreach (var item in Html.GetEnumSelectList<ClassType>())
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label for="filter-dayOfWeek"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Dzień tygodnia
+                    </label>
+
+                    <select id="filter-dayOfWeek"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+
+                        <option value="">Wszystkie dni</option>
+                        <option value="1">Poniedziałek</option>
+                        <option value="2">Wtorek</option>
+                        <option value="3">Środa</option>
+                        <option value="4">Czwartek</option>
+                        <option value="5">Piątek</option>
+                        <option value="6">Sobota</option>
+                        <option value="0">Niedziela</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="filter-weekCycle"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Cykl tygodniowy
+                    </label>
+
+                    <select id="filter-weekCycle"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+
+                        <option value="">Wszystkie cykle</option>
+
+                        @foreach (var item in Html.GetEnumSelectList<WeekCycle>())
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="flex items-end">
+                    <button type="button"
+                            onclick="applyFilters()"
+                            class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold
+                                   text-white transition-colors hover:bg-blue-700">
+                        Filtruj
+                    </button>
+                </div>
+
+            </div>
         </div>
 
-        <div class="w-full">
-            <input list="rooms-list" id="filter-room-input" placeholder="Szukaj sali..."
-                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <datalist id="rooms-list">
-                @foreach (var r in (SelectList)ViewBag.RoomId)
-                {
-                    <option value="@r.Text" data-id="@r.Value"></option>
-                }
-            </datalist>
-            <input type="hidden" id="filter-room-id">
+        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm
+                    dark:border-gray-700 dark:bg-gray-900">
+
+            <div class="overflow-x-auto">
+                <table class="min-w-[1250px] w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Przedmiot
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Prowadzący
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Sala
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Grupa
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Typ
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Dzień
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Cykl
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Czas
+                        </th>
+
+                        <th class="p-4 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Akcje
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="timetable-rows"
+                           class="divide-y divide-gray-100 dark:divide-gray-800">
+                    </tbody>
+
+                </table>
+            </div>
         </div>
 
-        <div class="w-full">
-            <input list="groups-list" id="filter-group-input" placeholder="Szukaj grupy..."
-                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <datalist id="groups-list">
-                @foreach (var g in (SelectList)ViewBag.GroupId)
-                {
-                    <option value="@g.Text" data-id="@g.Value"></option>
-                }
-            </datalist>
-            <input type="hidden" id="filter-group-id">
-        </div>
-
-        <select id="filter-classType"
-                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <option value="">Typ zajęć</option>
-            @foreach (var i in Html.GetEnumSelectList<ClassType>())
-            {
-                <option value="@i.Value">@i.Text</option>
-            }
-        </select>
-
-        <select id="filter-dayOfWeek"
-                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <option value="">Dzień</option>
-            @{
-                var daysMap = new Dictionary<int, string>
-                {
-                    { 1, "Poniedziałek" }, { 2, "Wtorek" }, { 3, "Środa" },
-                    { 4, "Czwartek" }, { 5, "Piątek" }, { 6, "Sobota" }, { 0, "Niedziela" }
-                };
-            }
-            @foreach (var day in daysMap)
-            {
-                <option value="@day.Key">@day.Value</option>
-            }
-        </select>
-
-        <select id="filter-weekCycle"
-                class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <option value="">Cykl</option>
-            @foreach (var i in Html.GetEnumSelectList<WeekCycle>())
-            {
-                <option value="@i.Value">@i.Text</option>
-            }
-        </select>
-
-        <button onclick="applyFilters()"
-                class="w-full bg-blue-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors">
-            Filtruj
-        </button>
-    </div>
-
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Wpisy w planie zajęć</h2>
-        <button onclick="openCreateModal()"
-                class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm text-sm">
-            + Dodaj Nowe Zajęcia
-        </button>
-    </div>
-
-    <div class="bg-card border border-border rounded-2xl shadow-sm overflow-x-auto">
-        <table class="w-full border-collapse min-w-[800px]">
-            <thead>
-            <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Przedmiot</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Prowadzący</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Sala</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Grupa</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Typ</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Dzień</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Cykl Tygodniowy</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Czas</th>
-                <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
-            </tr>
-            </thead>
-            <tbody id="timetable-rows" class="divide-y divide-border"></tbody>
-        </table>
     </div>
 </div>
 
-<partial name="Partials/_TimetableModal"/>
+<partial name="Partials/_TimetableModal" />
 
 @section Scripts {
     <script src="~/js/admin-ui.js" asp-append-version="true"></script>

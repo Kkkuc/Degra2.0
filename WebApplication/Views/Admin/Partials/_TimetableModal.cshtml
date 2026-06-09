@@ -1,74 +1,231 @@
 @using WebApplication.Models.enums
-<div id="crud-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-    <div class="bg-card w-full max-w-lg rounded-2xl shadow-2xl border border-border m-4 p-6">
-        <div class="flex justify-between items-center mb-4 pb-2 border-b border-border">
-            <h3 id="modal-title" class="font-bold text-xl">Dodaj zajęcia</h3>
-            <button onclick="closeCrudModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+
+<div id="crud-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+
+    <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl
+                bg-white shadow-xl dark:bg-gray-900">
+
+        <div class="sticky top-0 flex items-center justify-between border-b border-gray-200
+                    bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
+
+            <h2 id="modal-title"
+                class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                Dodaj zajęcia
+            </h2>
+
+            <button type="button"
+                    onclick="closeCrudModal()"
+                    class="text-2xl leading-none text-gray-400 hover:text-gray-700
+                           dark:hover:text-gray-200">
+                &times;
+            </button>
         </div>
-        <form id="timetable-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
-            <input type="hidden" id="form-id"/>
-            <div>
-                <label class="block text-xs font-bold uppercase text-gray-400">Przedmiot</label>
-                <input list="subjects-list-modal" id="form-subject-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
-                <datalist id="subjects-list-modal">
-                    @foreach (var s in (SelectList)ViewBag.SubjectId) { <option value="@s.Text" data-id="@s.Value"></option> }
-                </datalist>
-                <input type="hidden" id="form-subjectId" />
+
+        <form id="timetable-form"
+              onsubmit="handleFormSubmit(event)"
+              class="space-y-5 p-6">
+
+            <input type="hidden" id="form-id" />
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                <div>
+                    <label for="form-subject-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Przedmiot
+                    </label>
+
+                    <input list="subjects-list-modal"
+                           id="form-subject-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="subjects-list-modal">
+                        @foreach (var subject in (SelectList)ViewBag.SubjectId)
+                        {
+                            <option value="@subject.Text"
+                                    data-id="@subject.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-subjectId" />
+                </div>
+
+                <div>
+                    <label for="form-teacher-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Prowadzący
+                    </label>
+
+                    <input list="teachers-list-modal"
+                           id="form-teacher-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="teachers-list-modal">
+                        @foreach (var teacher in (SelectList)ViewBag.TeacherId)
+                        {
+                            <option value="@teacher.Text"
+                                    data-id="@teacher.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-teacherId" />
+                </div>
+
+                <div>
+                    <label for="form-room-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Sala
+                    </label>
+
+                    <input list="rooms-list-modal"
+                           id="form-room-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="rooms-list-modal">
+                        @foreach (var room in (SelectList)ViewBag.RoomId)
+                        {
+                            <option value="@room.Text"
+                                    data-id="@room.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-roomId" />
+                </div>
+
+                <div>
+                    <label for="form-group-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Grupa
+                    </label>
+
+                    <input list="groups-list-modal"
+                           id="form-group-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="groups-list-modal">
+                        @foreach (var group in (SelectList)ViewBag.GroupId)
+                        {
+                            <option value="@group.Text"
+                                    data-id="@group.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-groupId" />
+                </div>
+
+                <div>
+                    <label for="form-classType"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Typ zajęć
+                    </label>
+
+                    <select id="form-classType"
+                            required
+                            asp-items="Html.GetEnumSelectList<ClassType>()"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                    </select>
+                </div>
+
+                <div>
+                    <label for="form-dayOfWeek"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Dzień tygodnia
+                    </label>
+
+                    <select id="form-dayOfWeek"
+                            required
+                            asp-items="Html.GetEnumSelectList<DayOfWeek>()"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                    </select>
+                </div>
+
+                <div>
+                    <label for="form-startTime"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Godzina rozpoczęcia
+                    </label>
+
+                    <input id="form-startTime"
+                           type="time"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+                </div>
+
+                <div>
+                    <label for="form-endTime"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Godzina zakończenia
+                    </label>
+
+                    <input id="form-endTime"
+                           type="time"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+                </div>
+
             </div>
 
             <div>
-                <label class="block text-xs font-bold uppercase text-gray-400">Prowadzący</label>
-                <input list="teachers-list-modal" id="form-teacher-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
-                <datalist id="teachers-list-modal">
-                    @foreach (var t in (SelectList)ViewBag.TeacherId) { <option value="@t.Text" data-id="@t.Value"></option> }
-                </datalist>
-                <input type="hidden" id="form-teacherId" />
+                <label for="form-weekCycle"
+                       class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Cykl tygodniowy
+                </label>
+
+                <select id="form-weekCycle"
+                        required
+                        asp-items="Html.GetEnumSelectList<WeekCycle>()"
+                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                               text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                               dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                </select>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold uppercase text-gray-400">Sala</label>
-                <input list="rooms-list-modal" id="form-room-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
-                <datalist id="rooms-list-modal">
-                    @foreach (var r in (SelectList)ViewBag.RoomId) { <option value="@r.Text" data-id="@r.Value"></option> }
-                </datalist>
-                <input type="hidden" id="form-roomId" />
-            </div>
+            <div class="flex justify-end gap-3 border-t border-gray-200 pt-5
+                        dark:border-gray-700">
 
-            <div>
-                <label class="block text-xs font-bold uppercase text-gray-400">Grupa</label>
-                <input list="groups-list-modal" id="form-group-input" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none">
-                <datalist id="groups-list-modal">
-                    @foreach (var g in (SelectList)ViewBag.GroupId) { <option value="@g.Text" data-id="@g.Value"></option> }
-                </datalist>
-                <input type="hidden" id="form-groupId" />
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Typ zajęć</label>
-                    <select id="form-classType" required asp-items="Html.GetEnumSelectList<ClassType>()" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Dzień tygodnia</label>
-                    <select id="form-dayOfWeek" required asp-items="Html.GetEnumSelectList<DayOfWeek>()" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"></select>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Start</label>
-                    <input type="time" id="form-startTime" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"/>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Koniec</label>
-                    <input type="time" id="form-endTime" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"/>
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-bold uppercase text-gray-400">Cykl tygodnia</label>
-                <select id="form-weekCycle" required asp-items="Html.GetEnumSelectList<WeekCycle>()" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500"></select>
-            </div>
-            <div class="flex justify-end gap-3 pt-4 border-t border-border">
-                <button type="button" onclick="closeCrudModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl text-sm font-medium">Anuluj</button>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-blue-700">Zapisz</button>
+                <button type="button"
+                        onclick="closeCrudModal()"
+                        class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold
+                               text-gray-700 hover:bg-gray-50
+                               dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                    Anuluj
+                </button>
+
+                <button type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold
+                               text-white hover:bg-blue-700">
+                    Zapisz
+                </button>
+
             </div>
         </form>
     </div>

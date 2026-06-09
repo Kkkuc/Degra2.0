@@ -24,17 +24,17 @@ const WEEK_CYCLES = {
 };
 
 const FILTER_INPUTS = [
-    { inputId: "filter-subject-input", hiddenId: "filter-subject-id", listId: "subjects-list" },
-    { inputId: "filter-teacher-input", hiddenId: "filter-teacher-id", listId: "teachers-list" },
-    { inputId: "filter-room-input", hiddenId: "filter-room-id", listId: "rooms-list" },
-    { inputId: "filter-group-input", hiddenId: "filter-group-id", listId: "groups-list" }
+    {inputId: "filter-subject-input", hiddenId: "filter-subject-id", listId: "subjects-list"},
+    {inputId: "filter-teacher-input", hiddenId: "filter-teacher-id", listId: "teachers-list"},
+    {inputId: "filter-room-input", hiddenId: "filter-room-id", listId: "rooms-list"},
+    {inputId: "filter-group-input", hiddenId: "filter-group-id", listId: "groups-list"}
 ];
 
 const MODAL_INPUTS = [
-    { inputId: "form-subject-input", hiddenId: "form-subjectId", listId: "subjects-list-modal" },
-    { inputId: "form-teacher-input", hiddenId: "form-teacherId", listId: "teachers-list-modal" },
-    { inputId: "form-room-input", hiddenId: "form-roomId", listId: "rooms-list-modal" },
-    { inputId: "form-group-input", hiddenId: "form-groupId", listId: "groups-list-modal" }
+    {inputId: "form-subject-input", hiddenId: "form-subjectId", listId: "subjects-list-modal"},
+    {inputId: "form-teacher-input", hiddenId: "form-teacherId", listId: "teachers-list-modal"},
+    {inputId: "form-room-input", hiddenId: "form-roomId", listId: "rooms-list-modal"},
+    {inputId: "form-group-input", hiddenId: "form-groupId", listId: "groups-list-modal"}
 ];
 
 let allLessons = null;
@@ -48,7 +48,7 @@ function initializePage() {
 }
 
 function wireDatalistInputs(inputs) {
-    inputs.forEach(({ inputId, hiddenId, listId }) => {
+    inputs.forEach(({inputId, hiddenId, listId}) => {
         AdminUi.wireDatalistInput(inputId, hiddenId, listId);
     });
 }
@@ -77,7 +77,7 @@ async function applyFilters() {
     try {
         const response = await fetch(`${API_URL}/filter`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(getFilterPayload())
         });
 
@@ -171,7 +171,7 @@ async function handleFormSubmit(event) {
     try {
         const response = await fetch(isEdit ? `${API_URL}/${id}` : API_URL, {
             method: isEdit ? "PUT" : "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
         });
 
@@ -195,7 +195,7 @@ function openCreateModal() {
     document.getElementById("timetable-form").reset();
     document.getElementById("form-id").value = "";
 
-    document.getElementById("crud-modal").classList.remove("hidden");
+    showCrudModal();
 }
 
 async function openEditModal(id) {
@@ -222,14 +222,17 @@ async function openEditModal(id) {
         document.getElementById("form-weekCycle").value = lesson.weekCycle;
         document.getElementById("form-startTime").value = AdminUi.formatTime(lesson.startTime);
         document.getElementById("form-endTime").value = AdminUi.formatTime(lesson.endTime);
-        document.getElementById("crud-modal").classList.remove("hidden");
+        showCrudModal();
     } catch (err) {
         console.error(err);
     }
 }
 
 function closeCrudModal() {
-    document.getElementById("crud-modal").classList.add("hidden");
+    const modal = document.getElementById("crud-modal");
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
 }
 
 async function deleteLesson(id) {
@@ -238,7 +241,7 @@ async function deleteLesson(id) {
     }
 
     try {
-        const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        const response = await fetch(`${API_URL}/${id}`, {method: "DELETE"});
         if (response.ok) {
             allLessons = allLessons?.filter(lesson => lesson.id !== id) ?? null;
             renderTable();
@@ -246,4 +249,11 @@ async function deleteLesson(id) {
     } catch (err) {
         console.error(err);
     }
+}
+
+function showCrudModal() {
+    const modal = document.getElementById("crud-modal");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
 }
