@@ -1,87 +1,62 @@
-@model IEnumerable<WebApplication.DTOs.Teacher.TeacherDto>
-
-@section HeaderLeft {
-    <div class="flex items-center gap-4">
-        <h2 class="font-bold text-2xl tracking-tight">Teachers</h2>
-    </div>
+@{
+ViewData["Title"] = "Nauczyciele";
 }
 
-<div class="p-8">
-    <div class="bg-card rounded-xl border border-border overflow-hidden">
-        <table class="w-full text-left border-collapse">
-            <thead>
-            <tr class="border-b border-border bg-gray-50/50 dark:bg-gray-800/50">
-                <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Teacher</th>
-                <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Academic Title</th>
-                <th class="px-6 py-4 font-semibold text-sm text-gray-500 uppercase">Email Address</th>
-            </tr>
-            </thead>
-            <tbody id="teachers-list" class="divide-y divide-border">
-            </tbody>
-        </table>
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Nauczyciele
+        </h1>
+
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Lista nauczycieli i prowadzących zajęcia.
+        </p>
     </div>
+
+    <div class="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm
+                dark:border-gray-700 dark:bg-gray-900">
+
+        <label for="teacher-search"
+               class="mb-1 block text-sm font-medium
+                      text-gray-700 dark:text-gray-300">
+            Wyszukaj nauczyciela
+        </label>
+
+        <input id="teacher-search"
+               type="search"
+               autocomplete="off"
+               placeholder="Imię, nazwisko, tytuł lub e-mail"
+               class="w-full rounded-lg border border-gray-300
+                      bg-white px-3 py-2 text-sm
+                      dark:border-gray-600 dark:bg-gray-800
+                      dark:text-gray-100" />
+    </div>
+
+    <div id="teachers-loading"
+         class="rounded-xl border border-gray-200 bg-white p-8
+                text-center text-gray-500 shadow-sm
+                dark:border-gray-700 dark:bg-gray-900">
+        Ładowanie nauczycieli...
+    </div>
+
+    <div id="teachers-empty"
+         class="hidden rounded-xl border border-gray-200 bg-white p-8
+                text-center text-gray-500 shadow-sm
+                dark:border-gray-700 dark:bg-gray-900">
+        Nie znaleziono nauczycieli.
+    </div>
+
+    <div id="teachers-grid"
+         class="hidden grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+    </div>
+
 </div>
 
 @section Scripts {
-    <script>
-        const STORAGE_KEY = 'teachers_cache';
-        const TTL = 3600000;
+<script src="~/js/admin-ui.js"
+        asp-append-version="true"></script>
 
-        function initTeachers() {
-            const serverData = @Html.Raw(Json.Serialize(Model));
-            const cached = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            const now = Date.now();
-            let teachers = [];
-
-            if (serverData && serverData.length > 0) {
-                teachers = serverData;
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({data: serverData, timestamp: now}));
-            } else if (cached && (now - cached.timestamp < TTL)) {
-                teachers = cached.data;
-            }
-
-            renderTeachers(teachers);
-        }
-
-        function renderTeachers(teachers) {
-            const list = document.getElementById('teachers-list');
-            list.innerHTML = teachers.map(t => {
-                // Bezpieczne wyciąganie pierwszych liter imienia i nazwiska z pola fullName
-                const nameParts = t.fullName ? t.fullName.trim().split(/\s+/) : [];
-                const initials = nameParts.length >= 2
-                    ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase()
-                    : (t.fullName ? t.fullName.substring(0, 2).toUpperCase() : "??");
-
-                return `
-                    <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold text-sm select-none">
-                                    ${initials}
-                                </div>
-                                <div class="font-medium">${t.fullName}</div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-sm">
-                            <span class="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium text-gray-700 dark:text-gray-300">
-                                ${t.title || 'Brak'}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="mail" class="w-4 h-4"></i>
-                                <a href="mailto:${t.email}" class="hover:underline text-blue-600 dark:text-blue-400 transition-colors">${t.email}</a>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        }
-
-        initTeachers();
-    </script>
+<script src="~/js/teachers-public.js"
+        asp-append-version="true"></script>
 }

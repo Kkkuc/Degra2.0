@@ -884,3 +884,8 @@ BEGIN
 
 END;
 /
+
+ALTER TABLE "Teachers"
+    MODIFY "Id"
+        GENERATED ALWAYS AS IDENTITY
+            (START WITH LIMIT VALUE);

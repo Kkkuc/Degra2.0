@@ -38,50 +38,59 @@
         @(currentAction == "FieldOfStudy" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700")">
         Kierunki
     </a>
-    
+
     <a asp-controller="Admin"
        asp-action="Groups"
        class="px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-colors focus:outline-none
           @(currentAction == "Groups"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
         Grupy
     </a>
-    
+
     <a asp-controller="Admin"
        asp-action="Semesters"
        class="px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-colors focus:outline-none
           @(currentAction == "Semesters"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
         Semestry
     </a>
-    
+
     <a asp-controller="Admin"
        asp-action="Specializations"
        class="px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-colors focus:outline-none
           @(currentAction == "Specializations"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
         Specjalizacje
     </a>
-    
+
     <a asp-controller="Admin"
        asp-action="Students"
        class="px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-colors focus:outline-none
           @(currentAction == "Students"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
         Studenci
     </a>
-    
+
     <a asp-controller="Admin"
        asp-action="Subjects"
        class="px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-colors focus:outline-none
           @(currentAction == "Subjects"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
         Przedmioty
     </a>
-    
+
+    <a asp-controller="Admin"
+       asp-action="Teachers"
+       class="px-6 py-3 font-semibold text-sm border-b-2 whitespace-nowrap transition-colors focus:outline-none
+          @(currentAction == "Teachers"
+                            ? "border-blue-600 text-blue-600"
+                            : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200")">
+        Nauczyciele
+    </a>
+
 </div>

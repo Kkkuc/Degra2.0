@@ -2,27 +2,30 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication.DTOs.Teacher;
 
-public class TeacherFormDto
+public sealed class TeacherFormDto
 {
     public int Id { get; set; }
 
-    [StringLength(30, ErrorMessage = "Tytuł/stopień naukowy nie może przekraczać 30 znaków.")]
-    [Display(Name = "Tytuł naukowy")]
-    public string AcademicTitle { get; set; } = string.Empty;
+    [StringLength(
+        50,
+        ErrorMessage = "Tytuł naukowy nie może przekraczać 50 znaków.")]
+    public string? AcademicTitle { get; set; }
 
     [Required(ErrorMessage = "Imię jest wymagane.")]
-    [StringLength(50, ErrorMessage = "Imię nie może przekraczać 50 znaków.")]
-    [Display(Name = "Imię")]
+    [StringLength(
+        100,
+        ErrorMessage = "Imię nie może przekraczać 100 znaków.")]
     public string FirstName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Nazwisko jest wymagane.")]
-    [StringLength(50, ErrorMessage = "Nazwisko nie może przekraczać 50 znaków.")]
-    [Display(Name = "Nazwisko")]
+    [StringLength(
+        100,
+        ErrorMessage = "Nazwisko nie może przekraczać 100 znaków.")]
     public string LastName { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Adres e-mail jest wymagany.")]
-    [EmailAddress(ErrorMessage = "Niepoprawny format adresu e-mail.")]
-    [StringLength(100, ErrorMessage = "Adres e-mail nie może przekraczać 100 znaków.")]
-    [Display(Name = "Adres e-mail")]
-    public string Email { get; set; } = string.Empty;
+    [EmailAddress(ErrorMessage = "Podaj prawidłowy adres e-mail.")]
+    [StringLength(
+        200,
+        ErrorMessage = "Adres e-mail nie może przekraczać 200 znaków.")]
+    public string? Email { get; set; }
 }
