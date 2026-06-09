@@ -4,6 +4,7 @@ using WebApplication.DTOs.Scheduler;
 using WebApplication.DTOs.Subject;
 using WebApplication.DTOs.Timetable;
 using WebApplication.Models.enums;
+using WebApplication.Models.SchedulerSlots;
 using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Services.ModelServices;
@@ -57,22 +58,38 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
             .ToListAsync();
 
         // 4. Mapowanie w pamięci RAM (przeliczenia slotów i kolorów)
-        var lessonsDto = rawLessons.Select(t => new TimetableEntryDto
+        var lessonsDto = new List<TimetableEntryDto>();
+
+        foreach (var lesson in rawLessons)
         {
-            Id = t.Id.ToString(),
-            SubjectId = t.SubjectId,
-            Subject = t.SubjectName,
-            Color = GetColorForSubject(t.SubjectId),
-            Day = (int)t.DayOfWeek - 1,
-            StartSlot = GetSlotIndex(t.StartTime),
-            Duration = (int)((t.EndTime - t.StartTime).TotalMinutes / 45),
-            Room = t.RoomNumber,
-            Teacher = t.TeacherFullName,
-            Time = $@"{t.StartTime:hh\:mm} – {t.EndTime:hh\:mm}"
-        }).ToList();
-        
-        var rand = new Random();
-        
+            var startSlot =
+                ScheduleTimeSlots.FindIndexByStartTime(lesson.StartTime);
+
+            var duration =
+                ScheduleTimeSlots.CalculateDurationInSlots(
+                    lesson.StartTime,
+                    lesson.EndTime);
+
+            if (!startSlot.HasValue || !duration.HasValue)
+            {
+                continue;
+            }
+
+            lessonsDto.Add(new TimetableEntryDto
+            {
+                Id = lesson.Id.ToString(),
+                SubjectId = lesson.SubjectId,
+                Subject = lesson.SubjectName,
+                Color = GetColorForSubject(lesson.SubjectId),
+                Day = (int)lesson.DayOfWeek - 1,
+                StartSlot = startSlot.Value,
+                Duration = duration.Value,
+                Room = lesson.RoomNumber,
+                Teacher = lesson.TeacherFullName,
+                Time = $@"{lesson.StartTime:hh\:mm} – {lesson.EndTime:hh\:mm}"
+            });
+        }
+
         var subjectsDto = rawSubjects.Select(s => new SubjectIndexDto
         (
             s.Id,
@@ -82,7 +99,8 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
         return new SchedulerViewModel
         {
             Lessons = lessonsDto,
-            Subjects = subjectsDto
+            Subjects = subjectsDto,
+            TimeSlots = ScheduleTimeSlots.All.ToList()
         };
     }
 
@@ -96,25 +114,20 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
         return await context.Semesters.ToDictionaryAsync(s => s.Id, s => s.Name);
     }
 
-    // --- PRYWATNE METODY LOGIKI BIZNESOWEJ ---
-    private static string GetColorForSubject(int id) =>
-        (new[] { "#EF4444", "#F97316", "#22C55E", "#3B82F6", "#8B5CF6", "#EC4899" })[id % 6];
+    private static readonly string[] SubjectColors =
+    [
+        "#EF4444",
+        "#F97316",
+        "#22C55E",
+        "#3B82F6",
+        "#8B5CF6",
+        "#EC4899"
+    ];
 
-    private static int GetSlotIndex(TimeSpan time)
+    private static string GetColorForSubject(int id)
     {
-        if (time >= new TimeSpan(20, 5, 0)) return 13;   
-        if (time >= new TimeSpan(19, 20, 0)) return 12;
-        if (time >= new TimeSpan(18, 25, 0)) return 11;
-        if (time >= new TimeSpan(17, 40, 0)) return 10;
-        if (time >= new TimeSpan(16, 45, 0)) return 9;
-        if (time >= new TimeSpan(16, 0, 0)) return 8;
-        if (time >= new TimeSpan(14, 45, 0)) return 7;
-        if (time >= new TimeSpan(14, 0, 0)) return 6;
-        if (time >= new TimeSpan(12, 45, 0)) return 5;
-        if (time >= new TimeSpan(12, 0, 0)) return 4;
-        if (time >= new TimeSpan(11, 0, 0)) return 3;
-        if (time >= new TimeSpan(10, 15, 0)) return 2;
-        if (time >= new TimeSpan(9, 15, 0)) return 1;
-        return 0;
+        return SubjectColors[Math.Abs(id) % SubjectColors.Length];
     }
+
+   
 }

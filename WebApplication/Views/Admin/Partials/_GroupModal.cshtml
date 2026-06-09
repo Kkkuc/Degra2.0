@@ -1,0 +1,125 @@
+<div id="crud-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+
+    <div class="w-full max-w-2xl rounded-xl bg-white shadow-xl dark:bg-gray-900">
+
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4
+                    dark:border-gray-700">
+
+            <h2 id="modal-title"
+                class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                Dodaj grupę
+            </h2>
+
+            <button type="button"
+                    onclick="closeCrudModal()"
+                    class="text-2xl leading-none text-gray-400 hover:text-gray-700
+                           dark:hover:text-gray-200">
+                &times;
+            </button>
+        </div>
+
+        <form id="group-form"
+              onsubmit="handleFormSubmit(event)"
+              class="space-y-5 p-6">
+
+            <input id="form-id" type="hidden" />
+
+            <div>
+                <label for="form-name"
+                       class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Nazwa grupy
+                </label>
+
+                <input id="form-name"
+                       type="text"
+                       required
+                       maxlength="100"
+                       placeholder="Np. L1"
+                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                              text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                              dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div>
+                    <label for="form-semesterId"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Semestr
+                    </label>
+
+                    <select id="form-semesterId"
+                            required
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                        <option value="">Wybierz semestr</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="form-fieldOfStudyId"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Kierunek
+                    </label>
+
+                    <select id="form-fieldOfStudyId"
+                            required
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                        <option value="">Wybierz kierunek</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="form-specializationId"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Specjalizacja
+                    </label>
+
+                    <select id="form-specializationId"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                        <option value="">Brak specjalizacji</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="form-classType"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Typ zajęć
+                    </label>
+
+                    <select id="form-classType"
+                            required
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                        <option value="">Wybierz typ zajęć</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-gray-200 pt-5
+                        dark:border-gray-700">
+
+                <button type="button"
+                        onclick="closeCrudModal()"
+                        class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold
+                               text-gray-700 hover:bg-gray-50
+                               dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                    Anuluj
+                </button>
+
+                <button type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold
+                               text-white hover:bg-blue-700">
+                    Zapisz
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -13,21 +13,15 @@ public class FieldsOfStudiesService(AppDbContext context) : IFieldsOfStudiesServ
 {
     public async Task<IEnumerable<FieldOfStudyIndexDto>> GetAllForIndexAsync()
     {
-        var list = await context.FieldsOfStudy
-            .Select(f => new
-            {
+        return await context.FieldsOfStudy
+            .Select(f => new FieldOfStudyIndexDto(
                 f.Id,
                 f.Name,
-                f.Degree,
-                FacultyAbbreviation = f.Faculty!.Abbreviation,
-                f.Mode
-            })
+                f.Degree,               // Przekazujemy stopień
+                (int)f.Mode,            // Rzutujemy enum na int
+                f.Faculty!.Abbreviation // Przekazujemy skrót wydziału
+            ))
             .ToListAsync();
-
-        return list.Select(f => new FieldOfStudyIndexDto(
-            f.Id,
-            f.Name
-        ));
     }
 
     public async Task<FieldOfStudyDetailsDto?> GetDetailsByIdAsync(int id)
@@ -127,6 +121,13 @@ public class FieldsOfStudiesService(AppDbContext context) : IFieldsOfStudiesServ
             .Select(f => new KeyValuePair<int, string>(f.Id, f.Abbreviation))
             .ToListAsync();
     }
+    public async Task<IEnumerable<string>> GetUniqueNamesAsync()
+    {
+        return await context.FieldsOfStudy
+            .Select(f => f.Name)
+            .Distinct()
+            .ToListAsync();
+    }
 
     private static string GetEnumDisplayName(StudyMode mode)
     {
@@ -136,5 +137,51 @@ public class FieldsOfStudiesService(AppDbContext context) : IFieldsOfStudiesServ
             .GetCustomAttribute<DisplayAttribute>();
 
         return displayAttribute?.Name ?? mode.ToString();
+    }
+    
+    public async Task<IEnumerable<FieldOfStudyIndexDto>> GetFilteredAsync(FieldOfStudyFilterDto filter)
+    {
+        var query = context.FieldsOfStudy.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+        {
+            query = query.Where(f => f.Name.Contains(filter.Name));
+        }
+
+        if (filter.FacultyId.HasValue)
+        {
+            query = query.Where(f => f.FacultyId == filter.FacultyId);
+        }
+
+        if (filter.Mode.HasValue)
+        {
+            query = query.Where(f => (int)f.Mode == filter.Mode);
+        }
+        
+        if (!string.IsNullOrWhiteSpace(filter.Degree))
+        {
+            query = query.Where(f => f.Degree.Contains(filter.Degree));
+        }
+
+        // Pobieramy pełny zestaw danych, który pasuje do Twojego DTO
+        return await query
+            .Select(f => new FieldOfStudyIndexDto(
+                f.Id,
+                f.Name,
+                f.Degree,               // Dodano
+                (int)f.Mode,            // Dodano (rzutowanie na int)
+                f.Faculty!.Abbreviation // Dodano (zakładając, że to pole jest w DTO)
+            ))
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<FieldOfStudyIndexDto>> GetPaginatedAsync(int page, int pageSize)
+    {
+        return await context.FieldsOfStudy
+            .OrderBy(f => f.Name) // Ważne: stronicowanie wymaga sortowania!
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(f => new FieldOfStudyIndexDto(f.Id, f.Name, f.Degree, (int)f.Mode, f.Faculty!.Abbreviation))
+            .ToListAsync();
     }
 }

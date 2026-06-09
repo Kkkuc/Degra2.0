@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Threading.Tasks;
 using WebApplication.Data;
@@ -9,23 +10,14 @@ using WebApplication.Services.Interfaces;
 namespace WebApplication.Controllers;
 
 [Authorize(Roles = "Moderator")]
-public class ScraperController : Controller
+public class ScraperController(IScraperService scraperService, AppDbContext context) : Controller
 {
-    private readonly IScraperService _scraperService;
-    private readonly AppDbContext _context;
-
-    public ScraperController(IScraperService scraperService, AppDbContext context)
-    {
-        _scraperService = scraperService;
-        _context = context;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        ViewBag.TeacherCount = await _context.Teachers.CountAsync();
-        ViewBag.SubjectCount = await _context.Subjects.CountAsync();
-        ViewBag.TimetableCount = await _context.Timetables.CountAsync();
+        ViewBag.TeacherCount = await context.Teachers.CountAsync();
+        ViewBag.SubjectCount = await context.Subjects.CountAsync();
+        ViewBag.TimetableCount = await context.Timetables.CountAsync();
         ViewBag.LastSynced = null;
 
         return View();
@@ -37,7 +29,7 @@ public class ScraperController : Controller
         try
         {
             string url = "https://degra.wi.pb.edu.pl/rozklady/webservices.php";
-            await _scraperService.ScrapeAndSaveAsync(url);
+            await scraperService.ScrapeAndSaveAsync(url);
             TempData["SuccessMessage"] = "Data successfully synchronized!";
         }
         catch (Exception ex)

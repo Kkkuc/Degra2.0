@@ -1,0 +1,232 @@
+@using WebApplication.Models.enums
+
+<div id="crud-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+
+    <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl
+                bg-white shadow-xl dark:bg-gray-900">
+
+        <div class="sticky top-0 flex items-center justify-between border-b border-gray-200
+                    bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
+
+            <h2 id="modal-title"
+                class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                Dodaj zajęcia
+            </h2>
+
+            <button type="button"
+                    onclick="closeCrudModal()"
+                    class="text-2xl leading-none text-gray-400 hover:text-gray-700
+                           dark:hover:text-gray-200">
+                &times;
+            </button>
+        </div>
+
+        <form id="timetable-form"
+              onsubmit="handleFormSubmit(event)"
+              class="space-y-5 p-6">
+
+            <input type="hidden" id="form-id" />
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                <div>
+                    <label for="form-subject-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Przedmiot
+                    </label>
+
+                    <input list="subjects-list-modal"
+                           id="form-subject-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="subjects-list-modal">
+                        @foreach (var subject in (SelectList)ViewBag.SubjectId)
+                        {
+                            <option value="@subject.Text"
+                                    data-id="@subject.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-subjectId" />
+                </div>
+
+                <div>
+                    <label for="form-teacher-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Prowadzący
+                    </label>
+
+                    <input list="teachers-list-modal"
+                           id="form-teacher-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="teachers-list-modal">
+                        @foreach (var teacher in (SelectList)ViewBag.TeacherId)
+                        {
+                            <option value="@teacher.Text"
+                                    data-id="@teacher.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-teacherId" />
+                </div>
+
+                <div>
+                    <label for="form-room-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Sala
+                    </label>
+
+                    <input list="rooms-list-modal"
+                           id="form-room-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="rooms-list-modal">
+                        @foreach (var room in (SelectList)ViewBag.RoomId)
+                        {
+                            <option value="@room.Text"
+                                    data-id="@room.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-roomId" />
+                </div>
+
+                <div>
+                    <label for="form-group-input"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Grupa
+                    </label>
+
+                    <input list="groups-list-modal"
+                           id="form-group-input"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="groups-list-modal">
+                        @foreach (var group in (SelectList)ViewBag.GroupId)
+                        {
+                            <option value="@group.Text"
+                                    data-id="@group.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden" id="form-groupId" />
+                </div>
+
+                <div>
+                    <label for="form-classType"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Typ zajęć
+                    </label>
+
+                    <select id="form-classType"
+                            required
+                            asp-items="Html.GetEnumSelectList<ClassType>()"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                    </select>
+                </div>
+
+                <div>
+                    <label for="form-dayOfWeek"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Dzień tygodnia
+                    </label>
+
+                    <select id="form-dayOfWeek"
+                            required
+                            asp-items="Html.GetEnumSelectList<DayOfWeek>()"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                   text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                   dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                    </select>
+                </div>
+
+                <div>
+                    <label for="form-startTime"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Godzina rozpoczęcia
+                    </label>
+
+                    <input id="form-startTime"
+                           type="time"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+                </div>
+
+                <div>
+                    <label for="form-endTime"
+                           class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Godzina zakończenia
+                    </label>
+
+                    <input id="form-endTime"
+                           type="time"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+                </div>
+
+            </div>
+
+            <div>
+                <label for="form-weekCycle"
+                       class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Cykl tygodniowy
+                </label>
+
+                <select id="form-weekCycle"
+                        required
+                        asp-items="Html.GetEnumSelectList<WeekCycle>()"
+                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                               text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                               dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-gray-200 pt-5
+                        dark:border-gray-700">
+
+                <button type="button"
+                        onclick="closeCrudModal()"
+                        class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold
+                               text-gray-700 hover:bg-gray-50
+                               dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                    Anuluj
+                </button>
+
+                <button type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold
+                               text-white hover:bg-blue-700">
+                    Zapisz
+                </button>
+
+            </div>
+        </form>
+    </div>
+</div>

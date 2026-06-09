@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using WebApplication.DTOs.Scheduler;
 using WebApplication.Services.Interfaces;
 
@@ -20,7 +19,12 @@ public class SchedulerController(ISchedulerService schedulerService) : Controlle
         try
         {
             var data = await schedulerService.GetSchedulerDataAsync(filter);
-            return Ok(new SchedulerResponseDto { Lessons = data.Lessons, Subjects = data.Subjects });
+            return Ok(new SchedulerResponseDto
+            {
+                Lessons = data.Lessons,
+                Subjects = data.Subjects,
+                TimeSlots = data.TimeSlots
+            });
         }
         catch (Exception ex)
         {

@@ -1,0 +1,76 @@
+<div id="crud-modal"
+     class="fixed inset-0 z-50 hidden items-center
+            justify-center bg-black/50 p-4">
+
+    <div class="w-full max-w-xl rounded-xl
+                bg-white shadow-xl dark:bg-gray-900">
+
+        <div class="flex items-center justify-between
+                    border-b border-gray-200 px-6 py-4
+                    dark:border-gray-700">
+
+            <h2 id="modal-title"
+                class="text-xl font-bold">
+                Dodaj salę
+            </h2>
+
+            <button type="button"
+                    onclick="closeCrudModal()"
+                    class="text-2xl text-gray-400">
+                &times;
+            </button>
+        </div>
+
+        <form id="room-form"
+              onsubmit="handleFormSubmit(event)"
+              class="space-y-5 p-6">
+
+            <input id="form-id" type="hidden" />
+
+            <div>
+                <label for="form-roomNumber"
+                       class="mb-1 block text-sm font-medium">
+                    Numer sali
+                </label>
+
+                <input id="form-roomNumber"
+                       type="text"
+                       required
+                       maxlength="50"
+                       class="w-full rounded-lg border px-3 py-2
+                              dark:bg-gray-800" />
+            </div>
+
+            <div>
+                <label for="form-buildingId"
+                       class="mb-1 block text-sm font-medium">
+                    Budynek
+                </label>
+
+                <select id="form-buildingId"
+                        required
+                        class="w-full rounded-lg border px-3 py-2
+                               dark:bg-gray-800">
+
+                    <option value="">Wybierz budynek</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-3 border-t pt-5">
+
+                <button type="button"
+                        onclick="closeCrudModal()"
+                        class="rounded-lg border px-4 py-2
+                               text-sm font-semibold">
+                    Anuluj
+                </button>
+
+                <button type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2
+                               text-sm font-semibold text-white">
+                    Zapisz
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -13,4 +13,14 @@ public interface ISubjectsService
     Task<bool> UpdateAsync(SubjectFormDto dto);
     Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
+    
+    Task<List<SubjectAdminItemDto>> GetAllForAdminAsync(
+        SubjectAdminFilterDto filter);
+
+    Task<SubjectAdminMetadataDto> GetAdminMetadataAsync();
+
+    Task<bool> NameOrCodeExistsAsync(
+        string name,
+        string? code,
+        int? excludedId = null);
 }

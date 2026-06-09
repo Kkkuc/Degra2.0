@@ -16,7 +16,6 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 builder.Services.AddHttpClient<IScraperService, ScraperService>();
-//builder.Services.AddScoped<TimetableCrawler>();
 builder.Services.AddScoped<IAcademicYearService, AcademicYearService>();
 builder.Services.AddScoped<IBuildingsService, BuildingsService>();
 builder.Services.AddScoped<IFacultiesService, FacultiesService>();

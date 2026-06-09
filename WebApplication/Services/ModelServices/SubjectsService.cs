@@ -78,4 +78,72 @@ public class SubjectsService(AppDbContext context) : ISubjectsService
     {
         return await context.Subjects.AnyAsync(e => e.Id == id);
     }
+    
+    public async Task<List<SubjectAdminItemDto>> GetAllForAdminAsync(
+        SubjectAdminFilterDto filter)
+    {
+        var query = context.Subjects
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var search = filter.Search.Trim().ToLower();
+
+            query = query.Where(subject =>
+                subject.Name.ToLower().Contains(search) ||
+                (subject.Abbreviation != null &&
+                 subject.Abbreviation.ToLower().Contains(search)) ||
+                (subject.Code != null &&
+                 subject.Code.ToLower().Contains(search)));
+        }
+
+        return await query
+            .OrderBy(subject => subject.Name)
+            .Select(subject => new SubjectAdminItemDto(
+                subject.Id,
+                subject.Name,
+                subject.Abbreviation,
+                subject.Code))
+            .ToListAsync();
+    }
+    
+    public async Task<SubjectAdminMetadataDto>
+        GetAdminMetadataAsync()
+    {
+        var suggestions = await context.Subjects
+            .AsNoTracking()
+            .Select(subject => subject.Name)
+            .Distinct()
+            .OrderBy(name => name)
+            .ToListAsync();
+
+        return new SubjectAdminMetadataDto
+        {
+            Suggestions = suggestions
+        };
+    }
+    
+    public async Task<bool> NameOrCodeExistsAsync(
+        string name,
+        string? code,
+        int? excludedId = null)
+    {
+        var normalizedName = name.Trim().ToLower();
+        var normalizedCode = string.IsNullOrWhiteSpace(code)
+            ? null
+            : code.Trim().ToLower();
+
+        return await context.Subjects.AnyAsync(subject =>
+            (!excludedId.HasValue ||
+             subject.Id != excludedId.Value) &&
+            (
+                subject.Name.ToLower() == normalizedName ||
+                (
+                    normalizedCode != null &&
+                    subject.Code != null &&
+                    subject.Code.ToLower() == normalizedCode
+                )
+            ));
+    }
 }

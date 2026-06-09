@@ -1,0 +1,146 @@
+@{
+    ViewData["Title"] = "Budynki";
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <partial name="Partials/_AdminNav" />
+
+    <div class="flex flex-col gap-6">
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Budynki
+                </h1>
+
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Zarządzanie budynkami, adresami oraz przypisaniem do wydziałów.
+                </p>
+            </div>
+
+            <button type="button"
+                    onclick="openCreateModal()"
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors">
+                Dodaj budynek
+            </button>
+        </div>
+
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm
+                    dark:border-gray-700 dark:bg-gray-900">
+
+            <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Filtry
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+
+                <div>
+                    <label for="filter-name-input"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Nazwa budynku
+                    </label>
+
+                    <input list="buildings-list"
+                           id="filter-name-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Szukaj nazwy budynku..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="buildings-list"></datalist>
+                </div>
+
+                <div>
+                    <label for="filter-address-input"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Adres
+                    </label>
+
+                    <input list="addresses-list"
+                           id="filter-address-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Szukaj adresu..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="addresses-list"></datalist>
+                    <input type="hidden" id="filter-address-id" />
+                </div>
+
+                <div>
+                    <label for="filter-faculty-input"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Wydział
+                    </label>
+
+                    <input list="faculties-list"
+                           id="filter-faculty-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Wybierz wydział..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="faculties-list"></datalist>
+                    <input type="hidden" id="filter-faculty-id" />
+                </div>
+
+                <div class="flex items-end">
+                    <button type="button"
+                            onclick="applyFilters()"
+                            class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                        Filtruj
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm
+                    dark:border-gray-700 dark:bg-gray-900">
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Nazwa
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Adres
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Wydział
+                        </th>
+
+                        <th class="p-4 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Akcje
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="buildings-rows"
+                           class="divide-y divide-gray-100 dark:divide-gray-800">
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<partial name="Partials/_BuildingModal" />
+
+@section Scripts {
+    <script src="~/js/admin-ui.js" asp-append-version="true"></script>
+    <script src="~/js/admin-buildings.js" asp-append-version="true"></script>
+}

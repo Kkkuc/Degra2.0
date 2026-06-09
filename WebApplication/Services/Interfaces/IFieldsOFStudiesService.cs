@@ -19,4 +19,6 @@ public interface IFieldsOfStudiesService
     Task<bool> ExistsAsync(int id);
 
     Task<IEnumerable<KeyValuePair<int, string>>> GetFacultyDropdownListAsync();
+    Task<IEnumerable<FieldOfStudyIndexDto>> GetFilteredAsync(FieldOfStudyFilterDto filter);
+    Task<IEnumerable<string>> GetUniqueNamesAsync();
 }

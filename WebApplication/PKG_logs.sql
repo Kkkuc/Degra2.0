@@ -1,9 +1,10 @@
 CREATE OR REPLACE PACKAGE LOG_Pkg IS
     -- Publiczne funkcje do parsowania Enumów (żeby triggery mogły z nich korzystać)
-    FUNCTION ParseClassType(p_val IN NVARCHAR2) RETURN NVARCHAR2;
-    FUNCTION ParseRoomType(p_val IN NVARCHAR2) RETURN NVARCHAR2;
-    FUNCTION ParseWeekCycle(p_val IN NVARCHAR2) RETURN NVARCHAR2;
-
+    FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2;
+    FUNCTION ParseRoomType(p_val IN NUMBER) RETURN NVARCHAR2;
+    FUNCTION ParseWeekCycle(p_val IN NUMBER) RETURN NVARCHAR2;
+    FUNCTION ParseStudyMode(p_val IN NUMBER) RETURN NVARCHAR2;
+        
     -- Główna procedura zapisująca log
     PROCEDURE SaveLog(
         p_table_name IN NVARCHAR2,
@@ -15,40 +16,49 @@ END LOG_Pkg;
 /
 CREATE OR REPLACE PACKAGE BODY LOG_Pkg IS
 
-    FUNCTION ParseClassType(p_val IN NVARCHAR2) RETURN NVARCHAR2 IS
+   FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2 IS
     BEGIN
         RETURN CASE p_val
-            WHEN '0' THEN 'Lecture'
-            WHEN '1' THEN 'Laboratory'
-            WHEN '2' THEN 'SpecialisedLaboratory'
-            WHEN '3' THEN 'Exercise'
-            WHEN '4' THEN 'Seminar'
-            WHEN '5'THEN 'Project'
-            ELSE NVL(p_val, 'Nieznany typ')
+            WHEN 0 THEN 'Lecture'
+            WHEN 1 THEN 'Laboratory'
+            WHEN 2 THEN 'SpecialisedLaboratory'
+            WHEN 3 THEN 'Exercise'
+            WHEN 4 THEN 'Seminar'
+            WHEN 5 THEN 'Project'
+            ELSE 'Nieznany typ (' || TO_CHAR(p_val) || ')'
         END;
     END ParseClassType;
 
-    FUNCTION ParseRoomType(p_val IN NVARCHAR2) RETURN NVARCHAR2 IS
+    FUNCTION ParseRoomType(p_val IN NUMBER) RETURN NVARCHAR2 IS
     BEGIN
         RETURN CASE p_val
-            WHEN '0' THEN 'LectureHall'
-            WHEN '1' THEN 'Laboratory'
-            WHEN '2' THEN 'SeminarRoom'
-            WHEN '3' THEN 'ComputerLab'
-            WHEN '4' THEN 'Other'
-            ELSE NVL(p_val, 'Nieznany typ') 
-        END;
+            WHEN 0 THEN 'LectureHall'
+            WHEN 1 THEN 'Laboratory'
+            WHEN 2 THEN 'SeminarRoom'
+            WHEN 3 THEN 'ComputerLab'
+            WHEN 4 THEN 'Other'
+            ELSE 'Nieznany typ (' || TO_CHAR(p_val) || ')'
+    END;
     END ParseRoomType;
 
-    FUNCTION ParseWeekCycle(p_val IN NVARCHAR2) RETURN NVARCHAR2 IS
+    FUNCTION ParseWeekCycle(p_val IN NUMBER) RETURN NVARCHAR2 IS
     BEGIN
         RETURN CASE p_val
-            WHEN '0' THEN 'Weekly'
-            WHEN '1' THEN 'Even'
-            WHEN '2' THEN 'Odd'
-           ELSE NVL(p_val, 'Nieznany typ')
+            WHEN 0 THEN 'Weekly'
+            WHEN 1 THEN 'Even'
+            WHEN 2 THEN 'Odd'
+            ELSE 'Nieznany cykl (' || TO_CHAR(p_val) || ')'
     END;
     END ParseWeekCycle;
+       
+    FUNCTION ParseStudyMode(p_val IN NUMBER) RETURN NVARCHAR2 IS
+    BEGIN 
+        RETURN CASE p_val
+            WHEN 0 THEN 'FullTime'
+            WHEN 1 THEN 'PartTime'
+            WHEN 2 THEN 'Postgraduate'
+    END;
+    END ParseStudyMode;
 
     PROCEDURE SaveLog(
         p_table_name IN NVARCHAR2,
@@ -150,9 +160,15 @@ AFTER INSERT OR UPDATE OR DELETE ON "Timetables"
 FOR EACH ROW
 DECLARE
     v_operation NVARCHAR2(20);
-    v_old_val NVARCHAR2(2000);
-    v_new_val NVARCHAR2(2000);
+    v_old_val NVARCHAR2(32767);
+    v_new_val NVARCHAR2(32767);
 
+    FUNCTION FormatInterval(p_int INTERVAL DAY TO SECOND) RETURN NVARCHAR2 IS
+    BEGIN
+        RETURN LPAD(EXTRACT(HOUR FROM p_int), 2, '0') || ':' ||
+               LPAD(EXTRACT(MINUTE FROM p_int), 2, '0');
+    END;
+    
 BEGIN
     v_old_val := '-';
     v_new_val := '-';
@@ -163,11 +179,11 @@ BEGIN
                      ', NauczycielID: ' || :NEW."TeacherId" || 
                      ', SalaID: ' || :NEW."RoomId" || 
                      ', GrupaID: ' || :NEW."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:NEW."ClassType") || 
-                     ', Dzien: ' || :NEW."DayOfWeek" || 
-                     ', Start: ' || :NEW."StartTime" || 
-                     ', Koniec: ' || :NEW."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:NEW."WeekCycle");
+                     ', TypZajec: ' || :NEW."ClassType" || 
+                     ', Dzien: ' || :NEW."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:NEW."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:NEW."EndTime") ||
+                     ', Cykl: ' || :NEW."WeekCycle";
                      
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
@@ -176,22 +192,22 @@ BEGIN
                      ', NauczycielID: ' || :OLD."TeacherId" || 
                      ', SalaID: ' || :OLD."RoomId" || 
                      ', GrupaID: ' || :OLD."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:OLD."ClassType") || 
-                     ', Dzien: ' || :OLD."DayOfWeek" || 
-                     ', Start: ' || :OLD."StartTime" || 
-                     ', Koniec: ' || :OLD."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:OLD."WeekCycle");
+                     ', TypZajec: ' ||:OLD."ClassType" || 
+                     ', Dzien: ' || :OLD."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:OLD."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:OLD."EndTime") ||
+                     ', Cykl: ' || :OLD."WeekCycle";
                      
         v_new_val := 'ID: ' || :NEW."Id" || 
                      ', PrzedmiotID: ' || :NEW."SubjectId" || 
                      ', NauczycielID: ' || :NEW."TeacherId" || 
                      ', SalaID: ' || :NEW."RoomId" || 
                      ', GrupaID: ' || :NEW."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:NEW."ClassType") || 
-                     ', Dzien: ' || :NEW."DayOfWeek" || 
-                     ', Start: ' || :NEW."StartTime" || 
-                     ', Koniec: ' || :NEW."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:NEW."WeekCycle");
+                     ', TypZajec: ' || :NEW."ClassType" || 
+                     ', Dzien: ' || :NEW."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:NEW."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:NEW."EndTime") ||
+                     ', Cykl: ' || :NEW."WeekCycle";
                      
     ELSIF DELETING THEN
         v_operation := 'DELETE';
@@ -200,11 +216,11 @@ BEGIN
                      ', NauczycielID: ' || :OLD."TeacherId" || 
                      ', SalaID: ' || :OLD."RoomId" || 
                      ', GrupaID: ' || :OLD."GroupId" || 
-                     ', TypZajec: ' || Log_Pkg.ParseClassType(:OLD."ClassType") || 
-                     ', Dzien: ' || :OLD."DayOfWeek" || 
-                     ', Start: ' || :OLD."StartTime" || 
-                     ', Koniec: ' || :OLD."EndTime" || 
-                     ', Cykl: ' || Log_Pkg.ParseWeekCycle(:OLD."WeekCycle");
+                     ', TypZajec: ' || :OLD."ClassType" || 
+                     ', Dzien: ' || :OLD."DayOfWeek" ||
+                     ', Start: ' || FormatInterval(:OLD."StartTime") ||
+                     ', Koniec: ' || FormatInterval(:OLD."EndTime") ||
+                     ', Cykl: ' || :OLD."WeekCycle";
     END IF;
 
     LOG_pkg.SaveLog('TimeTables', v_operation, v_old_val, v_new_val);
@@ -254,48 +270,60 @@ END;
 /
 
 CREATE OR REPLACE TRIGGER TRG_SEMESTR_LOG
-AFTER INSERT OR UPDATE OR DELETE ON "Semesters" 
-FOR EACH ROW
+    AFTER INSERT OR UPDATE OR DELETE ON "Semesters"
+    FOR EACH ROW
 DECLARE
     v_operation NVARCHAR2(20);
-    v_old_val NVARCHAR2(2000);
-    v_new_val NVARCHAR2(2000);
+    v_old_val   NVARCHAR2(2000);
+    v_new_val   NVARCHAR2(2000);
 BEGIN
     v_old_val := '-';
     v_new_val := '-';
 
     IF INSERTING THEN
         v_operation := 'INSERT';
-        v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', RokAkademickiID: ' || :NEW."AcademicYearId" || 
-                     ', Nazwa: ' || :NEW."Name" || 
-                     ', Start: ' || TO_CHAR(:NEW."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:NEW."EndDate", 'YYYY-MM-DD');
-                     
+
+        v_new_val :=
+                'ID: ' || :NEW."Id" ||
+                ', RokAkademickiID: ' || :NEW."AcademicYearId" ||
+                ', Nazwa: ' || :NEW."Name" ||
+                ', Start: ' || :NEW."StartDate" ||
+                ', Koniec: ' || :NEW."EndDate";
+
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
-        v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', RokAkademickiID: ' || :OLD."AcademicYearId" || 
-                     ', Nazwa: ' || :OLD."Name" || 
-                     ', Start: ' || TO_CHAR(:OLD."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:OLD."EndDate", 'YYYY-MM-DD');
-                     
-        v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', RokAkademickiID: ' || :NEW."AcademicYearId" || 
-                     ', Nazwa: ' || :NEW."Name" || 
-                     ', Start: ' || TO_CHAR(:NEW."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:NEW."EndDate", 'YYYY-MM-DD');
-                     
+
+        v_old_val :=
+                'ID: ' || :OLD."Id" ||
+                ', RokAkademickiID: ' || :OLD."AcademicYearId" ||
+                ', Nazwa: ' || :OLD."Name" ||
+                ', Start: ' || :OLD."StartDate" ||
+                ', Koniec: ' || :OLD."EndDate";
+
+        v_new_val :=
+                'ID: ' || :NEW."Id" ||
+                ', RokAkademickiID: ' || :NEW."AcademicYearId" ||
+                ', Nazwa: ' || :NEW."Name" ||
+                ', Start: ' || :NEW."StartDate" ||
+                ', Koniec: ' || :NEW."EndDate";
+
     ELSIF DELETING THEN
         v_operation := 'DELETE';
-        v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', RokAkademickiID: ' || :OLD."AcademicYearId" || 
-                     ', Nazwa: ' || :OLD."Name" || 
-                     ', Start: ' || TO_CHAR(:OLD."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:OLD."EndDate", 'YYYY-MM-DD');
+
+        v_old_val :=
+                'ID: ' || :OLD."Id" ||
+                ', RokAkademickiID: ' || :OLD."AcademicYearId" ||
+                ', Nazwa: ' || :OLD."Name" ||
+                ', Start: ' || :OLD."StartDate" ||
+                ', Koniec: ' || :OLD."EndDate";
     END IF;
 
-    LOG_pkg.SaveLog('Semesters', v_operation, v_old_val, v_new_val);
+    LOG_pkg.SaveLog(
+            'Semesters',
+            v_operation,
+            v_old_val,
+            v_new_val
+    );
 END;
 /
 CREATE OR REPLACE TRIGGER TRG_USER_LOG
@@ -506,7 +534,7 @@ BEGIN
                      ', WydzialID: ' || :NEW."FacultyId" || 
                      ', Nazwa: ' || :NEW."Name" || 
                      ', Stopien: ' || NVL(:NEW."Degree", 'Brak') || 
-                     ', Tryb: ' || NVL(:NEW."Mode", 'Brak');
+                     ', Tryb: ' || LOG_pkg.ParseClassType(:NEW."Mode");
                      
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
@@ -514,13 +542,13 @@ BEGIN
                      ', WydzialID: ' || :OLD."FacultyId" || 
                      ', Nazwa: ' || :OLD."Name" || 
                      ', Stopien: ' || NVL(:OLD."Degree", 'Brak') || 
-                     ', Tryb: ' || NVL(:OLD."Mode", 'Brak');
+                     ', Tryb: ' || LOG_pkg.ParseClassType(:OLD."Mode");
                      
         v_new_val := 'ID: ' || :NEW."Id" || 
                      ', WydzialID: ' || :NEW."FacultyId" || 
                      ', Nazwa: ' || :NEW."Name" || 
                      ', Stopien: ' || NVL(:NEW."Degree", 'Brak') || 
-                     ', Tryb: ' || NVL(:NEW."Mode", 'Brak');
+                     ', Tryb: ' || LOG_pkg.ParseClassType(:NEW."Mode");
                      
     ELSIF DELETING THEN
         v_operation := 'DELETE';
@@ -528,7 +556,7 @@ BEGIN
                      ', WydzialID: ' || :OLD."FacultyId" || 
                      ', Nazwa: ' || :OLD."Name" || 
                      ', Stopien: ' || NVL(:OLD."Degree", 'Brak') || 
-                     ', Tryb: ' || NVL(:OLD."Mode", 'Brak');
+                     ', Tryb: ' || LOG_pkg.ParseClassType(:OLD."Mode");
     END IF;
 
     LOG_pkg.SaveLog('FieldsOfStudy', v_operation, v_old_val, v_new_val);
@@ -704,32 +732,32 @@ BEGIN
     IF INSERTING THEN
         v_operation := 'INSERT';
         v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', BudynekID: ' || TO_CHAR(:NEW."BuildingId") || 
+                     ', BudynekID: ' || :NEW."BuildingId" || 
                      ', NumerSali: ' || :NEW."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:NEW."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:NEW."RoomType");
+                     ', TypSali: ' || NVL(:NEW."RoomType", 'Brak');
                      
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
         v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', BudynekID: ' ||TO_CHAR(:NEW."BuildingId") || 
+                     ', BudynekID: ' || :OLD."BuildingId" || 
                      ', NumerSali: ' || :OLD."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:OLD."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:OLD."RoomType");
+                     ', TypSali: ' || NVL(:OLD."RoomType", 'Brak');
                      
         v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', BudynekID: ' || TO_CHAR(:NEW."BuildingId") || 
+                     ', BudynekID: ' || :NEW."BuildingId" || 
                      ', NumerSali: ' || :NEW."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:NEW."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:NEW."RoomType");
+                     ', TypSali: ' || NVL(:NEW."RoomType", 'Brak');
                      
     ELSIF DELETING THEN
         v_operation := 'DELETE';
         v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', BudynekID: ' || TO_CHAR(:NEW."BuildingId") || 
+                     ', BudynekID: ' || :OLD."BuildingId" || 
                      ', NumerSali: ' || :OLD."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:OLD."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:OLD."RoomType");
+                     ', TypSali: ' || NVL(:OLD."RoomType", 'Brak');
     END IF;
 
     LOG_pkg.SaveLog('Rooms', v_operation, v_old_val, v_new_val);
@@ -856,3 +884,8 @@ BEGIN
 
 END;
 /
+
+ALTER TABLE "Teachers"
+    MODIFY "Id"
+        GENERATED ALWAYS AS IDENTITY
+            (START WITH LIMIT VALUE);

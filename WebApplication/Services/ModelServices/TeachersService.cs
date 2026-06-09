@@ -36,14 +36,15 @@ public class TeachersService(AppDbContext context) : ITeachersService
     public async Task<TeacherFormDto?> GetFormByIdAsync(int id)
     {
         return await context.Teachers
-            .Where(t => t.Id == id)
-            .Select(t => new TeacherFormDto
+            .AsNoTracking()
+            .Where(teacher => teacher.Id == id)
+            .Select(teacher => new TeacherFormDto
             {
-                Id = t.Id,
-                AcademicTitle = t.AcademicTitle,
-                FirstName = t.FirstName,
-                LastName = t.LastName,
-                Email = t.Email ?? string.Empty
+                Id = teacher.Id,
+                AcademicTitle = teacher.AcademicTitle,
+                FirstName = teacher.FirstName,
+                LastName = teacher.LastName,
+                Email = teacher.Email
             })
             .FirstOrDefaultAsync();
     }
@@ -52,10 +53,18 @@ public class TeachersService(AppDbContext context) : ITeachersService
     {
         var teacher = new Teacher
         {
-            AcademicTitle = dto.AcademicTitle,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Email = dto.Email
+            AcademicTitle =
+                string.IsNullOrWhiteSpace(dto.AcademicTitle)
+                    ? null
+                    : dto.AcademicTitle.Trim(),
+
+            FirstName = dto.FirstName.Trim(),
+            LastName = dto.LastName.Trim(),
+
+            Email =
+                string.IsNullOrWhiteSpace(dto.Email)
+                    ? null
+                    : dto.Email.Trim().ToLowerInvariant()
         };
 
         context.Teachers.Add(teacher);
@@ -64,15 +73,30 @@ public class TeachersService(AppDbContext context) : ITeachersService
 
     public async Task<bool> UpdateAsync(TeacherFormDto dto)
     {
-        var teacher = await context.Teachers.FirstOrDefaultAsync(t => t.Id == dto.Id);
-        if (teacher == null) return false;
+        var teacher = await context.Teachers
+            .FirstOrDefaultAsync(item =>
+                item.Id == dto.Id);
 
-        teacher.AcademicTitle = dto.AcademicTitle;
-        teacher.FirstName = dto.FirstName;
-        teacher.LastName = dto.LastName;
-        teacher.Email = dto.Email;
+        if (teacher is null)
+        {
+            return false;
+        }
+
+        teacher.AcademicTitle =
+            string.IsNullOrWhiteSpace(dto.AcademicTitle)
+                ? null
+                : dto.AcademicTitle.Trim();
+
+        teacher.FirstName = dto.FirstName.Trim();
+        teacher.LastName = dto.LastName.Trim();
+
+        teacher.Email =
+            string.IsNullOrWhiteSpace(dto.Email)
+                ? null
+                : dto.Email.Trim().ToLowerInvariant();
 
         await context.SaveChangesAsync();
+
         return true;
     }
 
@@ -89,5 +113,116 @@ public class TeachersService(AppDbContext context) : ITeachersService
     public async Task<bool> ExistsAsync(int id)
     {
         return await context.Teachers.AnyAsync(e => e.Id == id);
+    }
+
+    public async Task<List<TeacherPublicDto>> GetPublicListAsync()
+    {
+        return await context.Teachers
+            .AsNoTracking()
+            .OrderBy(teacher => teacher.LastName)
+            .ThenBy(teacher => teacher.FirstName)
+            .Select(teacher => new TeacherPublicDto(
+                teacher.Id,
+                teacher.AcademicTitle ?? string.Empty,
+                teacher.FirstName,
+                teacher.LastName,
+                teacher.Email))
+            .ToListAsync();
+    }
+
+    public async Task<List<TeacherAdminItemDto>>
+        GetAllForAdminAsync(
+            TeacherAdminFilterDto filter)
+    {
+        var query = context.Teachers
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var search = filter.Search
+                .Trim()
+                .ToLower();
+
+            query = query.Where(teacher =>
+                teacher.FirstName.ToLower().Contains(search) ||
+                teacher.LastName.ToLower().Contains(search) ||
+                (
+                    teacher.AcademicTitle != null &&
+                    teacher.AcademicTitle
+                        .ToLower()
+                        .Contains(search)
+                ) ||
+                (
+                    teacher.Email != null &&
+                    teacher.Email
+                        .ToLower()
+                        .Contains(search)
+                ));
+        }
+
+        return await query
+            .OrderBy(teacher => teacher.LastName)
+            .ThenBy(teacher => teacher.FirstName)
+            .Select(teacher => new TeacherAdminItemDto(
+                teacher.Id,
+                teacher.AcademicTitle ?? string.Empty,
+                teacher.FirstName,
+                teacher.LastName,
+                teacher.Email))
+            .ToListAsync();
+    }
+
+    public async Task<TeacherAdminMetadataDto>
+        GetAdminMetadataAsync()
+    {
+        var teachers = await context.Teachers
+            .AsNoTracking()
+            .OrderBy(teacher => teacher.LastName)
+            .ThenBy(teacher => teacher.FirstName)
+            .Select(teacher => new
+            {
+                teacher.AcademicTitle,
+                teacher.FirstName,
+                teacher.LastName
+            })
+            .ToListAsync();
+
+        var suggestions = teachers
+            .Select(teacher =>
+                string.Join(
+                    " ",
+                    new[]
+                    {
+                        teacher.AcademicTitle,
+                        teacher.FirstName,
+                        teacher.LastName
+                    }.Where(value =>
+                        !string.IsNullOrWhiteSpace(value))))
+            .Distinct()
+            .ToList();
+
+        return new TeacherAdminMetadataDto
+        {
+            Suggestions = suggestions
+        };
+    }
+
+    public async Task<bool> EmailExistsAsync(
+        string email,
+        int? excludedTeacherId = null)
+    {
+        var normalizedEmail = email
+            .Trim()
+            .ToLower();
+
+        return await context.Teachers
+            .AnyAsync(teacher =>
+                teacher.Email != null &&
+                teacher.Email.ToLower() == normalizedEmail &&
+                (
+                    !excludedTeacherId.HasValue ||
+                    teacher.Id != excludedTeacherId.Value
+                ));
     }
 }

@@ -8,14 +8,17 @@ namespace WebApplication.Services.ModelServices
 {
     public class FacultiesService(AppDbContext context) : IFacultiesService
     {
-        public async Task<IEnumerable<FacultyDto>> GetAllAsync()
+        public async Task<IEnumerable<FacultyDto>> GetAllAsync(string? search = null)
         {
-            return await context.Faculties
-                .Select(b => new FacultyDto(
-                    b.Id,
-                    b.Name,
-                    b.Abbreviation
-                ))
+            var query = context.Faculties.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(f => f.Name.Contains(search) || f.Abbreviation.Contains(search));
+            }
+
+            return await query
+                .Select(f => new FacultyDto(f.Id, f.Name, f.Abbreviation))
                 .ToListAsync();
         }
 

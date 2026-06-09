@@ -19,6 +19,81 @@ public class BuildingsService(AppDbContext context) : IBuildingsService
             ))
             .ToListAsync();
     }
+    
+
+    public async Task<IEnumerable<BuildingAdminItemDto>> GetAllForAdminAsync(string? name = null, int? addressId = null, int? facultyId = null)
+    {
+        var query = context.Buildings
+            .AsNoTracking()
+            .Include(b => b.Faculty)
+            .AsQueryable();
+
+        if (facultyId.HasValue)
+        {
+            query = query.Where(b => b.FacultyId == facultyId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(b => b.Name.Contains(name));
+        }
+
+        // Teraz filtrujemy bezpośrednio po ID adresu, co jest najdokładniejsze
+        if (addressId.HasValue)
+        {
+            query = query.Where(b => b.Id == addressId.Value);
+        }
+
+        return await query
+            .OrderBy(b => b.Name)
+            .Select(b => new BuildingAdminItemDto(
+                b.Id,
+                b.Name,
+                b.FacultyId,
+                b.Faculty!.Name,
+                b.Faculty!.Abbreviation,
+                b.Street,
+                b.HouseNumber,
+                b.City,
+                b.PostalCode))
+            .ToListAsync();
+    }
+
+    public async Task<BuildingAdminMetadataDto> GetAdminMetadataAsync()
+    {
+        var buildings = await GetAllForAdminAsync();
+        var faculties = await GetFacultyDropdownListAsync();
+
+        var nameSuggestions = buildings
+            .Select(b => b.Name)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(value => value)
+            .ToList();
+
+        var addressSuggestions = buildings
+            .Select(b => new BuildingFilterOptionDto(
+                b.Id,
+                $"{b.Street} {b.HouseNumber}, {b.PostalCode} {b.City}"))
+            .DistinctBy(x => x.Text)
+            .ToList();
+
+        return new BuildingAdminMetadataDto(
+            faculties.Select(f => new BuildingFilterOptionDto(f.Key, f.Value)).ToList(),
+            nameSuggestions,
+            addressSuggestions);
+    }
+
+    private static string NormalizeSearchTerm(string value)
+    {
+        return value
+            .Trim()
+            .ToLower()
+            .Replace(" ", string.Empty)
+            .Replace(",", string.Empty)
+            .Replace("-", string.Empty)
+            .Replace(".", string.Empty);
+    }
 
     public async Task<BuildingDetailsDto?> GetDetailsByIdAsync(int id)
     {
