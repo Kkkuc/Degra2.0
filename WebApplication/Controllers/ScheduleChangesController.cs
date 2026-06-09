@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using WebApplication.DTOs.ScheduleChange;
@@ -5,6 +6,7 @@ using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
+[Authorize(Roles = "Moderator")]
 public class ScheduleChangesController(IScheduleChangesService scheduleService) : Controller
 {
     // GET: ScheduleChanges
