@@ -11,7 +11,7 @@ public class SemesterFormDto
     public int AcademicYearId { get; set; }
 
     [Required(ErrorMessage = "Nazwa semestru jest wymagana.")]
-    [StringLength(50, ErrorMessage = "Nazwa nie może przekraczać 50 znaków.")]
+    [StringLength(20, ErrorMessage = "Nazwa nie może przekraczać 20 znaków.")]
     [Display(Name = "Nazwa semestru")]
     public string Name { get; set; } = string.Empty;
 

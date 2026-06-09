@@ -13,6 +13,12 @@ public interface ISemestersService
     Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
     
-    // Słownik pod SelectList na widoku (Id -> Nazwa roku)
     Task<Dictionary<int, string>> GetAcademicYearsDropdownAsync();
+    
+    Task<List<SemesterAdminItemDto>> GetAllForAdminAsync(
+        SemesterFilterDto filter);
+
+    Task<SemesterAdminMetadataDto> GetAdminMetadataAsync();
+
+    Task<bool> AcademicYearExistsAsync(int academicYearId);
 }

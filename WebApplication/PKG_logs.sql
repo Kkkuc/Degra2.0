@@ -270,48 +270,60 @@ END;
 /
 
 CREATE OR REPLACE TRIGGER TRG_SEMESTR_LOG
-AFTER INSERT OR UPDATE OR DELETE ON "Semesters" 
-FOR EACH ROW
+    AFTER INSERT OR UPDATE OR DELETE ON "Semesters"
+    FOR EACH ROW
 DECLARE
     v_operation NVARCHAR2(20);
-    v_old_val NVARCHAR2(2000);
-    v_new_val NVARCHAR2(2000);
+    v_old_val   NVARCHAR2(2000);
+    v_new_val   NVARCHAR2(2000);
 BEGIN
     v_old_val := '-';
     v_new_val := '-';
 
     IF INSERTING THEN
         v_operation := 'INSERT';
-        v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', RokAkademickiID: ' || :NEW."AcademicYearId" || 
-                     ', Nazwa: ' || :NEW."Name" || 
-                     ', Start: ' || TO_CHAR(:NEW."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:NEW."EndDate", 'YYYY-MM-DD');
-                     
+
+        v_new_val :=
+                'ID: ' || :NEW."Id" ||
+                ', RokAkademickiID: ' || :NEW."AcademicYearId" ||
+                ', Nazwa: ' || :NEW."Name" ||
+                ', Start: ' || :NEW."StartDate" ||
+                ', Koniec: ' || :NEW."EndDate";
+
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
-        v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', RokAkademickiID: ' || :OLD."AcademicYearId" || 
-                     ', Nazwa: ' || :OLD."Name" || 
-                     ', Start: ' || TO_CHAR(:OLD."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:OLD."EndDate", 'YYYY-MM-DD');
-                     
-        v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', RokAkademickiID: ' || :NEW."AcademicYearId" || 
-                     ', Nazwa: ' || :NEW."Name" || 
-                     ', Start: ' || TO_CHAR(:NEW."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:NEW."EndDate", 'YYYY-MM-DD');
-                     
+
+        v_old_val :=
+                'ID: ' || :OLD."Id" ||
+                ', RokAkademickiID: ' || :OLD."AcademicYearId" ||
+                ', Nazwa: ' || :OLD."Name" ||
+                ', Start: ' || :OLD."StartDate" ||
+                ', Koniec: ' || :OLD."EndDate";
+
+        v_new_val :=
+                'ID: ' || :NEW."Id" ||
+                ', RokAkademickiID: ' || :NEW."AcademicYearId" ||
+                ', Nazwa: ' || :NEW."Name" ||
+                ', Start: ' || :NEW."StartDate" ||
+                ', Koniec: ' || :NEW."EndDate";
+
     ELSIF DELETING THEN
         v_operation := 'DELETE';
-        v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', RokAkademickiID: ' || :OLD."AcademicYearId" || 
-                     ', Nazwa: ' || :OLD."Name" || 
-                     ', Start: ' || TO_CHAR(:OLD."StartDate", 'YYYY-MM-DD') || 
-                     ', Koniec: ' || TO_CHAR(:OLD."EndDate", 'YYYY-MM-DD');
+
+        v_old_val :=
+                'ID: ' || :OLD."Id" ||
+                ', RokAkademickiID: ' || :OLD."AcademicYearId" ||
+                ', Nazwa: ' || :OLD."Name" ||
+                ', Start: ' || :OLD."StartDate" ||
+                ', Koniec: ' || :OLD."EndDate";
     END IF;
 
-    LOG_pkg.SaveLog('Semesters', v_operation, v_old_val, v_new_val);
+    LOG_pkg.SaveLog(
+            'Semesters',
+            v_operation,
+            v_old_val,
+            v_new_val
+    );
 END;
 /
 CREATE OR REPLACE TRIGGER TRG_USER_LOG

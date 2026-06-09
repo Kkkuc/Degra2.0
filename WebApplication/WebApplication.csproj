@@ -50,6 +50,11 @@
       <_ContentIncludedByDefault Remove="Views\FacultiesApi\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Views\FacultiesApi\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Views\FacultiesApi\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\GroupsApi\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\GroupsApi\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\GroupsApi\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\GroupsApi\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\GroupsApi\Index.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

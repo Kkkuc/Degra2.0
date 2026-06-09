@@ -36,6 +36,7 @@ public class SemestersService(AppDbContext context) : ISemestersService
     public async Task<SemesterFormDto?> GetFormByIdAsync(int id)
     {
         return await context.Semesters
+            .AsNoTracking()
             .Where(s => s.Id == id)
             .Select(s => new SemesterFormDto
             {
@@ -53,7 +54,7 @@ public class SemestersService(AppDbContext context) : ISemestersService
         var semester = new Semester
         {
             AcademicYearId = dto.AcademicYearId,
-            Name = dto.Name,
+            Name = dto.Name.Trim(),
             StartDate = dto.StartDate,
             EndDate = dto.EndDate
         };
@@ -71,7 +72,7 @@ public class SemestersService(AppDbContext context) : ISemestersService
         }
 
         semester.AcademicYearId = dto.AcademicYearId;
-        semester.Name = dto.Name;
+        semester.Name = dto.Name.Trim();
         semester.StartDate = dto.StartDate;
         semester.EndDate = dto.EndDate;
 
@@ -100,6 +101,79 @@ public class SemestersService(AppDbContext context) : ISemestersService
     public async Task<Dictionary<int, string>> GetAcademicYearsDropdownAsync()
     {
         return await context.AcademicYears
-            .ToDictionaryAsync(a => a.Id, a => a.Name);
+            .AsNoTracking()
+            .OrderByDescending(year => year.StartDate)
+            .ToDictionaryAsync(
+                year => year.Id,
+                year => year.Name);
+    }
+    
+    public async Task<List<SemesterAdminItemDto>> GetAllForAdminAsync(
+        SemesterFilterDto filter)
+    {
+        var query = context.Semesters
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filter.Name))
+        {
+            var name = filter.Name.Trim().ToLower();
+
+            query = query.Where(semester =>
+                semester.Name.ToLower().Contains(name));
+        }
+
+        if (filter.AcademicYearId.HasValue)
+        {
+            query = query.Where(semester =>
+                semester.AcademicYearId ==
+                filter.AcademicYearId.Value);
+        }
+
+        return await query
+            .OrderByDescending(semester => semester.StartDate)
+            .ThenBy(semester => semester.Name)
+            .Select(semester => new SemesterAdminItemDto(
+                semester.Id,
+                semester.Name,
+                semester.AcademicYearId,
+                semester.AcademicYear != null
+                    ? semester.AcademicYear.Name
+                    : "Brak roku akademickiego",
+                semester.StartDate,
+                semester.EndDate))
+            .ToListAsync();
+    }
+    
+    public async Task<SemesterAdminMetadataDto>
+        GetAdminMetadataAsync()
+    {
+        var names = await context.Semesters
+            .AsNoTracking()
+            .Select(semester => semester.Name)
+            .Distinct()
+            .OrderBy(name => name)
+            .ToListAsync();
+
+        var academicYears = await context.AcademicYears
+            .AsNoTracking()
+            .OrderByDescending(year => year.StartDate)
+            .Select(year => new SemesterDropdownItemDto(
+                year.Id,
+                year.Name))
+            .ToListAsync();
+
+        return new SemesterAdminMetadataDto
+        {
+            NameSuggestions = names,
+            AcademicYears = academicYears
+        };
+    }
+    
+    public async Task<bool> AcademicYearExistsAsync(
+        int academicYearId)
+    {
+        return await context.AcademicYears
+            .AnyAsync(year => year.Id == academicYearId);
     }
 }
