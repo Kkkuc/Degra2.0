@@ -46,5 +46,10 @@ BEGIN
     GENERATEMONTHLYSTATS(2026,5);
 end;
 /
+
 --testy
 insert into "Students"("Id", "StudentID", "FirstName", "LastName") values (3, 22334, 'Karol', 'Siemano');
+/
+select * from "Users";
+/
+update "Rooms" set "Capacity" = 3 where "Id" = 3;

@@ -1,8 +1,8 @@
 CREATE OR REPLACE PACKAGE LOG_Pkg IS
     -- Publiczne funkcje do parsowania Enumów (żeby triggery mogły z nich korzystać)
-    FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2;
-    FUNCTION ParseRoomType(p_val IN NUMBER) RETURN NVARCHAR2;
-    FUNCTION ParseWeekCycle(p_val IN NUMBER) RETURN NVARCHAR2;
+    FUNCTION ParseClassType(p_val IN NVARCHAR2) RETURN NVARCHAR2;
+    FUNCTION ParseRoomType(p_val IN NVARCHAR2) RETURN NVARCHAR2;
+    FUNCTION ParseWeekCycle(p_val IN NVARCHAR2) RETURN NVARCHAR2;
 
     -- Główna procedura zapisująca log
     PROCEDURE SaveLog(
@@ -15,38 +15,38 @@ END LOG_Pkg;
 /
 CREATE OR REPLACE PACKAGE BODY LOG_Pkg IS
 
-    FUNCTION ParseClassType(p_val IN NUMBER) RETURN NVARCHAR2 IS
+    FUNCTION ParseClassType(p_val IN NVARCHAR2) RETURN NVARCHAR2 IS
     BEGIN
         RETURN CASE p_val
-            WHEN 0 THEN 'Lecture'
-            WHEN 1 THEN 'Laboratory'
-            WHEN 2 THEN 'SpecialisedLaboratory'
-            WHEN 3 THEN 'Exercise'
-            WHEN 4 THEN 'Seminar'
-            WHEN 5 THEN 'Project'
-            ELSE 'Nieznany typ (' || TO_CHAR(p_val) || ')'
+            WHEN '0' THEN 'Lecture'
+            WHEN '1' THEN 'Laboratory'
+            WHEN '2' THEN 'SpecialisedLaboratory'
+            WHEN '3' THEN 'Exercise'
+            WHEN '4' THEN 'Seminar'
+            WHEN '5'THEN 'Project'
+            ELSE NVL(p_val, 'Nieznany typ')
         END;
     END ParseClassType;
 
-    FUNCTION ParseRoomType(p_val IN NUMBER) RETURN NVARCHAR2 IS
+    FUNCTION ParseRoomType(p_val IN NVARCHAR2) RETURN NVARCHAR2 IS
     BEGIN
         RETURN CASE p_val
-            WHEN 0 THEN 'LectureHall'
-            WHEN 1 THEN 'Laboratory'
-            WHEN 2 THEN 'SeminarRoom'
-            WHEN 3 THEN 'ComputerLab'
-            WHEN 4 THEN 'Other'
-            ELSE 'Nieznany typ (' || TO_CHAR(p_val) || ')'
-    END;
+            WHEN '0' THEN 'LectureHall'
+            WHEN '1' THEN 'Laboratory'
+            WHEN '2' THEN 'SeminarRoom'
+            WHEN '3' THEN 'ComputerLab'
+            WHEN '4' THEN 'Other'
+            ELSE NVL(p_val, 'Nieznany typ') 
+        END;
     END ParseRoomType;
 
-    FUNCTION ParseWeekCycle(p_val IN NUMBER) RETURN NVARCHAR2 IS
+    FUNCTION ParseWeekCycle(p_val IN NVARCHAR2) RETURN NVARCHAR2 IS
     BEGIN
         RETURN CASE p_val
-            WHEN 0 THEN 'Weekly'
-            WHEN 1 THEN 'Even'
-            WHEN 2 THEN 'Odd'
-            ELSE 'Nieznany cykl (' || TO_CHAR(p_val) || ')'
+            WHEN '0' THEN 'Weekly'
+            WHEN '1' THEN 'Even'
+            WHEN '2' THEN 'Odd'
+           ELSE NVL(p_val, 'Nieznany typ')
     END;
     END ParseWeekCycle;
 
@@ -704,7 +704,7 @@ BEGIN
     IF INSERTING THEN
         v_operation := 'INSERT';
         v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', BudynekID: ' || :NEW."BuildingId" || 
+                     ', BudynekID: ' || TO_CHAR(:NEW."BuildingId") || 
                      ', NumerSali: ' || :NEW."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:NEW."Capacity"), 'Brak') || 
                      ', TypSali: ' || LOG_pkg.ParseRoomType(:NEW."RoomType");
@@ -712,13 +712,13 @@ BEGIN
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
         v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', BudynekID: ' || :OLD."BuildingId" || 
+                     ', BudynekID: ' ||TO_CHAR(:NEW."BuildingId") || 
                      ', NumerSali: ' || :OLD."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:OLD."Capacity"), 'Brak') || 
                      ', TypSali: ' || LOG_pkg.ParseRoomType(:OLD."RoomType");
                      
         v_new_val := 'ID: ' || :NEW."Id" || 
-                     ', BudynekID: ' || :NEW."BuildingId" || 
+                     ', BudynekID: ' || TO_CHAR(:NEW."BuildingId") || 
                      ', NumerSali: ' || :NEW."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:NEW."Capacity"), 'Brak') || 
                      ', TypSali: ' || LOG_pkg.ParseRoomType(:NEW."RoomType");
@@ -726,7 +726,7 @@ BEGIN
     ELSIF DELETING THEN
         v_operation := 'DELETE';
         v_old_val := 'ID: ' || :OLD."Id" || 
-                     ', BudynekID: ' || :OLD."BuildingId" || 
+                     ', BudynekID: ' || TO_CHAR(:NEW."BuildingId") || 
                      ', NumerSali: ' || :OLD."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:OLD."Capacity"), 'Brak') || 
                      ', TypSali: ' || LOG_pkg.ParseRoomType(:OLD."RoomType");
