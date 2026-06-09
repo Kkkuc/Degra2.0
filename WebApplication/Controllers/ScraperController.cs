@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Threading.Tasks;
 using WebApplication.Data;
@@ -7,6 +8,7 @@ using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
+[Authorize(Roles = "Moderator")]
 public class ScraperController : Controller
 {
     private readonly IScraperService _scraperService;
