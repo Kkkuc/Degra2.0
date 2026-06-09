@@ -1,65 +1,57 @@
-@model IEnumerable<WebApplication.DTOs.Room.RoomIndexDto>
-
-@section HeaderLeft {
-    <div class="flex items-center gap-4">
-        <h2 class="font-bold text-2xl tracking-tight">Rooms</h2>
-    </div>
+@{
+    ViewData["Title"] = "Sale";
 }
 
-<div class="p-8">
-    <div id="rooms-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Sale
+        </h1>
+
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Lista sal wraz z przypisanymi budynkami.
+        </p>
     </div>
+
+    <div class="mb-6 rounded-xl border border-gray-200 bg-white p-5 shadow-sm
+                dark:border-gray-700 dark:bg-gray-900">
+
+        <label for="room-search"
+               class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Wyszukaj salę
+        </label>
+
+        <input id="room-search"
+               type="search"
+               autocomplete="off"
+               placeholder="Numer sali lub nazwa budynku"
+               class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                      dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+    </div>
+
+    <div id="rooms-loading"
+         class="rounded-xl border border-gray-200 bg-white p-8 text-center
+                text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        Ładowanie sal...
+    </div>
+
+    <div id="rooms-empty"
+         class="hidden rounded-xl border border-gray-200 bg-white p-8 text-center
+                text-gray-500 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        Nie znaleziono sal.
+    </div>
+
+    <div id="rooms-grid"
+         class="hidden grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+    </div>
+
 </div>
 
 @section Scripts {
-    <script>
-        const STORAGE_KEY = 'rooms_cache';
-        const TTL = 3600000;
+    <script src="~/js/admin-ui.js"
+            asp-append-version="true"></script>
 
-        function initRooms() {
-            const serverData = @Html.Raw(Json.Serialize(Model));
-            const cached = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            const now = Date.now();
-            let rooms = [];
-
-            if (serverData && serverData.length > 0) {
-                rooms = serverData;
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({data: serverData, timestamp: now}));
-            } else if (cached && (now - cached.timestamp < TTL)) {
-                rooms = cached.data;
-            }
-
-            renderRooms(rooms);
-        }
-
-        function renderRooms(rooms) {
-            const container = document.getElementById('rooms-container');
-            container.innerHTML = rooms.map(room => `
-                <div class="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600">
-                            <i data-lucide="door-open" class="w-6 h-6"></i>
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-bold mb-1">Room ${room.roomNumber}</h3>
-                    <p class="text-sm text-gray-500 mb-6 flex items-center gap-1">
-                        <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                        ${room.buildingName || 'Unknown Building'}
-                    </p>
-                    <div class="grid grid-cols-2 gap-4 py-4 border-t border-border">
-                        <div>
-                            <div class="text-xs text-gray-400 uppercase font-medium">Capacity</div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
-                                <span class="font-semibold">${room.capacity}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        initRooms();
-    </script>
+    <script src="~/js/rooms-public.js"
+            asp-append-version="true"></script>
 }

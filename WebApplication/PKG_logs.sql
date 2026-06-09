@@ -735,7 +735,7 @@ BEGIN
                      ', BudynekID: ' || :NEW."BuildingId" || 
                      ', NumerSali: ' || :NEW."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:NEW."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:NEW."RoomType");
+                     ', TypSali: ' || NVL(:NEW."RoomType", 'Brak');
                      
     ELSIF UPDATING THEN
         v_operation := 'UPDATE';
@@ -743,13 +743,13 @@ BEGIN
                      ', BudynekID: ' || :OLD."BuildingId" || 
                      ', NumerSali: ' || :OLD."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:OLD."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:OLD."RoomType");
+                     ', TypSali: ' || NVL(:OLD."RoomType", 'Brak');
                      
         v_new_val := 'ID: ' || :NEW."Id" || 
                      ', BudynekID: ' || :NEW."BuildingId" || 
                      ', NumerSali: ' || :NEW."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:NEW."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:NEW."RoomType");
+                     ', TypSali: ' || NVL(:NEW."RoomType", 'Brak');
                      
     ELSIF DELETING THEN
         v_operation := 'DELETE';
@@ -757,7 +757,7 @@ BEGIN
                      ', BudynekID: ' || :OLD."BuildingId" || 
                      ', NumerSali: ' || :OLD."RoomNumber" || 
                      ', Pojemnosc: ' || NVL(TO_CHAR(:OLD."Capacity"), 'Brak') || 
-                     ', TypSali: ' || LOG_pkg.ParseRoomType(:OLD."RoomType");
+                     ', TypSali: ' || NVL(:OLD."RoomType", 'Brak');
     END IF;
 
     LOG_pkg.SaveLog('Rooms', v_operation, v_old_val, v_new_val);

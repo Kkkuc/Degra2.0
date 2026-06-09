@@ -12,4 +12,18 @@ public interface IRoomsService
     Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
     Task<Dictionary<int, string>> GetBuildingsDropdownListAsync();
+    
+    Task<List<RoomPublicDto>> GetPublicListAsync();
+
+    Task<List<RoomAdminItemDto>> GetAllForAdminAsync(
+        RoomAdminFilterDto filter);
+
+    Task<RoomAdminMetadataDto> GetAdminMetadataAsync();
+
+    Task<bool> RoomNumberExistsAsync(
+        string roomNumber,
+        int buildingId,
+        int? excludedRoomId = null);
+
+    Task<bool> BuildingExistsAsync(int buildingId);
 }
