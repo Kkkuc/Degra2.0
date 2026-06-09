@@ -10,7 +10,8 @@ function initializePage() {
     AdminUi.wireDatalistInput("filter-address-input", "filter-address-id", "addresses-list");
     AdminUi.wireDatalistInput("filter-faculty-input", "filter-faculty-id", "faculties-list");
 
-    loadMetadata();
+    metadataPromise = loadMetadata();
+    renderTable();
 }
 
 async function applyFilters() {
@@ -25,9 +26,11 @@ function getFilterPayload() {
         facultyId: AdminUi.getNullableIntValue("filter-faculty-id")
     };
 }
+
 function getAddressDisplay(building) {
     return `${building.street} ${building.houseNumber}, ${building.postalCode} ${building.city}`;
 }
+
 function addDatalistOptions(listId, values) {
     const list = document.getElementById(listId);
     if (!list) {
@@ -74,18 +77,40 @@ function populateFacultySelect() {
 async function loadMetadata() {
     try {
         const response = await fetch(`${API_URL}/metadata`);
+
         if (!response.ok) {
-            return;
+            throw new Error(
+                "Nie udało się pobrać danych pomocniczych budynków."
+            );
         }
 
         const metadata = await response.json();
+
         cachedFaculties = metadata.faculties ?? [];
-        addDatalistOptions("buildings-list", metadata.nameSuggestions ?? []);
-        addOptionDatalist("addresses-list", metadata.addressSuggestions ?? []);
-        addFacultyOptions("faculties-list", cachedFaculties);
+
+        addDatalistOptions(
+            "buildings-list",
+            metadata.nameSuggestions ?? []
+        );
+
+        addOptionDatalist(
+            "addresses-list",
+            metadata.addressSuggestions ?? []
+        );
+
+        addFacultyOptions(
+            "faculties-list",
+            cachedFaculties
+        );
+
         populateFacultySelect();
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(
+            "Błąd pobierania metadata budynków:",
+            error
+        );
+
+        throw error;
     }
 }
 
@@ -172,9 +197,13 @@ function resetModal() {
 
 async function openCreateModal() {
     await ensureMetadataLoaded();
-    document.getElementById("modal-title").innerText = "Dodaj budynek";
+
+    document.getElementById("modal-title").innerText =
+        "Dodaj budynek";
+
     resetModal();
-    document.getElementById("crud-modal").classList.remove("hidden");
+
+    showCrudModal();
 }
 
 
@@ -199,19 +228,18 @@ async function openEditModal(id) {
             building.facultyId?.toString() ?? "";
 
         document.getElementById("form-street").value =
-            building.street ?? "";
+            building.addressDto?.street ?? "";
 
         document.getElementById("form-houseNumber").value =
-            building.houseNumber ?? "";
+            building.addressDto?.houseNumber ?? "";
 
         document.getElementById("form-postalCode").value =
-            building.postalCode ?? "";
+            building.addressDto?.postalCode ?? "";
 
         document.getElementById("form-city").value =
-            building.city ?? "";
+            building.addressDto?.city ?? "";
 
-        document.getElementById("crud-modal")
-            .classList.remove("hidden");
+        showCrudModal();
     } catch (error) {
         console.error("Błąd pobierania budynku:", error);
         alert("Wystąpił błąd podczas pobierania danych budynku.");
@@ -219,7 +247,10 @@ async function openEditModal(id) {
 }
 
 function closeCrudModal() {
-    document.getElementById("crud-modal").classList.add("hidden");
+    const modal = document.getElementById("crud-modal");
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
 }
 
 async function handleFormSubmit(event) {
@@ -229,36 +260,39 @@ async function handleFormSubmit(event) {
         document.getElementById("form-id").value;
 
     const payload = {
-        id: parseInt(idValue, 10) || 0,
+        id: Number.parseInt(idValue, 10) || 0,
+
         name: document
             .getElementById("form-name")
             .value
             .trim(),
 
-        facultyId: parseInt(
+        facultyId: Number.parseInt(
             document.getElementById("form-facultyId").value,
             10
         ),
 
-        street: document
-            .getElementById("form-street")
-            .value
-            .trim(),
+        addressDto: {
+            street: document
+                .getElementById("form-street")
+                .value
+                .trim(),
 
-        houseNumber: document
-            .getElementById("form-houseNumber")
-            .value
-            .trim(),
+            houseNumber: document
+                .getElementById("form-houseNumber")
+                .value
+                .trim(),
 
-        postalCode: document
-            .getElementById("form-postalCode")
-            .value
-            .trim(),
+            postalCode: document
+                .getElementById("form-postalCode")
+                .value
+                .trim(),
 
-        city: document
-            .getElementById("form-city")
-            .value
-            .trim()
+            city: document
+                .getElementById("form-city")
+                .value
+                .trim()
+        }
     };
 
     const isEdit = payload.id > 0;
@@ -297,4 +331,60 @@ async function handleFormSubmit(event) {
         console.error("Błąd zapisu budynku:", error);
         alert("Wystąpił błąd podczas zapisywania budynku.");
     }
+}
+
+async function deleteBuilding(id) {
+    if (!confirm("Czy na pewno chcesz usunąć ten budynek?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_URL}/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        if (!response.ok) {
+            const responseBody = await response.text();
+
+            console.error(
+                "Błąd usuwania budynku:",
+                response.status,
+                responseBody
+            );
+
+            alert(
+                "Nie udało się usunąć budynku. " +
+                "Możliwe, że są do niego przypisane sale."
+            );
+
+            return;
+        }
+
+        allBuildings =
+            allBuildings?.filter(
+                building => building.id !== id
+            ) ?? [];
+
+        renderTable();
+        await loadMetadata();
+    } catch (error) {
+        console.error(
+            "Błąd usuwania budynku:",
+            error
+        );
+
+        alert(
+            "Wystąpił błąd podczas usuwania budynku."
+        );
+    }
+}
+
+function showCrudModal() {
+    const modal = document.getElementById("crud-modal");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
 }

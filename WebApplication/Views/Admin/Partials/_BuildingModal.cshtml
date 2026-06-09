@@ -1,50 +1,140 @@
-<div id="crud-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-    <div class="bg-card w-full max-w-2xl rounded-2xl shadow-2xl border border-border m-4 p-6">
-        <div class="flex justify-between items-center mb-4 pb-2 border-b border-border">
-            <h3 id="modal-title" class="font-bold text-xl">Dodaj budynek</h3>
-            <button type="button" onclick="closeCrudModal()" class="text-gray-500 hover:text-gray-700">×</button>
+<div id="crud-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+
+    <div class="w-full max-w-2xl rounded-xl bg-white shadow-xl dark:bg-gray-900">
+
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4
+                    dark:border-gray-700">
+
+            <h2 id="modal-title"
+                class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                Dodaj budynek
+            </h2>
+
+            <button type="button"
+                    onclick="closeCrudModal()"
+                    class="text-2xl leading-none text-gray-400 hover:text-gray-700
+                           dark:hover:text-gray-200">
+                &times;
+            </button>
         </div>
 
-        <form id="building-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <form id="building-form"
+              onsubmit="handleFormSubmit(event)"
+              class="space-y-5 p-6">
+
             <input type="hidden" id="form-id" />
 
             <div>
-                <label class="block text-xs font-bold uppercase text-gray-400">Nazwa</label>
-                <input id="form-name" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                <label for="form-name"
+                       class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Nazwa
+                </label>
+
+                <input id="form-name"
+                       type="text"
+                       required
+                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                              text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                              dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
             </div>
 
             <div>
-                <label class="block text-xs font-bold uppercase text-gray-400">Wydział</label>
-                <select id="form-facultyId" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none focus:ring-2 focus:ring-blue-500">
+                <label for="form-facultyId"
+                       class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Wydział
+                </label>
+
+                <select id="form-facultyId"
+                        required
+                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                               text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                               dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
                     <option value="">Wybierz wydział</option>
                 </select>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Ulica</label>
-                    <input id="form-street" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                    <label for="form-street"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Ulica
+                    </label>
+
+                    <input id="form-street"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
                 </div>
+
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Numer domu</label>
-                    <input id="form-houseNumber" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                    <label for="form-houseNumber"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Numer domu
+                    </label>
+
+                    <input id="form-houseNumber"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
                 </div>
+
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Miasto</label>
-                    <input id="form-city" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                    <label for="form-postalCode"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Kod pocztowy
+                    </label>
+
+                    <input id="form-postalCode"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
                 </div>
+
                 <div>
-                    <label class="block text-xs font-bold uppercase text-gray-400">Kod pocztowy</label>
-                    <input id="form-postalCode" required class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-2 text-sm mt-1 border-none" />
+                    <label for="form-city"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Miasto
+                    </label>
+
+                    <input id="form-city"
+                           type="text"
+                           required
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
                 </div>
+
             </div>
 
-            <div class="flex justify-end gap-3 pt-4 border-t border-border">
-                <button type="button" onclick="closeCrudModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-xl text-sm font-medium">Anuluj</button>
-                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-blue-700">Zapisz</button>
+            <div class="flex justify-end gap-3 border-t border-gray-200 pt-5
+                        dark:border-gray-700">
+
+                <button type="button"
+                        onclick="closeCrudModal()"
+                        class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold
+                               text-gray-700 hover:bg-gray-50
+                               dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
+                    Anuluj
+                </button>
+
+                <button type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold
+                               text-white hover:bg-blue-700">
+                    Zapisz
+                </button>
+
             </div>
         </form>
     </div>

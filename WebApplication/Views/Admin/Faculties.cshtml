@@ -1,50 +1,114 @@
-@{ ViewData["Title"] = "Zarządzanie Wydziałami"; }
+@{
+    ViewData["Title"] = "Wydziały";
+}
 
-<div class="px-8 pt-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Panel Administratora</h1>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
     <partial name="Partials/_AdminNav" />
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
-        <div class="w-full md:col-span-3">
-            <input list="faculties-list" id="filter-faculty-input" placeholder="Wyszukaj wydział..."
-                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-            <datalist id="faculties-list">
-                @foreach (var f in (SelectList)ViewBag.Faculties)
-                {
-                    <option value="@f.Text" data-id="@f.Value"></option>
-                }
-            </datalist>
-            <input type="hidden" id="filter-faculty-id">
+    <div class="flex flex-col gap-6">
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Wydziały
+                </h1>
+
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Zarządzanie wydziałami oraz ich skrótami.
+                </p>
+            </div>
+
+            <button type="button"
+                    onclick="openCreateModal()"
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors">
+                Dodaj wydział
+            </button>
         </div>
-        <button onclick="applyFilters()"
-                class="w-full bg-blue-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors">
-            Filtruj
-        </button>
-    </div>
 
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Lista wydziałów</h2>
-        <button onclick="openCreateModal()" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm text-sm">
-            + Dodaj Nowy Wydział
-        </button>
-    </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm
+                    dark:border-gray-700 dark:bg-gray-900">
 
-    <div class="bg-card border border-border rounded-2xl shadow-sm overflow-x-auto">
-        <table class="w-full border-collapse min-w-[600px]">
-            <thead>
-                <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Skrót</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase">Nazwa</th>
-                    <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
-                </tr>
-            </thead>
-            <tbody id="faculties-rows" class="divide-y divide-border"></tbody>
-        </table>
+            <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Filtry
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                <div class="md:col-span-3">
+                    <label for="filter-faculty-input"
+                           class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Wydział
+                    </label>
+
+                    <input list="faculties-list"
+                           id="filter-faculty-input"
+                           type="text"
+                           autocomplete="off"
+                           placeholder="Wyszukaj wydział..."
+                           class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
+                                  text-gray-900 focus:border-blue-500 focus:ring-blue-500
+                                  dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100" />
+
+                    <datalist id="faculties-list">
+                        @foreach (var faculty in (SelectList)ViewBag.Faculties)
+                        {
+                            <option value="@faculty.Text"
+                                    data-id="@faculty.Value">
+                            </option>
+                        }
+                    </datalist>
+
+                    <input type="hidden"
+                           id="filter-faculty-id" />
+                </div>
+
+                <div class="flex items-end">
+                    <button type="button"
+                            onclick="applyFilters()"
+                            class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                        Filtruj
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm
+                    dark:border-gray-700 dark:bg-gray-900">
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Skrót
+                        </th>
+
+                        <th class="p-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Nazwa
+                        </th>
+
+                        <th class="p-4 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            Akcje
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="faculties-rows"
+                           class="divide-y divide-gray-100 dark:divide-gray-800">
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <partial name="Partials/_FacultyModal" />
 
 @section Scripts {
+    <script src="~/js/admin-ui.js" asp-append-version="true"></script>
     <script src="~/js/admin-faculties.js" asp-append-version="true"></script>
 }
