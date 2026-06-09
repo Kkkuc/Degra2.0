@@ -121,6 +121,13 @@ public class FieldsOfStudiesService(AppDbContext context) : IFieldsOfStudiesServ
             .Select(f => new KeyValuePair<int, string>(f.Id, f.Abbreviation))
             .ToListAsync();
     }
+    public async Task<IEnumerable<string>> GetUniqueNamesAsync()
+    {
+        return await context.FieldsOfStudy
+            .Select(f => f.Name)
+            .Distinct()
+            .ToListAsync();
+    }
 
     private static string GetEnumDisplayName(StudyMode mode)
     {
@@ -149,6 +156,11 @@ public class FieldsOfStudiesService(AppDbContext context) : IFieldsOfStudiesServ
         if (filter.Mode.HasValue)
         {
             query = query.Where(f => (int)f.Mode == filter.Mode);
+        }
+        
+        if (!string.IsNullOrWhiteSpace(filter.Degree))
+        {
+            query = query.Where(f => f.Degree.Contains(filter.Degree));
         }
 
         // Pobieramy pełny zestaw danych, który pasuje do Twojego DTO

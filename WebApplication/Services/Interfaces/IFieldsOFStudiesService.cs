@@ -20,4 +20,5 @@ public interface IFieldsOfStudiesService
 
     Task<IEnumerable<KeyValuePair<int, string>>> GetFacultyDropdownListAsync();
     Task<IEnumerable<FieldOfStudyIndexDto>> GetFilteredAsync(FieldOfStudyFilterDto filter);
+    Task<IEnumerable<string>> GetUniqueNamesAsync();
 }

@@ -7,7 +7,24 @@ const MODE_NAMES = {
     2: "Podyplomowe"
 };
 
-document.addEventListener("DOMContentLoaded", () => loadFos());
+document.addEventListener("DOMContentLoaded", () => {
+    loadFos();
+    loadSuggestions(); // Pobieramy sugestie niezależnie od tabeli
+});
+document.getElementById("filter-name-input").addEventListener("input", applyFilters);
+
+async function loadSuggestions() {
+    try {
+        const response = await fetch(`${API_URL}/suggestions`);
+        if (!response.ok) return;
+
+        const names = await response.json();
+        const datalist = document.getElementById("fos-suggestions");
+        datalist.innerHTML = names.map(name => `<option value="${name}">`).join("");
+    } catch (err) {
+        console.error("Błąd ładowania sugestii:", err);
+    }
+}
 
 async function loadFos() {
     try {
@@ -50,6 +67,7 @@ function applyFilters() {
     const name = document.getElementById("filter-name-input").value.toLowerCase();
     const mode = document.getElementById("filter-mode-input").value;
 
+    // Filtrujemy dane, które już są w pamięci (z loadFos)
     const filtered = allFos.filter(f =>
         (name === "" || f.name.toLowerCase().includes(name)) &&
         (mode === "" || f.mode.toString() === mode)

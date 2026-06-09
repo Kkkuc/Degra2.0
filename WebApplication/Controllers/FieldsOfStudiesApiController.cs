@@ -69,4 +69,11 @@ public class FieldsOfStudiesApiController(IFieldsOfStudiesService fieldsService)
         await fieldsService.DeleteAsync(id);
         return NoContent();
     }
+    
+    [HttpGet("suggestions")]
+    public async Task<ActionResult<IEnumerable<string>>> GetSuggestions()
+    {
+        var names = await fieldsService.GetUniqueNamesAsync();
+        return Ok(names);
+    }
 }

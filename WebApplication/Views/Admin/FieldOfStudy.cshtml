@@ -11,8 +11,9 @@
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
         <div class="w-full md:col-span-2">
-            <input id="filter-name-input" type="text" placeholder="Szukaj nazwy kierunku..."
+            <input id="filter-name-input" type="text" list="fos-suggestions" placeholder="Szukaj nazwy kierunku..."
                    class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+            <datalist id="fos-suggestions"></datalist>
         </div>
 
         <div class="w-full">
