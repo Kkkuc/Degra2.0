@@ -1,6 +1,6 @@
 #!/bin/bash
 
-directories=("Models")
+directories=("Views" "wwwroot" "Controllers")
 
 for dir in "${directories[@]}"; do
     if [ -d "$dir" ]; then

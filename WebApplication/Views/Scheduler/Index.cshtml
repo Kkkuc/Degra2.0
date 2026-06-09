@@ -69,7 +69,12 @@
 @section SidebarExtra {
     <div class="flex-1 overflow-hidden flex flex-col">
         <div class="flex items-center justify-between px-4 mb-4">
-            <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">My Subjects</h4>
+            <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">Subjects</h4>
+            <div class="flex items-center gap-2 text-xs">
+                <button onclick="showAllSubjects()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors font-medium">Show all</button>
+                <span class="text-gray-300 dark:text-gray-700">|</span>
+                <button onclick="hideAllSubjects()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors font-medium">Hide all</button>
+            </div>
         </div>
         <div id="subject-list" class="space-y-1 overflow-y-auto flex-1"></div>
     </div>
@@ -168,10 +173,6 @@
 
 @section Scripts {
     <script>
-        const STORAGE_KEY = 'scheduler_cache';
-        const TTL = 3600000;
-
-        // Stałe sloty godzinowe w JS zamiast pobierania z C# Modelu
         const timeSlotsConfig = [
             "08:30 – 09:15", "09:15 – 10:00", "10:15 – 11:00", "11:00 – 11:45",
             "12:00 – 12:45", "12:45 – 13:30", "14:00 – 14:45", "14:45 – 15:30",
@@ -188,11 +189,10 @@
             enabledSubjectIds: []
         };
 
-        // Ładowanie słowników filtrów z API
         async function loadFiltersDropdowns() {
             try {
                 const response = await fetch('/api/scheduler/filters');
-                if (!response.ok) throw new Error("Nie udało się pobrać słowników.");
+                if (!response.ok) throw new Error();
                 const data = await response.json();
 
                 const fieldSelect = document.getElementById('field-select');
@@ -211,15 +211,14 @@
                     semesterSelect.add(opt);
                 });
             } catch (err) {
-                console.error("Błąd ładowania list rozwijanych:", err);
+                console.error(err);
             }
         }
 
-        // Pobieranie właściwych lekcji planu
         async function fetchScheduleData(queryString = "") {
             try {
                 const response = await fetch(`/api/scheduler${queryString}`);
-                if (!response.ok) throw new Error("Błąd sieciowy API");
+                if (!response.ok) throw new Error();
                 const data = await response.json();
 
                 state.lessons = data.lessons || [];
@@ -229,16 +228,9 @@
                 state.enabledSubjectIds = savedSubjects ?
                     JSON.parse(savedSubjects) : state.subjects.map(s => parseInt(s.id));
 
-                saveToCache(state.lessons, state.subjects);
                 render();
             } catch (err) {
-                console.error("Problem przy pobieraniu danych planu:", err);
-                const cachedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                if (cachedData) {
-                    state.lessons = cachedData.lessons;
-                    state.subjects = cachedData.subjects;
-                    render();
-                }
+                console.error(err);
             }
         }
 
@@ -254,22 +246,20 @@
             await fetchScheduleData(`?${params.toString()}`);
         }
 
-        function saveToCache(lessons, subjects) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                lessons, subjects, timestamp: Date.now()
-            }));
-        }
-
         function initPersistence() {
             const filterFields = ['fieldId', 'semId', 'gW', 'gC', 'gL', 'gPs', 'gP', 'gS'];
             const params = new URLSearchParams();
+            let hasSavedFilters = false;
 
             filterFields.forEach(name => {
                 const val = localStorage.getItem(`filter_${name}`);
                 const element = document.querySelector(`[name="${name}"]`);
-                if (val !== null) {
+                if (val !== null && val !== '') {
                     params.set(name, val);
                     if (element) element.value = val;
+                    if (name === 'fieldId' || name === 'semId') {
+                        hasSavedFilters = true;
+                    }
                 }
             });
 
@@ -282,8 +272,11 @@
                 }
             });
 
-            const queryStr = params.toString() ? `?${params.toString()}` : "";
-            fetchScheduleData(queryStr);
+            if (hasSavedFilters) {
+                fetchScheduleData(`?${params.toString()}`);
+            } else {
+                render();
+            }
         }
 
         function toggleSubject(id) {
@@ -298,6 +291,35 @@
             render();
         }
 
+        function showAllSubjects() {
+            state.enabledSubjectIds = state.subjects.map(s => parseInt(s.id));
+            localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
+            render();
+        }
+
+        function hideAllSubjects() {
+            state.enabledSubjectIds = [];
+            localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
+            render();
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('subject-list');
+            if (!list) return;
+
+            const visibleSubjectIds = [...new Set(state.lessons.map(l => parseInt(l.subjectId)))];
+            const displayedSubjects = state.subjects.filter(s => visibleSubjectIds.includes(parseInt(s.id)));
+
+            list.innerHTML = displayedSubjects.map(s => {
+                const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
+                return `
+                <div onclick="toggleSubject('${s.id}')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sidebar-accent/50 cursor-pointer transition-colors ${isActive ? '' : 'opacity-40 grayscale'}">
+                    <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${s.color}"></div>
+                    <span class="text-sm font-medium">${s.name}</span>
+                </div>`;
+            }).join('');
+        }
+
         function setMode(mode) {
             state.viewMode = mode;
             document.getElementById('mode-week').classList.toggle('bg-white', mode === 'week');
@@ -305,7 +327,6 @@
             render();
         }
 
-        // ... Reszta Twoich niezmienionych funkcji renderujących (navigateDate, goToday, renderHeader, renderSidebar, showLessonDetails, renderTimetable, renderMonth)
         function navigateDate(dir) {
             if (state.viewMode === 'week') {
                 state.currentDate.setDate(state.currentDate.getDate() + (dir * 7));
@@ -328,19 +349,6 @@
                 year: 'numeric'
             } : {month: 'long', year: 'numeric'};
             display.innerText = state.viewMode === 'week' ? `Week of ${state.currentDate.toLocaleDateString(undefined, options)}` : state.currentDate.toLocaleDateString(undefined, options);
-        }
-
-        function renderSidebar() {
-            const list = document.getElementById('subject-list');
-            if (!list) return;
-            list.innerHTML = state.subjects.map(s => {
-                const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
-                return `
-                <div onclick="toggleSubject('${s.id}')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sidebar-accent/50 cursor-pointer transition-colors ${isActive ? '' : 'opacity-40 grayscale'}">
-                    <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${s.color}"></div>
-                    <span class="text-sm font-medium">${s.name}</span>
-                </div>`;
-            }).join('');
         }
 
         function showLessonDetails(dayIdx, slotIdx) {
@@ -425,28 +433,15 @@
                 const isCurrentMonth = d.getMonth() === state.currentDate.getMonth();
                 html += `<div class="min-h-[120px] p-4 border-r border-b border-border ${!isCurrentMonth ? 'bg-gray-50 opacity-50' : ''}">
                     <div class="w-8 h-8 flex items-center justify-center font-medium mb-2">${d.getDate()}</div>
-                </div>`;
+                 </div>`;
             }
             container.innerHTML = html + `</div></div></div>`;
         }
 
-        function render() {
-            renderHeader();
-            renderSidebar();
-            const container = document.getElementById('timetable-container');
-            if (!container) return;
-            if (state.viewMode === 'month') renderMonth(container);
-            else renderTimetable(container);
-            lucide.createIcons();
-        }
-
-        // Cykl startowy
-        async function initApp() {
+        document.addEventListener("DOMContentLoaded", async () => {
             await loadFiltersDropdowns();
             initPersistence();
-        }
-
-        document.addEventListener("DOMContentLoaded", initApp);
+        });
 
         function exportTimetableToPDF() {
             const element = document.getElementById('timetable-container');
@@ -478,15 +473,14 @@
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait',
-                    compress: true
+                     compress: true
                 },
                 pagebreak: { mode: [] }
             };
 
-            // Generujemy PDF, a w bloku .then() przywracamy stan pierwotny interfejsu
             html2pdf().set(opt).from(element).save().then(() => {
                 element.classList.remove('print-scale-portrait');
-                if (innerContainer) innerContainer.classList.add('p-8'); // Przywracamy padding na ekranie
+                if (innerContainer) innerContainer.classList.add('p-8');
             }).catch((err) => {
                 console.error(err);
                 element.classList.remove('print-scale-portrait');
@@ -494,6 +488,15 @@
             });
         }
 
+        function render() {
+            renderHeader();
+            renderSidebar();
+            const container = document.getElementById('timetable-container');
+            if (!container) return;
+            if (state.viewMode === 'month') renderMonth(container);
+            else renderTimetable(container);
+            lucide.createIcons();
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 }
