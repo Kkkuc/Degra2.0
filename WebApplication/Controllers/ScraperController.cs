@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Threading.Tasks;
 using WebApplication.Data;
 using WebApplication.Services.Interfaces;
 
@@ -52,7 +49,7 @@ public class ScraperController(IScraperService scraperService, AppDbContext cont
         try
         {
             using var stream = xmlFile.OpenReadStream();
-            await _scraperService.ImportFromFileAsync(stream);
+            await scraperService.ImportFromFileAsync(stream);
             TempData["SuccessMessage"] = "Dane z pliku XML zostały pomyślnie zaimportowane!";
         }
         catch (Exception ex)
