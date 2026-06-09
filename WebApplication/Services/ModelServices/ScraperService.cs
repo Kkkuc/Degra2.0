@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
@@ -11,7 +17,6 @@ public class ScraperService : IScraperService
 {
     private readonly HttpClient _httpClient;
     private readonly AppDbContext _context;
-
     private static readonly Dictionary<int, (TimeSpan Start, TimeSpan End)> TimeBlocks = new()
     {
         { 1, (new TimeSpan(8, 30, 0), new TimeSpan(9, 15, 0)) },
@@ -40,7 +45,17 @@ public class ScraperService : IScraperService
     {
         var xmlContent = await _httpClient.GetStringAsync(url);
         var doc = XDocument.Parse(xmlContent);
+        await ProcessXmlAsync(doc);
+    }
 
+    public async Task ImportFromFileAsync(Stream fileStream)
+    {
+        var doc = await XDocument.LoadAsync(fileStream, LoadOptions.None, default);
+        await ProcessXmlAsync(doc);
+    }
+
+    private async Task ProcessXmlAsync(XDocument doc)
+    {
         await EnsureDataConstraintsAsync();
 
         var academicTitles = ParseAcademicTitles(doc);
@@ -344,11 +359,9 @@ public class ScraperService : IScraperService
         var semesters = await _context.Semesters.Select(s => s.Id).ToHashSetAsync();
         var specializations = await _context.Specializations.Select(s => s.Id).ToHashSetAsync();
         var groups = await _context.Groups.Select(g => g.Id).ToHashSetAsync();
-
         var timetables = await _context.Timetables
             .Select(t => new { t.SubjectId, t.TeacherId, t.RoomId, t.GroupId, t.ClassType, t.DayOfWeek, t.StartTime, t.EndTime, t.WeekCycle })
             .ToHashSetAsync();
-
         var elements = doc.Descendants("tabela_rozklad");
 
         foreach (var el in elements)
@@ -424,9 +437,7 @@ public class ScraperService : IScraperService
 
             TimeSpan startTime = startBlock.Start;
             TimeSpan endTime = endBlock.End;
-
             DayOfWeek day = dayNum == 7 ? DayOfWeek.Sunday : (DayOfWeek)dayNum;
-
             WeekCycle weekCycle = tygNum switch
             {
                 0 => WeekCycle.Weekly,

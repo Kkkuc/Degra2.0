@@ -47,4 +47,27 @@ public class ScraperController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> UploadFile(IFormFile xmlFile)
+    {
+        if (xmlFile == null || xmlFile.Length == 0)
+        {
+            TempData["ErrorMessage"] = "Wybrany plik jest nieprawidłowy lub pusty.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        try
+        {
+            using var stream = xmlFile.OpenReadStream();
+            await _scraperService.ImportFromFileAsync(stream);
+            TempData["SuccessMessage"] = "Dane z pliku XML zostały pomyślnie zaimportowane!";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Błąd podczas importu pliku: {ex.Message}";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
 }
