@@ -386,10 +386,7 @@ async function openCreateModal() {
         populateFacultySelect();
         populateModeSelect();
 
-        document
-            .getElementById("crud-modal")
-            .classList
-            .remove("hidden");
+        showCrudModal();
     } catch (error) {
         console.error(
             "Błąd przygotowania formularza kierunku:",
@@ -438,10 +435,7 @@ async function openEditModal(id) {
         document.getElementById("form-mode").value =
             field.mode?.toString() ?? "";
 
-        document
-            .getElementById("crud-modal")
-            .classList
-            .remove("hidden");
+        showCrudModal();
     } catch (error) {
         console.error(
             "Błąd pobierania kierunku do edycji:",
@@ -453,12 +447,11 @@ async function openEditModal(id) {
 }
 
 function closeCrudModal() {
-    document
-        .getElementById("crud-modal")
-        .classList
-        .add("hidden");
-}
+    const modal = document.getElementById("crud-modal");
 
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+}
 async function deleteFieldOfStudy(id) {
     if (!confirm(
         "Czy na pewno chcesz usunąć ten kierunek studiów?"
@@ -497,4 +490,11 @@ async function deleteFieldOfStudy(id) {
 
         alert(error.message);
     }
+}
+
+function showCrudModal() {
+    const modal = document.getElementById("crud-modal");
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
 }
