@@ -31,15 +31,6 @@
     Layout = "_Layout";
 }
 
-@if (User.IsInRole("Moderator"))
-{
-    <li>
-        <a asp-controller="Admin" asp-action="Index" style="color: purple; font-weight: bold;">
-            Panel Administratora (Zarządzaj Użytkownikami)
-        </a>
-    </li>
-}
-
 @section HeaderLeft {
     <div class="flex items-center gap-2">
         <button onclick="navigateDate(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
@@ -69,7 +60,12 @@
 @section SidebarExtra {
     <div class="flex-1 overflow-hidden flex flex-col">
         <div class="flex items-center justify-between px-4 mb-4">
-            <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">My Subjects</h4>
+            <h4 class="text-gray-500 text-xs uppercase tracking-wide font-medium">Subjects</h4>
+            <div class="flex items-center gap-2 text-xs">
+                <button onclick="showAllSubjects()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors font-medium">Show all</button>
+                <span class="text-gray-300 dark:text-gray-700">|</span>
+                <button onclick="hideAllSubjects()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors font-medium">Hide all</button>
+            </div>
         </div>
         <div id="subject-list" class="space-y-1 overflow-y-auto flex-1"></div>
     </div>
@@ -168,10 +164,6 @@
 
 @section Scripts {
     <script>
-        const STORAGE_KEY = 'scheduler_cache';
-        const TTL = 3600000;
-
-        // Stałe sloty godzinowe w JS zamiast pobierania z C# Modelu
         const timeSlotsConfig = [
             "08:30 – 09:15", "09:15 – 10:00", "10:15 – 11:00", "11:00 – 11:45",
             "12:00 – 12:45", "12:45 – 13:30", "14:00 – 14:45", "14:45 – 15:30",
@@ -188,11 +180,10 @@
             enabledSubjectIds: []
         };
 
-        // Ładowanie słowników filtrów z API
         async function loadFiltersDropdowns() {
             try {
                 const response = await fetch('/api/scheduler/filters');
-                if (!response.ok) throw new Error("Nie udało się pobrać słowników.");
+                if (!response.ok) throw new Error();
                 const data = await response.json();
 
                 const fieldSelect = document.getElementById('field-select');
@@ -211,15 +202,14 @@
                     semesterSelect.add(opt);
                 });
             } catch (err) {
-                console.error("Błąd ładowania list rozwijanych:", err);
+                console.error(err);
             }
         }
 
-        // Pobieranie właściwych lekcji planu
         async function fetchScheduleData(queryString = "") {
             try {
                 const response = await fetch(`/api/scheduler${queryString}`);
-                if (!response.ok) throw new Error("Błąd sieciowy API");
+                if (!response.ok) throw new Error();
                 const data = await response.json();
 
                 state.lessons = data.lessons || [];
@@ -229,16 +219,9 @@
                 state.enabledSubjectIds = savedSubjects ?
                     JSON.parse(savedSubjects) : state.subjects.map(s => parseInt(s.id));
 
-                saveToCache(state.lessons, state.subjects);
                 render();
             } catch (err) {
-                console.error("Problem przy pobieraniu danych planu:", err);
-                const cachedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                if (cachedData) {
-                    state.lessons = cachedData.lessons;
-                    state.subjects = cachedData.subjects;
-                    render();
-                }
+                console.error(err);
             }
         }
 
@@ -254,22 +237,20 @@
             await fetchScheduleData(`?${params.toString()}`);
         }
 
-        function saveToCache(lessons, subjects) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                lessons, subjects, timestamp: Date.now()
-            }));
-        }
-
         function initPersistence() {
             const filterFields = ['fieldId', 'semId', 'gW', 'gC', 'gL', 'gPs', 'gP', 'gS'];
             const params = new URLSearchParams();
+            let hasSavedFilters = false;
 
             filterFields.forEach(name => {
                 const val = localStorage.getItem(`filter_${name}`);
                 const element = document.querySelector(`[name="${name}"]`);
-                if (val !== null) {
+                if (val !== null && val !== '') {
                     params.set(name, val);
                     if (element) element.value = val;
+                    if (name === 'fieldId' || name === 'semId') {
+                        hasSavedFilters = true;
+                    }
                 }
             });
 
@@ -282,8 +263,11 @@
                 }
             });
 
-            const queryStr = params.toString() ? `?${params.toString()}` : "";
-            fetchScheduleData(queryStr);
+            if (hasSavedFilters) {
+                fetchScheduleData(`?${params.toString()}`);
+            } else {
+                render();
+            }
         }
 
         function toggleSubject(id) {
@@ -298,6 +282,35 @@
             render();
         }
 
+        function showAllSubjects() {
+            state.enabledSubjectIds = state.subjects.map(s => parseInt(s.id));
+            localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
+            render();
+        }
+
+        function hideAllSubjects() {
+            state.enabledSubjectIds = [];
+            localStorage.setItem('selectedSubjectIds', JSON.stringify(state.enabledSubjectIds));
+            render();
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('subject-list');
+            if (!list) return;
+
+            const visibleSubjectIds = [...new Set(state.lessons.map(l => parseInt(l.subjectId)))];
+            const displayedSubjects = state.subjects.filter(s => visibleSubjectIds.includes(parseInt(s.id)));
+
+            list.innerHTML = displayedSubjects.map(s => {
+                const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
+                return `
+                <div onclick="toggleSubject('${s.id}')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sidebar-accent/50 cursor-pointer transition-colors ${isActive ? '' : 'opacity-40 grayscale'}">
+                    <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${s.color}"></div>
+                    <span class="text-sm font-medium">${s.name}</span>
+                </div>`;
+            }).join('');
+        }
+
         function setMode(mode) {
             state.viewMode = mode;
             document.getElementById('mode-week').classList.toggle('bg-white', mode === 'week');
@@ -305,7 +318,6 @@
             render();
         }
 
-        // ... Reszta Twoich niezmienionych funkcji renderujących (navigateDate, goToday, renderHeader, renderSidebar, showLessonDetails, renderTimetable, renderMonth)
         function navigateDate(dir) {
             if (state.viewMode === 'week') {
                 state.currentDate.setDate(state.currentDate.getDate() + (dir * 7));
@@ -328,19 +340,6 @@
                 year: 'numeric'
             } : {month: 'long', year: 'numeric'};
             display.innerText = state.viewMode === 'week' ? `Week of ${state.currentDate.toLocaleDateString(undefined, options)}` : state.currentDate.toLocaleDateString(undefined, options);
-        }
-
-        function renderSidebar() {
-            const list = document.getElementById('subject-list');
-            if (!list) return;
-            list.innerHTML = state.subjects.map(s => {
-                const isActive = state.enabledSubjectIds.includes(parseInt(s.id));
-                return `
-                <div onclick="toggleSubject('${s.id}')" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-sidebar-accent/50 cursor-pointer transition-colors ${isActive ? '' : 'opacity-40 grayscale'}">
-                    <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${s.color}"></div>
-                    <span class="text-sm font-medium">${s.name}</span>
-                </div>`;
-            }).join('');
         }
 
         function showLessonDetails(dayIdx, slotIdx) {
@@ -417,36 +416,60 @@
             let html = `<div class="p-8"><div class="bg-card rounded-xl border border-border overflow-hidden"><div class="grid grid-cols-7 border-b border-border">`;
             weekDays.forEach(wd => html += `<div class="p-5 text-center font-medium text-gray-500 border-r border-border last:border-r-0">${wd}</div>`);
             html += `</div><div class="grid grid-cols-7">`;
+            
             const start = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth(), 1);
             start.setDate(start.getDate() - (start.getDay() === 0 ? 6 : start.getDay() - 1));
-            for (let i = 0; i < 35; i++) {
+            
+            for (let i = 0; i < 42; i++) {
                 const d = new Date(start);
                 d.setDate(d.getDate() + i);
                 const isCurrentMonth = d.getMonth() === state.currentDate.getMonth();
-                html += `<div class="min-h-[120px] p-4 border-r border-b border-border ${!isCurrentMonth ? 'bg-gray-50 opacity-50' : ''}">
-                    <div class="w-8 h-8 flex items-center justify-center font-medium mb-2">${d.getDate()}</div>
+                
+                const jsDay = d.getDay();
+                const dayIdx = jsDay === 0 ? 6 : jsDay - 1;
+                
+                let lessonsHtml = '';
+                if (dayIdx >= 0 && dayIdx <= 4) {
+                    const dayLessons = state.lessons.filter(l => parseInt(l.day) === dayIdx && state.enabledSubjectIds.includes(parseInt(l.subjectId)));
+                    dayLessons.sort((a, b) => a.startSlot - b.startSlot);
+                    
+                    if (dayLessons.length > 0) {
+                        lessonsHtml = `<div class="space-y-1 mt-1 overflow-y-auto max-h-[85px] pr-0.5">`;
+                        lessonsHtml += dayLessons.map(l => {
+                            const startTime = l.time ? l.time.split(/[-–]/)[0].trim() : '';
+                            return `
+                                <div onclick="showLessonDetails(${l.day}, ${l.startSlot})" 
+                                     class="text-[11px] px-2 py-1 rounded border-l-4 truncate cursor-pointer transition-transform hover:scale-[1.02] bg-opacity-10 dark:bg-opacity-20 shadow-sm" 
+                                     style="background-color: ${l.color}15; border-color: ${l.color};"
+                                     title="${l.subject} (${l.teacher} - ${l.room})">
+                                    <span class="font-semibold text-gray-700 dark:text-gray-300 mr-1">${startTime}</span>
+                                    <span class="font-medium">${l.subject}</span>
+                                </div>
+                            `;
+                        }).join('');
+                        lessonsHtml += `</div>`;
+                    }
+                }
+                
+                html += `
+                <div class="min-h-[130px] p-3 border-r border-b border-border flex flex-col justify-between ${!isCurrentMonth ? 'bg-gray-50/50 opacity-40 dark:bg-gray-800/10' : ''}">
+                    <div class="flex justify-between items-center mb-1">
+                        <div class="w-7 h-7 flex items-center justify-center text-sm font-semibold rounded-full ${isCurrentMonth ? 'text-foreground' : 'text-gray-400'}">
+                            ${d.getDate()}
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        ${lessonsHtml}
+                    </div>
                 </div>`;
             }
             container.innerHTML = html + `</div></div></div>`;
         }
 
-        function render() {
-            renderHeader();
-            renderSidebar();
-            const container = document.getElementById('timetable-container');
-            if (!container) return;
-            if (state.viewMode === 'month') renderMonth(container);
-            else renderTimetable(container);
-            lucide.createIcons();
-        }
-
-        // Cykl startowy
-        async function initApp() {
+        document.addEventListener("DOMContentLoaded", async () => {
             await loadFiltersDropdowns();
             initPersistence();
-        }
-
-        document.addEventListener("DOMContentLoaded", initApp);
+        });
 
         function exportTimetableToPDF() {
             const element = document.getElementById('timetable-container');
@@ -478,15 +501,14 @@
                     unit: 'mm',
                     format: 'a4',
                     orientation: 'portrait',
-                    compress: true
+                     compress: true
                 },
                 pagebreak: { mode: [] }
             };
 
-            // Generujemy PDF, a w bloku .then() przywracamy stan pierwotny interfejsu
             html2pdf().set(opt).from(element).save().then(() => {
                 element.classList.remove('print-scale-portrait');
-                if (innerContainer) innerContainer.classList.add('p-8'); // Przywracamy padding na ekranie
+                if (innerContainer) innerContainer.classList.add('p-8');
             }).catch((err) => {
                 console.error(err);
                 element.classList.remove('print-scale-portrait');
@@ -494,6 +516,15 @@
             });
         }
 
+        function render() {
+            renderHeader();
+            renderSidebar();
+            const container = document.getElementById('timetable-container');
+            if (!container) return;
+            if (state.viewMode === 'month') renderMonth(container);
+            else renderTimetable(container);
+            lucide.createIcons();
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 }

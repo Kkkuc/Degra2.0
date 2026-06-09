@@ -6,3 +6,5 @@ riderModule.iml
 /appsettings.json
 /.idea
 .vs/
+output.txt
+script.sh
