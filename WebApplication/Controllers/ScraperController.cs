@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using WebApplication.Data;
 using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Controllers;
 
+[Authorize(Roles = "Moderator")]
 public class ScraperController(IScraperService scraperService, AppDbContext context) : Controller
 {
     [HttpGet]

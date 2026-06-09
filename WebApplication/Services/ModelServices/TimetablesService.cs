@@ -12,6 +12,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     public async Task<IEnumerable<TimetableListDto>> GetAllWithRelationsAsync()
     {
         return await context.Timetables
+            .AsNoTracking()
             .Select(t => new TimetableListDto
             {
                 Id = t.Id,
@@ -33,6 +34,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     public async Task<TimetableDetailsDto?> GetByIdWithRelationsAsync(int id)
     {
         return await context.Timetables
+            .AsNoTracking()
             .Where(m => m.Id == id)
             .Select(t => new TimetableDetailsDto
             {
@@ -59,6 +61,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     public async Task<TimetableEditDto?> GetByIdAsync(int id)
     {
         return await context.Timetables
+            .AsNoTracking()
             .Where(t => t.Id == id)
             .Select(t => new TimetableEditDto
             {
@@ -97,22 +100,25 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
 
     public async Task UpdateAsync(TimetableEditDto dto)
     {
-        // Mapowanie DTO -> Encja bazy danych
-        var timetable = new Timetable
-        {
-            Id = dto.Id,
-            SubjectId = dto.SubjectId,
-            TeacherId = dto.TeacherId,
-            RoomId = dto.RoomId,
-            GroupId = dto.GroupId,
-            ClassType = dto.ClassType,
-            DayOfWeek = dto.DayOfWeek,
-            StartTime = dto.StartTime,
-            EndTime = dto.EndTime,
-            WeekCycle = dto.WeekCycle
-        };
+        var timetable = await context.Timetables
+            .FirstOrDefaultAsync(t => t.Id == dto.Id);
 
-        context.Update(timetable);
+        if (timetable is null)
+        {
+            throw new KeyNotFoundException(
+                $"Nie znaleziono wpisu planu o ID {dto.Id}");
+        }
+
+        timetable.SubjectId = dto.SubjectId;
+        timetable.TeacherId = dto.TeacherId;
+        timetable.RoomId = dto.RoomId;
+        timetable.GroupId = dto.GroupId;
+        timetable.ClassType = dto.ClassType;
+        timetable.DayOfWeek = dto.DayOfWeek;
+        timetable.StartTime = dto.StartTime;
+        timetable.EndTime = dto.EndTime;
+        timetable.WeekCycle = dto.WeekCycle;
+
         await context.SaveChangesAsync();
     }
 
@@ -131,6 +137,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     public async Task<IEnumerable<Group>> GetAllGroupsAsync()
     {
         return await context.Groups
+            .AsNoTracking()
             .Select(g => new Group { Id = g.Id, Name = g.Name })
             .ToListAsync();
     }
@@ -138,6 +145,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     public async Task<IEnumerable<Room>> GetAllRoomsAsync()
     {
         return await context.Rooms
+            .AsNoTracking()
             .Select(r => new Room { Id = r.Id, RoomNumber = r.RoomNumber })
             .ToListAsync();
     }
@@ -145,6 +153,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     public async Task<IEnumerable<Subject>> GetAllSubjectsAsync()
     {
         return await context.Subjects
+            .AsNoTracking()
             .Select(s => new Subject { Id = s.Id, Name = s.Name })
             .ToListAsync();
     }
@@ -152,6 +161,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
     public async Task<IEnumerable<TeacherDropdownDto>> GetAllTeachersAsync()
     {
         return await context.Teachers
+            .AsNoTracking()
             .Select(t => new TeacherDropdownDto
             {
                 Id = t.Id,
@@ -168,7 +178,7 @@ public class TimetablesService(AppDbContext context) : ITimetablesService
 
     public async Task<IEnumerable<TimetableListDto>> GetFilteredAsync(TimetableFilterDto filter)
     {
-        var query = context.Timetables.AsQueryable();
+        var query = context.Timetables.AsNoTracking().AsQueryable();
 
         if (filter.SubjectId.HasValue)
         {

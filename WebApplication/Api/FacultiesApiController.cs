@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication.DTOs.Faculty;
 using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Controllers;
+namespace WebApplication.Api;
 
 [ApiController]
 [Authorize(Roles = "Moderator")]

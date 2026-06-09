@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication.DTOs.Timetable;
 using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Controllers;
+namespace WebApplication.Api;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "Moderator")]

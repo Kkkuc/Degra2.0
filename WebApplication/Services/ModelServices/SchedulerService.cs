@@ -4,6 +4,7 @@ using WebApplication.DTOs.Scheduler;
 using WebApplication.DTOs.Subject;
 using WebApplication.DTOs.Timetable;
 using WebApplication.Models.enums;
+using WebApplication.Models.SchedulerSlots;
 using WebApplication.Services.Interfaces;
 
 namespace WebApplication.Services.ModelServices;
@@ -70,9 +71,7 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
             Teacher = t.TeacherFullName,
             Time = $@"{t.StartTime:hh\:mm} – {t.EndTime:hh\:mm}"
         }).ToList();
-        
-        var rand = new Random();
-        
+
         var subjectsDto = rawSubjects.Select(s => new SubjectIndexDto
         (
             s.Id,
@@ -82,7 +81,8 @@ public class SchedulerService(AppDbContext context) : ISchedulerService
         return new SchedulerViewModel
         {
             Lessons = lessonsDto,
-            Subjects = subjectsDto
+            Subjects = subjectsDto,
+            TimeSlots = ScheduleTimeSlots.All.ToList()
         };
     }
 
