@@ -162,4 +162,14 @@ public class FieldsOfStudiesService(AppDbContext context) : IFieldsOfStudiesServ
             ))
             .ToListAsync();
     }
+    
+    public async Task<IEnumerable<FieldOfStudyIndexDto>> GetPaginatedAsync(int page, int pageSize)
+    {
+        return await context.FieldsOfStudy
+            .OrderBy(f => f.Name) // Ważne: stronicowanie wymaga sortowania!
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(f => new FieldOfStudyIndexDto(f.Id, f.Name, f.Degree, (int)f.Mode, f.Faculty!.Abbreviation))
+            .ToListAsync();
+    }
 }
