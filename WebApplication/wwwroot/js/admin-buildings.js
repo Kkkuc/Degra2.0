@@ -179,18 +179,43 @@ async function openCreateModal() {
 
 
 // --- Obsługa Modali ---
-function openEditModal(id) {
-    const fos = allFos.find(f => f.id === id);
-    if (!fos) return;
+async function openEditModal(id) {
+    await ensureMetadataLoaded();
 
-    document.getElementById("modal-title").innerText = "Edytuj Kierunek";
-    document.getElementById("form-id").value = fos.id;
-    document.getElementById("form-name").value = fos.name;
-    document.getElementById("form-degree").value = fos.degree;
-    document.getElementById("form-facultyId").value = fos.facultyId;
-    document.getElementById("form-mode").value = fos.mode;
+    try {
+        const response = await fetch(`${API_URL}/${id}`);
 
-    document.getElementById("crud-modal").classList.remove("hidden");
+        if (!response.ok) {
+            alert("Nie udało się pobrać danych budynku.");
+            return;
+        }
+
+        const building = await response.json();
+
+        document.getElementById("modal-title").innerText = "Edytuj budynek";
+        document.getElementById("form-id").value = building.id;
+        document.getElementById("form-name").value = building.name ?? "";
+        document.getElementById("form-facultyId").value =
+            building.facultyId?.toString() ?? "";
+
+        document.getElementById("form-street").value =
+            building.street ?? "";
+
+        document.getElementById("form-houseNumber").value =
+            building.houseNumber ?? "";
+
+        document.getElementById("form-postalCode").value =
+            building.postalCode ?? "";
+
+        document.getElementById("form-city").value =
+            building.city ?? "";
+
+        document.getElementById("crud-modal")
+            .classList.remove("hidden");
+    } catch (error) {
+        console.error("Błąd pobierania budynku:", error);
+        alert("Wystąpił błąd podczas pobierania danych budynku.");
+    }
 }
 
 function closeCrudModal() {
@@ -200,32 +225,76 @@ function closeCrudModal() {
 async function handleFormSubmit(event) {
     event.preventDefault();
 
-    const id = document.getElementById("form-id").value;
+    const idValue =
+        document.getElementById("form-id").value;
+
     const payload = {
-        id: parseInt(id) || 0,
-        name: document.getElementById("form-name").value,
-        degree: document.getElementById("form-degree").value,
-        facultyId: parseInt(document.getElementById("form-facultyId").value),
-        mode: parseInt(document.getElementById("form-mode").value)
+        id: parseInt(idValue, 10) || 0,
+        name: document
+            .getElementById("form-name")
+            .value
+            .trim(),
+
+        facultyId: parseInt(
+            document.getElementById("form-facultyId").value,
+            10
+        ),
+
+        street: document
+            .getElementById("form-street")
+            .value
+            .trim(),
+
+        houseNumber: document
+            .getElementById("form-houseNumber")
+            .value
+            .trim(),
+
+        postalCode: document
+            .getElementById("form-postalCode")
+            .value
+            .trim(),
+
+        city: document
+            .getElementById("form-city")
+            .value
+            .trim()
     };
 
     const isEdit = payload.id > 0;
 
     try {
-        const response = await fetch(isEdit ? `${API_URL}/${payload.id}` : API_URL, {
-            method: isEdit ? "PUT" : "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
+        const response = await fetch(
+            isEdit
+                ? `${API_URL}/${payload.id}`
+                : API_URL,
+            {
+                method: isEdit ? "PUT" : "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        );
 
         if (!response.ok) {
-            alert("Błąd podczas zapisywania danych.");
+            const errorBody = await response.text();
+
+            console.error(
+                "Błąd zapisu budynku:",
+                response.status,
+                errorBody
+            );
+
+            alert("Nie udało się zapisać budynku.");
             return;
         }
 
         closeCrudModal();
-        await loadFos(); // Odświeżenie listy po zapisie
-    } catch (err) {
-        console.error("Błąd zapisu:", err);
+        await loadBuildings();
+        await loadMetadata();
+    } catch (error) {
+        console.error("Błąd zapisu budynku:", error);
+        alert("Wystąpił błąd podczas zapisywania budynku.");
     }
 }
