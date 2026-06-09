@@ -4,102 +4,101 @@ using WebApplication.DTOs.AcademicYear;
 using WebApplication.Services;
 using WebApplication.Services.Interfaces;
 
-namespace WebApplication.Controllers
+namespace WebApplication.Controllers;
+
+public class AcademicYearController(IAcademicYearService academicYearService) : Controller
 {
-    public class AcademicYearController(IAcademicYearService academicYearService) : Controller
+    // GET: AcademicYear
+    public async Task<IActionResult> Index()
     {
-        // GET: AcademicYear
-        public async Task<IActionResult> Index()
+        var data = await academicYearService.GetAllForIndexAsync();
+        return View(data);
+    }
+
+    // GET: AcademicYear/Details/5
+    public async Task<IActionResult> Details(int id)
+    {
+        var dto = await academicYearService.GetDetailsByIdAsync(id);
+        if (dto == null)
         {
-            var data = await academicYearService.GetAllForIndexAsync();
-            return View(data);
+            return NotFound();
         }
 
-        // GET: AcademicYear/Details/5
-        public async Task<IActionResult> Details(int id)
-        {
-            var dto = await academicYearService.GetDetailsByIdAsync(id);
-            if (dto == null)
-            {
-                return NotFound();
-            }
+        return View(dto);
+    }
 
+    // GET: AcademicYear/Create
+    public IActionResult Create() => View();
+
+
+    // POST: AcademicYear/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(AcademicYearFormDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
             return View(dto);
         }
 
-        // GET: AcademicYear/Create
-        public IActionResult Create() => View();
+        await academicYearService.CreateAsync(dto);
+        return RedirectToAction(nameof(Index));
+    }
 
-
-        // POST: AcademicYear/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AcademicYearFormDto dto)
+    // GET: AcademicYear/Edit/5
+    public async Task<IActionResult> Edit(int id)
+    {
+        var dto = await academicYearService.GetFormByIdAsync(id);
+        if (dto == null)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(dto);
-            }
-
-            await academicYearService.CreateAsync(dto);
-            return RedirectToAction(nameof(Index));
+            return NotFound();
         }
 
-        // GET: AcademicYear/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            var dto = await academicYearService.GetFormByIdAsync(id);
-            if (dto == null)
-            {
-                return NotFound();
-            }
+        return View(dto);
+    }
 
+    // POST: AcademicYear/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, AcademicYearFormDto dto)
+    {
+        if (id != dto.Id)
+        {
+            return NotFound();
+        }
+
+        if (!ModelState.IsValid)
+        {
             return View(dto);
         }
-
-        // POST: AcademicYear/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, AcademicYearFormDto dto)
-        {
-            if (id != dto.Id)
-            {
-                return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(dto);
-            }
             
-            var updated = await academicYearService.UpdateAsync(dto);
-            if (!updated)
-            {
-                return NotFound();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: AcademicYear/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        var updated = await academicYearService.UpdateAsync(dto);
+        if (!updated)
         {
-            var dto = await academicYearService.GetDetailsByIdAsync(id);
-            if (dto == null)
-            {
-                return NotFound();
-            }
-
-            return View(dto);
+            return NotFound();
         }
 
-        // POST: AcademicYear/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        return RedirectToAction(nameof(Index));
+    }
+
+    // GET: AcademicYear/Delete/5
+    public async Task<IActionResult> Delete(int id)
+    {
+        var dto = await academicYearService.GetDetailsByIdAsync(id);
+        if (dto == null)
         {
-            await academicYearService.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            return NotFound();
         }
+
+        return View(dto);
+    }
+
+    // POST: AcademicYear/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        await academicYearService.DeleteAsync(id);
+        return RedirectToAction(nameof(Index));
     }
 }

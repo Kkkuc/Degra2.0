@@ -228,8 +228,7 @@ public class StudentsService(AppDbContext context) : IStudentsService
                     group.Specialization != null
                         ? group.Specialization.Name
                         : null,
-
-                ClassType = group.ClassType
+                group.ClassType
             })
             .ToListAsync();
 
