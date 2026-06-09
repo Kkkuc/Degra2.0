@@ -99,6 +99,13 @@
                     <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                     <span>Scraper</span>
                 </a>
+                @if (User.IsInRole("Moderator"))
+                {
+                    <a asp-controller="Admin" asp-action="Index" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-sidebar-accent/50 text-purple-600 dark:text-purple-400 font-semibold">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                        <span>Admin</span>
+                    </a>
+                }
             </nav>
             @RenderSection("SidebarExtra", required: false)
         </div>
