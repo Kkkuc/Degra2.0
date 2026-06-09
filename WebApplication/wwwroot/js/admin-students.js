@@ -19,7 +19,7 @@ async function initializePage() {
         metadataPromise = loadMetadata();
 
         await metadataPromise;
-        await loadStudents();
+        //await loadStudents();
     } catch (error) {
         console.error(
             "Błąd inicjalizacji panelu studentów:",

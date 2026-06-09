@@ -1,0 +1,80 @@
+<div id="crud-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+
+    <div class="w-full max-w-xl rounded-xl bg-white shadow-xl dark:bg-gray-900">
+
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4
+                    dark:border-gray-700">
+
+            <h2 id="modal-title"
+                class="text-xl font-bold text-gray-900 dark:text-gray-100">
+                Dodaj przedmiot
+            </h2>
+
+            <button type="button"
+                    onclick="closeCrudModal()"
+                    class="text-2xl text-gray-400">
+                &times;
+            </button>
+        </div>
+
+        <form id="subject-form"
+              onsubmit="handleFormSubmit(event)"
+              class="space-y-5 p-6">
+
+            <input id="form-id" type="hidden" />
+
+            <div>
+                <label for="form-name"
+                       class="mb-1 block text-sm font-medium">
+                    Nazwa
+                </label>
+
+                <input id="form-name"
+                       type="text"
+                       required
+                       class="w-full rounded-lg border px-3 py-2 dark:bg-gray-800" />
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                <div>
+                    <label for="form-abbreviation"
+                           class="mb-1 block text-sm font-medium">
+                        Skrót
+                    </label>
+
+                    <input id="form-abbreviation"
+                           type="text"
+                           class="w-full rounded-lg border px-3 py-2 dark:bg-gray-800" />
+                </div>
+
+                <div>
+                    <label for="form-code"
+                           class="mb-1 block text-sm font-medium">
+                        Kod
+                    </label>
+
+                    <input id="form-code"
+                           type="text"
+                           class="w-full rounded-lg border px-3 py-2 dark:bg-gray-800" />
+                </div>
+
+            </div>
+
+            <div class="flex justify-end gap-3 border-t pt-5">
+                <button type="button"
+                        onclick="closeCrudModal()"
+                        class="rounded-lg border px-4 py-2 text-sm font-semibold">
+                    Anuluj
+                </button>
+
+                <button type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
+                    Zapisz
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
