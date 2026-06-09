@@ -65,6 +65,12 @@ public class AdminController(IAdminService adminService, ITimetablesService time
         return View();
     }
     
+    [HttpGet]
+    public IActionResult Specializations()
+    {
+        return View();
+    }
+    
     public async Task<IActionResult> Faculties()
     {
         var faculties = await facultiesService.GetAllAsync();
