@@ -1,0 +1,32 @@
+<div id="groups-preview-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+
+    <div class="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-xl
+                bg-white shadow-xl dark:bg-gray-900">
+
+        <div class="sticky top-0 flex items-center justify-between border-b
+                    bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
+
+            <div>
+                <h2 class="text-xl font-bold">
+                    Grupy studenta
+                </h2>
+
+                <p id="groups-preview-student"
+                   class="mt-1 text-sm text-gray-500">
+                </p>
+            </div>
+
+            <button type="button"
+                    onclick="closeGroupsPreviewModal()"
+                    class="text-2xl text-gray-400">
+                &times;
+            </button>
+        </div>
+
+        <div id="groups-preview-content"
+             class="space-y-3 p-6">
+        </div>
+
+    </div>
+</div>

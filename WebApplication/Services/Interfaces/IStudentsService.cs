@@ -12,4 +12,21 @@ public interface IStudentsService
     Task<bool> UpdateAsync(StudentFormDto dto);
     Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
+
+    Task<List<StudentAdminItemDto>> GetAllForAdminAsync(
+        StudentAdminFilterDto filter);
+
+    Task<StudentAdminDetailsDto?> GetAdminDetailsAsync(int id);
+
+    Task<StudentAdminMetadataDto> GetAdminMetadataAsync();
+
+    Task<bool> CreateForAdminAsync(StudentAdminFormDto dto);
+
+    Task<bool> UpdateForAdminAsync(StudentAdminFormDto dto);
+
+    Task<bool> StudentNumberExistsAsync(
+        string studentId,
+        int? excludedStudentId = null);
+
+    Task<bool> GroupsExistAsync(IEnumerable<int> groupIds);
 }
