@@ -39,13 +39,17 @@ public class AdminController(IAdminService adminService, ITimetablesService time
 
     public async Task<IActionResult> Index()
     {
-        await LoadViewDataAsync();
         return View();
     }
 
     public async Task<IActionResult> Timetable()
     {
         await LoadViewDataAsync();
+        return View();
+    }
+    
+    public async Task<IActionResult> FieldOfStudy()
+    {
         return View();
     }
     

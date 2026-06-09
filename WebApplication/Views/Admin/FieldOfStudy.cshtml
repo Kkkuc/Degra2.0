@@ -1,0 +1,61 @@
+@using WebApplication.Models.enums
+@{
+    ViewData["Title"] = "Zarządzanie Kierunkami";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="px-8 pt-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Panel Administratora</h1>
+
+    <partial name="Partials/_AdminNav" />
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-6 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm items-end">
+        <div class="w-full md:col-span-2">
+            <input id="filter-name-input" type="text" placeholder="Szukaj nazwy kierunku..."
+                   class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+        </div>
+
+        <div class="w-full">
+            <select id="filter-mode-input" class="w-full text-xs p-2 rounded-xl border-none bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+                <option value="">Wszystkie tryby</option>
+                @foreach (var item in Html.GetEnumSelectList<StudyMode>()) {
+                    <option value="@item.Value">@item.Text</option>
+                }
+            </select>
+        </div>
+
+        <button onclick="applyFilters()"
+                class="w-full bg-blue-600 text-white text-xs font-bold py-2 rounded-xl hover:bg-blue-700 transition-colors">
+            Filtruj
+        </button>
+    </div>
+
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Lista Kierunków</h2>
+        <button onclick="openCreateModal()"
+                class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm text-sm">
+            + Dodaj Nowy Kierunek
+        </button>
+    </div>
+
+    <div class="bg-card border border-border rounded-2xl shadow-sm overflow-x-auto">
+        <table class="w-full border-collapse min-w-[800px]">
+            <thead>
+            <tr class="bg-gray-50 dark:bg-gray-800/50 border-b border-border text-left">
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Nazwa</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Stopień</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase">Tryb</th>
+                <th class="p-4 text-xs font-bold text-gray-500 uppercase text-right">Akcje</th>
+            </tr>
+            </thead>
+            <tbody id="fos-rows" class="divide-y divide-border"></tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="Partials/_FieldOfStudyModal" />
+
+@section Scripts {
+    <script src="~/js/admin-ui.js" asp-append-version="true"></script>
+    <script src="~/js/admin-fos.js" asp-append-version="true"></script>
+}

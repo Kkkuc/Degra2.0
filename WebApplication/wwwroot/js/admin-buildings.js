@@ -177,52 +177,38 @@ async function openCreateModal() {
     document.getElementById("crud-modal").classList.remove("hidden");
 }
 
-async function openEditModal(id) {
-    try {
-        await ensureMetadataLoaded();
-        const response = await fetch(`${API_URL}/${id}`);
-        if (!response.ok) {
-            return;
-        }
 
-        const building = await response.json();
+// --- Obsługa Modali ---
+function openEditModal(id) {
+    const fos = allFos.find(f => f.id === id);
+    if (!fos) return;
 
-        document.getElementById("modal-title").innerText = "Edytuj budynek";
-        document.getElementById("form-id").value = building.id;
-        document.getElementById("form-name").value = building.name;
-        document.getElementById("form-facultyId").value = building.facultyId;
-        document.getElementById("form-street").value = building.addressDto.street;
-        document.getElementById("form-houseNumber").value = building.addressDto.houseNumber;
-        document.getElementById("form-city").value = building.addressDto.city;
-        document.getElementById("form-postalCode").value = building.addressDto.postalCode;
-        document.getElementById("crud-modal").classList.remove("hidden");
-    } catch (err) {
-        console.error(err);
-    }
+    document.getElementById("modal-title").innerText = "Edytuj Kierunek";
+    document.getElementById("form-id").value = fos.id;
+    document.getElementById("form-name").value = fos.name;
+    document.getElementById("form-degree").value = fos.degree;
+    document.getElementById("form-facultyId").value = fos.facultyId;
+    document.getElementById("form-mode").value = fos.mode;
+
+    document.getElementById("crud-modal").classList.remove("hidden");
 }
 
 function closeCrudModal() {
     document.getElementById("crud-modal").classList.add("hidden");
 }
 
-function getFormPayload() {
-    return {
-        id: Number.parseInt(document.getElementById("form-id").value || "0", 10),
-        name: document.getElementById("form-name").value,
-        facultyId: Number.parseInt(document.getElementById("form-facultyId").value, 10),
-        addressDto: {
-            street: document.getElementById("form-street").value,
-            houseNumber: document.getElementById("form-houseNumber").value,
-            city: document.getElementById("form-city").value,
-            postalCode: document.getElementById("form-postalCode").value
-        }
-    };
-}
-
 async function handleFormSubmit(event) {
     event.preventDefault();
 
-    const payload = getFormPayload();
+    const id = document.getElementById("form-id").value;
+    const payload = {
+        id: parseInt(id) || 0,
+        name: document.getElementById("form-name").value,
+        degree: document.getElementById("form-degree").value,
+        facultyId: parseInt(document.getElementById("form-facultyId").value),
+        mode: parseInt(document.getElementById("form-mode").value)
+    };
+
     const isEdit = payload.id > 0;
 
     try {
@@ -233,33 +219,13 @@ async function handleFormSubmit(event) {
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            alert(`Wystąpił błąd: ${errorText || "Nie udało się zapisać."}`);
+            alert("Błąd podczas zapisywania danych.");
             return;
         }
 
         closeCrudModal();
-        await loadBuildings(); // Odśwież listę
+        await loadFos(); // Odświeżenie listy po zapisie
     } catch (err) {
-        console.error("Błąd podczas zapisu:", err);
-        alert("Wystąpił nieoczekiwany błąd sieciowy.");
-    }
-}
-
-async function deleteBuilding(id) {
-    if (!confirm("Usunąć ten budynek?")) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_URL}/${id}`, {
-            method: "DELETE"
-        });
-
-        if (response.ok) {
-            await loadBuildings();
-        }
-    } catch (err) {
-        console.error(err);
+        console.error("Błąd zapisu:", err);
     }
 }

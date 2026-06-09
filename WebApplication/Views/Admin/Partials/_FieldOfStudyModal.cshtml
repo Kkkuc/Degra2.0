@@ -1,0 +1,41 @@
+<div id="crud-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-lg shadow-xl">
+        <h2 id="modal-title" class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">Dodaj Kierunek</h2>
+        
+        <form id="fos-form" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" id="form-id">
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nazwa kierunku</label>
+                    <input type="text" id="form-name" required class="w-full mt-1 p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Stopień</label>
+                    <input type="text" id="form-degree" required placeholder="np. Inżynier, Magister" class="w-full mt-1 p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Wydział</label>
+                        <select id="form-facultyId" required class="w-full mt-1 p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900">
+                            </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tryb</label>
+                        <select id="form-mode" required class="w-full mt-1 p-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900">
+                            <option value="0">Stacjonarne</option>
+                            <option value="1">Niestacjonarne</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-3">
+                <button type="button" onclick="closeCrudModal()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:underline">Anuluj</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Zapisz</button>
+            </div>
+        </form>
+    </div>
+</div>
