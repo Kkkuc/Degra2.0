@@ -8,3 +8,4 @@ riderModule.iml
 .vs/
 output.txt
 script.sh
+.env

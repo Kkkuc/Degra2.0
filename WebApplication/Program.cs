@@ -37,6 +37,9 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"] ?? throw new InvalidOperationException("Google ClientId is not configured.");
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? throw new InvalidOperationException("Google ClientSecret is not configured.");
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -48,13 +51,13 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     options.Cookie.IsEssential = true;
     options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.Strict;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 })
 .AddGoogle(options =>
 {
-    options.ClientId = "597549856575-hnmt5tg33ajlnhbuv937tiktpn3u2gfi.apps.googleusercontent.com";
-    options.ClientSecret = "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";
+    options.ClientId = googleClientId;
+    options.ClientSecret = googleClientSecret;
 
     options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
     {
